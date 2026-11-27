@@ -8,8 +8,8 @@ cd "$(dirname "$0")"
 SITE_URL="${SITE_URL:-${URL:-https://caia.netlify.app}}"
 SITE_URL="${SITE_URL%/}"
 rm -rf site && mkdir -p site
-TITLE="Caia · Récupérez le chiffre d’affaires de votre commerce"
-DESC="Appels manqués, commissions des plateformes, clients qui ne reviennent pas : Caia installe les bons outils dans votre commerce et vous montre chaque mois ce que ça rapporte. Diagnostic gratuit, rappel sous 24 h ouvrées."
+TITLE="Caia · Le diagnostic gratuit des commerces de quartier"
+DESC="Dites à Caia ce qui coince dans votre commerce : en 2 minutes, l’assistant chiffre l’argent que vous perdez et un conseiller vous rappelle avec la solution. Gratuit, sans engagement."
 {
   printf '<!doctype html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n'
   printf '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
@@ -20,7 +20,7 @@ DESC="Appels manqués, commissions des plateformes, clients qui ne reviennent pa
   printf '<meta property="og:title" content="%s">\n<meta property="og:description" content="%s">\n' "$TITLE" "$DESC"
   printf '<meta property="og:url" content="%s/">\n<meta property="og:image" content="%s/og.png">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n' "$SITE_URL" "$SITE_URL"
   printf '<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="%s">\n<meta name="twitter:description" content="%s">\n<meta name="twitter:image" content="%s/og.png">\n' "$TITLE" "$DESC" "$SITE_URL"
-  printf '<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"Caia","url":"%s/","logo":"%s/apple-touch-icon.png"},{"@type":"WebSite","name":"Caia","url":"%s/","inLanguage":"fr-FR"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Qu’est-ce que Caia ?","acceptedAnswer":{"@type":"Answer","text":"Caia installe dans votre commerce les outils qui font revenir vos clients et rentrer de l’argent : accueil téléphonique, commande sans commission, fidélité, avis Google et site. On s’occupe de tout et on vous montre chaque mois ce que ça rapporte."}},{"@type":"Question","name":"Le diagnostic est vraiment gratuit ?","acceptedAnswer":{"@type":"Answer","text":"Oui. Le questionnaire et l’appel sont gratuits. Si une solution vous intéresse, on vous donne le prix avant, par écrit. Vous décidez ensuite."}},{"@type":"Question","name":"Est-ce que je m’engage à quelque chose ?","acceptedAnswer":{"@type":"Answer","text":"Non. Remplir le questionnaire ne vous engage à rien. On vous rappelle, on vous explique, et vous dites oui ou non."}}]}]}</script>\n' "$SITE_URL" "$SITE_URL" "$SITE_URL"
+  printf '<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"Caia","url":"%s/","logo":"%s/apple-touch-icon.png"},{"@type":"WebSite","name":"Caia","url":"%s/","inLanguage":"fr-FR"}]}</script>\n' "$SITE_URL" "$SITE_URL" "$SITE_URL"
   # Page head from the source, without its own <title>, description and preview-only tags
   sed -n '1,/<\/style>/p' src/page.html | grep -v -e '^<title>' -e 'claude:viewport' -e '^<meta name="description"'
   printf '</head>\n<body>\n<script src="/config.js"></script>\n'

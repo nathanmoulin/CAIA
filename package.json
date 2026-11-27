@@ -1,0 +1,9 @@
+{
+  "name": "caia",
+  "private": true,
+  "type": "module",
+  "description": "Site Caia : diagnostic par conversation et espace équipe",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.14.0"
+  }
+}

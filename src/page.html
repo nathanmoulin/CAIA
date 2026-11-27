@@ -1,418 +1,265 @@
 <title>Caia</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Appels manqués, commissions des plateformes, clients qui ne reviennent pas : Caia installe les bons outils dans votre commerce et vous montre chaque mois ce que ça rapporte. Diagnostic gratuit, rappel sous 24 h ouvrées.">
+<meta name="description" content="Dites à Caia ce qui coince dans votre commerce : en 2 minutes, l’assistant chiffre l’argent que vous perdez et un conseiller vous rappelle avec la solution. Gratuit, sans engagement.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
 <style>
-/* Layout: a product page in the manner of the big hardware and fintech houses. Huge two-tone headline, the product itself as the hero image, one black section for the money calculator, a bento of the five tools, a monthly report, questions, one last call to action. White, near-black, one orange accent used like a full stop. */
+/* Layout: a conversation first. The welcome is one sentence and a message box; sending it turns the page into a chat with Caia, which asks four quick questions, shows the money at stake, then takes the details for a call back. Black, white, one orange, and green only to confirm. */
 :root {
   --ink: #0A0A0B;
-  --ink-2: #3D3D44;
+  --ink-2: #3A3A40;
   --muted: #6E6E76;
   --dim: #A1A1AA;
-  --line: #E7E7EB;
+  --line: #E8E8EC;
   --bg: #FFFFFF;
-  --soft: #F5F5F7;
+  --soft: #F6F6F8;
   --brand: #FF5A1F;
   --brand-deep: #D9420B;
-  --brand-soft: #FFF1EA;
-  --sun: #FFC83D; --sun-soft: #FFF6DA;
-  --sky: #2F7BFF; --sky-soft: #E8F1FF;
-  --lilac: #8B6CFF; --lilac-soft: #F1EDFF;
-  --rose: #FF5C8A; --rose-soft: #FFEAF0;
-  --mint-soft: #E6F7EF;
-  --up: #12A150;
-  --dark: #0A0A0B;
-  --dark-2: #17171B;
-  --dark-line: #2B2B31;
-  --dark-muted: #9A9AA3;
+  --brand-soft: #FFF2EB;
+  --brand-glow: rgba(255, 90, 31, .22);
+  --ok: #12A150;
+  --ok-soft: #E8F7EF;
   --err: #C4262A;
-  --ui: #0A0A0B; --num: #FF5A1F; --tint: #F5F5F7; --surface: #F5F5F7; --card: #FFFFFF;
+  --ui: #0A0A0B; --num: #FF5A1F; --tint: #F6F6F8; --surface: #F6F6F8; --card: #FFFFFF;
   --f: 'Geist', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --r: 18px;
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --ease: cubic-bezier(.2, .8, .2, 1);
   color-scheme: light;
 }
 *, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f); font-size: 17px; line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 button, input, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; background: none; border: 0; -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 2.5px solid var(--brand); outline-offset: 3px; }
-h1, h2, h3 { font-weight: 700; letter-spacing: -.035em; text-wrap: balance; margin: 0; }
-.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margin: 0; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
 .dim { color: var(--dim); }
-.tnum { font-variant-numeric: tabular-nums; }
 
-/* Wordmark: lowercase, the dot of the i is the brand */
+/* Wordmark: the dot of the i is the brand */
 .logo { display: inline-flex; align-items: baseline; font-weight: 800; font-size: 26px; letter-spacing: -.05em; color: inherit; text-decoration: none; line-height: 1; }
+.wmk { white-space: nowrap; }
 .idot { position: relative; display: inline-block; }
 .idot::after { content: ""; position: absolute; left: 50%; top: .1em; width: .26em; height: .26em; border-radius: 50%; background: var(--brand); transform: translateX(-50%); }
 
-/* Buttons */
-.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 52px; padding: 0 24px; border-radius: 999px; font-weight: 600; font-size: 16px; letter-spacing: -.01em; text-decoration: none; white-space: nowrap; transition: transform .2s ease, background .2s, color .2s, box-shadow .2s, opacity .2s; }
-.btn:active { transform: scale(.97); }
-.btn svg { width: 16px; height: 16px; transition: transform .25s ease; }
+/* Press feedback shared by every button: spring + ripple */
+.rp { position: relative; overflow: hidden; isolation: isolate; transition: transform .35s var(--spring), background .2s, color .2s, box-shadow .25s, opacity .2s; }
+.rp:active { transform: scale(.95); }
+.ripple { position: absolute; border-radius: 50%; pointer-events: none; transform: scale(0); background: currentColor; opacity: .18; animation: ripple .6s var(--ease) forwards; z-index: -1; }
+@keyframes ripple { to { transform: scale(1); opacity: 0; } }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 52px; padding: 0 24px; border-radius: 999px; font-weight: 600; font-size: 16px; white-space: nowrap; text-decoration: none; }
+.btn svg { width: 16px; height: 16px; transition: transform .3s var(--spring); }
 .btn:hover svg { transform: translateX(3px); }
-.btn-cta, .btn-dark { background: var(--ink); color: #FFFFFF; }
-.btn-cta:hover, .btn-dark:hover { background: #26262B; }
-.btn-light { background: #FFFFFF; color: var(--ink); }
-.btn-light:hover { background: #ECECEF; }
-.btn-ghost { color: var(--ink); background: transparent; box-shadow: inset 0 0 0 1.5px var(--line); }
-.btn-ghost:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
-.btn-block { width: 100%; }
-.btn[disabled] { opacity: .3; cursor: default; transform: none; }
+.btn-dark { background: var(--ink); color: #FFFFFF; }
+.btn-dark:hover { background: #26262B; }
+.btn-line { box-shadow: inset 0 0 0 1.5px var(--line); }
+.btn-line:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
 
-/* Top navigation */
-.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: rgba(255,255,255,.82); backdrop-filter: saturate(1.8) blur(20px); -webkit-backdrop-filter: saturate(1.8) blur(20px); border-bottom: 1px solid transparent; transition: border-color .3s; }
-body:not(.in-flow)::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: #FFFFFF; }
-.nav.scrolled { border-bottom-color: var(--line); }
-.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: 64px; }
-.nav-links { display: flex; gap: 28px; font-size: 14.5px; font-weight: 500; color: var(--ink-2); }
-.nav-links button { color: inherit; padding: 6px 0; transition: color .2s; }
-.nav-links button:hover { color: var(--ink); }
-.nav .btn { min-height: 40px; padding: 0 18px; font-size: 14.5px; }
+/* ——— Landing ——— */
+.top { position: relative; z-index: 3; }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 72px; padding-top: env(safe-area-inset-top, 0px); box-sizing: content-box; }
+.top-note { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: var(--muted); }
+.pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 rgba(18,161,80,.5); animation: pulse 2s infinite; flex: none; }
+@keyframes pulse { 70%, 100% { box-shadow: 0 0 0 8px rgba(18,161,80,0); } }
+.hero { position: relative; isolation: isolate; padding-block: clamp(40px, 9vh, 110px) 70px; text-align: center; }
+.hero::before { content: ""; position: absolute; z-index: -1; left: 50%; top: 52%; width: min(1100px, 140vw); height: 520px; transform: translate(-50%, -50%); background: radial-gradient(50% 50% at 50% 50%, var(--brand-glow), transparent 70%); filter: blur(30px); animation: breathe 7s ease-in-out infinite; pointer-events: none; }
+@keyframes breathe { 50% { opacity: .65; transform: translate(-50%, -50%) scale(1.08); } }
+.shock { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; font-size: 15px; font-weight: 600; color: var(--ink-2); padding: 7px 16px 7px 7px; border-radius: 999px; background: #FFFFFF; box-shadow: 0 0 0 1px var(--line), 0 8px 24px -16px rgba(10,10,11,.3); margin-bottom: 30px; }
+.shock b { color: #FFFFFF; background: var(--brand); padding: 4px 11px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+.hero h1 { font-size: clamp(42px, 7vw, 92px); line-height: .96; letter-spacing: -.055em; font-weight: 750; max-width: 12ch; margin: 0 auto; }
+.hero .sub { font-size: clamp(17px, 1.6vw, 20px); color: var(--muted); max-width: 34em; margin: 22px auto 0; }
 
-/* Shock line on top */
-.ann { display: block; width: 100%; background: var(--ink); color: #FFFFFF; text-align: center; font-size: 14.5px; font-weight: 500; padding: 11px max(16px, env(safe-area-inset-right, 0px)) 11px max(16px, env(safe-area-inset-left, 0px)); padding-top: calc(11px + env(safe-area-inset-top, 0px)); line-height: 1.4; }
-.ann b { color: var(--brand); font-weight: 700; }
-.ann u { text-decoration: none; font-weight: 600; white-space: nowrap; margin-left: 6px; border-bottom: 1px solid rgba(255,255,255,.5); }
-.ann:hover u { border-bottom-color: #FFFFFF; }
+/* The message box: same element in the welcome and the chat */
+.composer { view-transition-name: composer; position: relative; width: min(720px, 100%); margin: 38px auto 0; border-radius: 28px; background: #FFFFFF; box-shadow: 0 0 0 1.5px var(--line), 0 24px 60px -28px rgba(10,10,11,.28); transition: box-shadow .3s; text-align: left; }
+.composer::before { content: ""; position: absolute; inset: -2px; border-radius: 30px; padding: 2px; background: conic-gradient(from var(--ang, 0deg), transparent 0 62%, var(--brand) 78%, #FFC2A8 86%, transparent 94%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0; transition: opacity .3s; animation: spin 3.2s linear infinite; pointer-events: none; }
+.composer:focus-within { box-shadow: 0 0 0 1.5px transparent, 0 30px 70px -26px rgba(255, 90, 31, .35); }
+.composer:focus-within::before { opacity: 1; }
+@property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@keyframes spin { to { --ang: 360deg; } }
+.composer textarea, .composer input { display: block; width: 100%; border: 0; outline: 0; resize: none; background: transparent; padding: 22px 76px 22px 24px; font-size: 18px; line-height: 1.45; max-height: 180px; min-height: 72px; }
+.composer input { min-height: 68px; }
+.composer textarea::placeholder, .composer input::placeholder { color: var(--dim); }
+.send { position: absolute; right: 12px; bottom: 12px; width: 48px; height: 48px; border-radius: 50%; background: var(--ink); color: #FFFFFF; display: grid; place-items: center; }
+.send:hover { background: var(--brand); }
+.send[disabled] { background: #D9D9DE; cursor: default; }
+.send svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.send.fly svg { animation: fly .55s var(--ease); }
+@keyframes fly { 45% { transform: translate(14px, -14px); opacity: 0; } 46% { transform: translate(-14px, 14px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+.ideas { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 18px auto 0; max-width: 760px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; background: #FFFFFF; box-shadow: inset 0 0 0 1.5px var(--line); font-size: 15px; font-weight: 500; color: var(--ink-2); }
+.chip:hover { box-shadow: inset 0 0 0 1.5px var(--ink); color: var(--ink); }
+.ideas .chip { animation: chipIn .5s var(--spring) both; animation-delay: calc(var(--i) * 60ms + 300ms); }
+@keyframes chipIn { from { opacity: 0; transform: translateY(10px) scale(.92); } }
+.micro { margin-top: 16px; font-size: 14px; color: var(--muted); }
 
-/* Big money number */
-.bignum { display: grid; justify-items: center; gap: 6px; margin: 0 auto 30px; }
-.bn { font-size: clamp(68px, 11vw, 150px); font-weight: 800; letter-spacing: -.06em; line-height: .9; color: var(--brand); font-variant-numeric: tabular-nums; }
-.bn-l { font-size: clamp(17px, 1.7vw, 21px); font-weight: 600; color: var(--ink); max-width: 30em; letter-spacing: -.01em; }
-.bn-l sup, .fn sup { font-size: .65em; color: var(--muted); }
-.fn { font-size: 12.5px; color: var(--dim); max-width: 46em; margin: 10px auto 0; line-height: 1.5; }
-
-/* Hero */
-.hero { padding-block: 64px 40px; text-align: center; }
-.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--brand-deep); padding: 6px 14px 6px 8px; border-radius: 999px; background: var(--brand-soft); margin-bottom: 26px; }
-.eyebrow b { font-size: 12px; font-weight: 700; color: #FFFFFF; background: var(--brand); padding: 3px 9px; border-radius: 999px; letter-spacing: .02em; }
-.hero h1 { font-size: clamp(38px, 5.6vw, 72px); line-height: .96; letter-spacing: -.055em; font-weight: 750; max-width: 13ch; margin: 0 auto; }
-.hero .lead { font-size: clamp(18px, 1.6vw, 21px); color: var(--muted); max-width: 40em; margin: 26px auto 0; line-height: 1.5; }
-.hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
-.hero-note { margin-top: 14px; font-size: 14px; color: var(--muted); }
-
-/* Product stage: a phone with live screens, and the monthly report beside it */
-.stage { position: relative; margin: 56px auto 0; max-width: 1040px; height: 600px; }
-.stage-bg { position: absolute; inset: 70px 0 0; border-radius: 36px; background: linear-gradient(160deg, var(--brand-soft) 0%, var(--sun-soft) 55%, var(--rose-soft) 100%); overflow: hidden; }
-.stage-bg::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle at 1px 1px, rgba(217,66,11,.14) 1px, transparent 0); background-size: 22px 22px; -webkit-mask-image: linear-gradient(to bottom, #000, transparent 85%); mask-image: linear-gradient(to bottom, #000, transparent 85%); }
-.phone { text-align: left; position: absolute; left: 50%; top: 0; width: 290px; height: 590px; transform: translateX(-50%); border-radius: 48px; background: #0A0A0B; padding: 11px; box-shadow: 0 50px 100px -40px rgba(10,10,11,.45), 0 0 0 1.5px #2B2B31 inset; z-index: 2; }
-.phone::before { content: ""; position: absolute; top: 20px; left: 50%; width: 92px; height: 26px; border-radius: 20px; background: #0A0A0B; transform: translateX(-50%); z-index: 3; }
-.screen { position: relative; height: 100%; border-radius: 38px; background: #FFFFFF; overflow: hidden; }
-.sbar { display: flex; justify-content: space-between; padding: 18px 26px 0; font-size: 13px; font-weight: 600; }
-.slide { position: absolute; inset: 58px 0 0; padding: 0 16px 18px; display: flex; flex-direction: column; gap: 10px; opacity: 0; transform: translateX(26px); transition: opacity .55s ease, transform .55s cubic-bezier(.2,.8,.2,1); }
-.slide.on { opacity: 1; transform: none; }
-.slide.off { opacity: 0; transform: translateX(-26px); }
-.app-h { font-size: 13px; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 8px; margin-top: 4px; }
-.app-h i { width: 22px; height: 22px; border-radius: 7px; background: var(--ink); display: grid; place-items: center; color: #FFF; font-style: normal; font-size: 12px; font-weight: 700; }
-.app-t { font-size: 22px; font-weight: 700; letter-spacing: -.03em; line-height: 1.15; }
-.bubble { max-width: 86%; padding: 10px 13px; border-radius: 16px; font-size: 13.5px; line-height: 1.4; }
-.bubble.them { background: var(--soft); align-self: flex-start; border-bottom-left-radius: 5px; }
-.bubble.us { background: var(--ink); color: #FFF; align-self: flex-end; border-bottom-right-radius: 5px; }
-.chipline { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: var(--up); background: #EAF7EF; border-radius: 10px; padding: 9px 11px; margin-top: auto; }
-.chipline::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--up); }
-.lcard { border-radius: 18px; background: var(--ink); color: #FFF; padding: 16px; display: grid; gap: 12px; }
-.lcard small { color: var(--dark-muted); font-size: 12px; }
-.stamps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-.stamps span { aspect-ratio: 1; border-radius: 50%; border: 1.5px dashed #4A4A52; }
-.stamps span.f { border: 0; background: var(--brand); }
-.ticket { border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: grid; gap: 8px; font-size: 13.5px; }
-.ticket .row { display: flex; justify-content: space-between; gap: 8px; }
-.ticket .tot { border-top: 1px dashed var(--line); padding-top: 8px; font-weight: 700; }
-.paid { justify-self: start; font-size: 12px; font-weight: 700; color: var(--up); background: #EAF7EF; padding: 4px 9px; border-radius: 999px; }
-.dots { position: absolute; bottom: 16px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; }
-.dots i { width: 6px; height: 6px; border-radius: 3px; background: #D4D4D8; transition: width .3s, background .3s; }
-.dots i.on { width: 18px; background: var(--ink); }
-.report { position: absolute; right: 2%; top: 150px; width: 300px; background: #FFFFFF; border-radius: 22px; padding: 20px; box-shadow: 0 30px 70px -30px rgba(10,10,11,.3), 0 0 0 1px rgba(10,10,11,.05); z-index: 3; display: grid; gap: 14px; text-align: left; }
-.report-h { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--muted); font-weight: 600; }
-.report-big { font-size: 40px; font-weight: 750; letter-spacing: -.045em; line-height: 1; }
-.report-big span { color: var(--up); }
-.spark { display: flex; align-items: flex-end; gap: 6px; height: 54px; }
-.spark i { flex: 1; border-radius: 5px 5px 2px 2px; background: #FFD2BF; }
-.spark i:last-child { background: var(--brand); }
-.report ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; font-size: 14px; }
-.report li { display: flex; justify-content: space-between; gap: 10px; }
-.report li b { font-variant-numeric: tabular-nums; }
-.ex { font-size: 11.5px; color: var(--dim); }
-.notif { position: absolute; left: 3%; top: 260px; width: 280px; background: rgba(255,255,255,.95); border-radius: 18px; padding: 14px 16px; display: grid; grid-template-columns: 36px 1fr; gap: 12px; align-items: center; box-shadow: 0 24px 60px -28px rgba(10,10,11,.3), 0 0 0 1px rgba(10,10,11,.05); z-index: 3; text-align: left; animation: float 6s ease-in-out infinite; }
-.notif .ic { width: 36px; height: 36px; border-radius: 11px; background: var(--brand-soft); color: var(--brand-deep); display: grid; place-items: center; }
-.notif .ic svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.notif b { display: block; font-size: 14px; }
-.notif span { font-size: 13px; color: var(--muted); }
-@keyframes float { 50% { transform: translateY(-8px); } }
-
-/* For whom */
-.forwhom { padding-block: 40px 24px; }
-.forwhom p { text-align: center; font-size: 14px; color: var(--muted); font-weight: 600; margin: 0 0 18px; }
-.trades { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 34px; color: var(--ink-2); font-weight: 600; font-size: 16px; }
-.trades span { display: inline-flex; align-items: center; gap: 9px; }
-.trades svg { width: 34px; height: 34px; padding: 7px; border-radius: 50%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.trades span:nth-child(1) svg { background: var(--brand-soft); color: var(--brand-deep); }
-.trades span:nth-child(2) svg { background: var(--sun-soft); color: #B07A00; }
-.trades span:nth-child(3) svg { background: var(--rose-soft); color: #D12F62; }
-.trades span:nth-child(4) svg { background: var(--lilac-soft); color: #5B3FD9; }
-.trades span:nth-child(5) svg { background: var(--sky-soft); color: #1F5FD1; }
-
-/* Section shell */
-.sec { padding-block: 120px; }
-.sec-h { max-width: 780px; margin-bottom: 56px; }
-.sec-h.c { text-align: center; margin-left: auto; margin-right: auto; }
-.kicker, .sec-h .kicker { font-size: 15px; font-weight: 600; color: var(--brand-deep); margin: 0 0 14px; }
-.sec h2 { font-size: clamp(36px, 5vw, 64px); line-height: 1; letter-spacing: -.05em; }
-.sec-h p { color: var(--muted); font-size: 19px; margin: 20px 0 0; }
-.sec-h.c p { margin-left: auto; margin-right: auto; max-width: 36em; }
-
-/* Calculator, black section */
-.calc-sec { background: var(--dark); color: #FFFFFF; border-radius: 40px; margin-inline: max(12px, env(safe-area-inset-left, 0px)); }
-.calc-sec .kicker, .calc-sec .sec-h .kicker { color: var(--brand); }
-.calc-sec .sec-h p { color: var(--dark-muted); }
-.calc-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: stretch; }
-.calc { background: var(--dark-2); border: 1px solid var(--dark-line); border-radius: 26px; padding: 30px; display: grid; gap: 22px; }
-.calc .row { display: grid; gap: 8px; }
-.calc .row-top { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; }
-.calc label { font-size: 15px; color: var(--dark-muted); font-weight: 500; }
-.calc output { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 26px; background: transparent; margin: 0; cursor: pointer; }
-input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius: 99px; background: linear-gradient(90deg, #FFFFFF var(--p, 50%), #34343B var(--p, 50%)); }
-input[type="range"]::-moz-range-track { height: 6px; border-radius: 99px; background: linear-gradient(90deg, #FFFFFF var(--p, 50%), #34343B var(--p, 50%)); }
-input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #FFFFFF; margin-top: -9px; border: 0; box-shadow: 0 2px 10px rgba(0,0,0,.4); transition: transform .15s; }
-input[type="range"]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF; border: 0; }
-input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.15); }
-input[type="range"]:focus-visible { outline: none; }
-input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px rgba(255, 90, 31, .45); }
-.result { background: var(--dark-2); border: 1px solid var(--dark-line); border-radius: 26px; padding: 30px; display: flex; flex-direction: column; gap: 20px; }
-.result-label { font-size: 15px; color: var(--dark-muted); font-weight: 500; }
-.result-num { font-size: clamp(56px, 7vw, 92px); font-weight: 750; letter-spacing: -.055em; line-height: .95; color: var(--brand); font-variant-numeric: tabular-nums; }
-.result-num small { display: block; font-size: 18px; letter-spacing: -.01em; color: #FFFFFF; font-weight: 600; margin-top: 10px; }
-.result-year { color: var(--dark-muted); font-size: 15px; }
-.result-year b { color: #FFFFFF; font-variant-numeric: tabular-nums; }
-.split { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; border-top: 1px solid var(--dark-line); padding-top: 18px; }
-.split li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; font-size: 15px; }
-.split li b { font-variant-numeric: tabular-nums; }
-.split .mline { grid-column: 1 / -1; height: 5px; border-radius: 3px; background: #2A2A30; overflow: hidden; }
-.split .mline i { display: block; height: 100%; width: var(--w, 0%); background: var(--brand); border-radius: inherit; transition: width .6s cubic-bezier(.2,.8,.2,1); }
-.result .btn { margin-top: auto; }
-.how summary { cursor: pointer; color: var(--dark-muted); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; list-style: none; }
-.how summary::-webkit-details-marker { display: none; }
-.how p { margin: 10px 0 0; font-size: 14px; color: var(--dark-muted); }
-.bump { animation: bump .45s cubic-bezier(.3,1.6,.5,1); }
-@keyframes bump { 40% { transform: scale(1.04); } }
-
-/* Bento of tools */
-.bento { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
-.tile { background: var(--soft); border-radius: 28px; padding: 30px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; position: relative; min-height: 380px; transition: transform .35s cubic-bezier(.2,.8,.2,1); }
-.tile:hover { transform: translateY(-4px); }
-.tile.w4 { grid-column: span 4; } .tile.w2 { grid-column: span 2; } .tile.w3 { grid-column: span 3; } .tile.w6 { grid-column: span 6; min-height: 300px; }
-.tile h3 { font-size: 26px; letter-spacing: -.035em; line-height: 1.1; }
-.tile p { margin: 0; color: var(--muted); max-width: 34em; }
-.tile .gain { font-size: 14px; font-weight: 600; color: var(--ink); display: inline-flex; gap: 8px; align-items: center; }
-.tile .gain::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--brand); }
-.vis { margin-top: auto; padding-top: 22px; display: grid; gap: 8px; }
-.tile.dark { background: var(--brand); color: #FFFFFF; }
-.tile.dark p { color: rgba(255,255,255,.85) !important; }
-.tile.dark .gain::before { background: #FFFFFF; }
-.tile.c-sun { background: var(--sun); }
-.tile.c-sun p { color: #5C4300; }
-.tile.c-lilac { background: var(--lilac-soft); }
-.tile.c-sky { background: var(--sky-soft); }
-.tile.c-rose { background: var(--rose-soft); }
-.tile.c-sun .stars { color: var(--ink); }
-.tile.c-lilac .lcard { background: var(--lilac); }
-.tile.c-lilac .stamps span.f { background: #FFFFFF; }
-.tile.c-lilac .stamps span { border-color: rgba(255,255,255,.5); }
-.tile.c-lilac .lcard small { color: rgba(255,255,255,.8); }
-.tile.c-sky .gain::before { background: var(--sky); }
-.tile.c-sky .paid { color: var(--sky); background: #FFFFFF; }
-.tile.dark p { color: var(--dark-muted); }
-.tile.dark .gain { color: #FFFFFF; }
-.stars { display: flex; gap: 4px; color: var(--brand); font-size: 22px; letter-spacing: 2px; }
-.rating { font-size: 64px; font-weight: 750; letter-spacing: -.05em; line-height: 1; }
-.review { background: #FFFFFF; border-radius: 16px; padding: 12px 14px; font-size: 13.5px; color: var(--ink-2); box-shadow: 0 10px 30px -20px rgba(10,10,11,.4); }
-.review b { color: var(--ink); }
-.browser { background: #FFFFFF; border-radius: 16px 16px 0 0; box-shadow: 0 -10px 40px -24px rgba(10,10,11,.35); margin-bottom: -30px; overflow: hidden; }
-.browser-bar { display: flex; gap: 6px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); }
-.browser-bar i { width: 10px; height: 10px; border-radius: 50%; background: #E4E4E8; }
-.browser-bar span { margin-left: 10px; font-size: 12px; color: var(--muted); background: var(--soft); padding: 4px 12px; border-radius: 8px; }
-.site-mock { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 18px; padding: 22px; align-items: center; }
-.site-mock h4 { margin: 0; font-size: 26px; letter-spacing: -.04em; line-height: 1.05; }
-.site-mock p { margin: 8px 0 14px; font-size: 13.5px; color: var(--muted); }
-.site-mock .fake-btn { display: inline-block; font-size: 12.5px; font-weight: 600; color: #FFF; background: var(--ink); padding: 7px 14px; border-radius: 999px; }
-.site-img { aspect-ratio: 16 / 9; max-height: 220px; width: 100%; border-radius: 14px; background: linear-gradient(135deg, #F3E2D3, #E9C6A8 45%, #D99B6C); position: relative; overflow: hidden; }
-.site-img::after { content: ""; position: absolute; inset: 28% 18% auto; height: 46%; border-radius: 50% 50% 12px 12px; background: rgba(255,255,255,.35); }
+/* Numbers */
+.nums { padding-block: 30px 90px; }
+.nums-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.num { padding: 38px 28px; display: grid; gap: 6px; }
+.num + .num { border-left: 1px solid var(--line); }
+.num b { font-size: clamp(40px, 5vw, 60px); font-weight: 750; letter-spacing: -.05em; line-height: 1; font-variant-numeric: tabular-nums; }
+.num b.o { color: var(--brand); }
+.num span { color: var(--muted); font-size: 15px; max-width: 22em; }
+.num sup { font-size: .7em; color: var(--dim); }
 
 /* Steps */
+.how { padding-block: 40px 110px; }
+.how h2, .tools h2 { font-size: clamp(32px, 4.4vw, 54px); line-height: 1; letter-spacing: -.05em; margin-bottom: 40px; }
 .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; list-style: none; padding: 0; margin: 0; counter-reset: s; }
-.steps li { counter-increment: s; background: var(--soft); border-radius: 28px; padding: 30px; display: grid; gap: 10px; align-content: start; }
-.steps li::before { content: "0" counter(s); width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 15px; font-weight: 800; color: #FFFFFF; background: var(--brand); font-variant-numeric: tabular-nums; margin-bottom: 6px; }
-.steps li:nth-child(1) { background: var(--brand-soft); } .steps li:nth-child(2) { background: var(--sun-soft); } .steps li:nth-child(2)::before { background: #E0A100; } .steps li:nth-child(3) { background: var(--mint-soft); } .steps li:nth-child(3)::before { background: var(--up); }
-.steps b { font-size: 22px; letter-spacing: -.03em; line-height: 1.15; }
+.steps li { counter-increment: s; border-radius: 24px; background: var(--soft); padding: 28px; display: grid; gap: 8px; align-content: start; transition: transform .4s var(--spring); }
+.steps li:hover { transform: translateY(-4px); }
+.steps li::before { content: counter(s); width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--ink); color: #FFFFFF; font-weight: 700; margin-bottom: 8px; }
+.steps li:nth-child(2)::before { background: var(--brand); }
+.steps b { font-size: 21px; letter-spacing: -.03em; }
 .steps span { color: var(--muted); }
 
-/* Report section */
-.rep-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 40px; align-items: center; }
-.rep-points { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 16px; }
-.rep-points li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; color: var(--ink-2); }
-.rep-points li::before { content: ""; width: 28px; height: 28px; border-radius: 9px; background: var(--brand-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.4l3 2.9L12.5 5' fill='none' stroke='%23D9420B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 15px no-repeat; }
-.dash { background: #FFFFFF; border-radius: 28px; padding: 28px; box-shadow: 0 40px 90px -40px rgba(10,10,11,.35), 0 0 0 1px rgba(10,10,11,.06); display: grid; gap: 22px; }
-.dash-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.dash-h b { font-size: 18px; letter-spacing: -.02em; }
-.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.kpi { background: var(--brand-soft); border-radius: 16px; padding: 14px; display: grid; gap: 2px; min-width: 0; }
-.kpi span { font-size: 12.5px; color: var(--muted); font-weight: 600; }
-.kpi b { font-size: 24px; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
-.kpi em { font-style: normal; font-size: 12.5px; font-weight: 600; color: var(--up); }
-.chart { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; align-items: end; height: 170px; padding-top: 10px; border-bottom: 1px solid var(--line); }
-.chart div { display: grid; gap: 6px; justify-items: center; height: 100%; align-content: end; }
-.chart i { width: 100%; max-width: 46px; border-radius: 10px 10px 3px 3px; background: #FFD2BF; height: var(--h); transform-origin: bottom; }
-.chart div:last-child i { background: var(--brand); }
-.chart span { font-size: 12px; color: var(--muted); }
-.in .chart i { animation: grow .9s cubic-bezier(.2,.8,.2,1) both; }
-.in .chart div:nth-child(2) i { animation-delay: .06s; } .in .chart div:nth-child(3) i { animation-delay: .12s; } .in .chart div:nth-child(4) i { animation-delay: .18s; } .in .chart div:nth-child(5) i { animation-delay: .24s; } .in .chart div:nth-child(6) i { animation-delay: .3s; }
-@keyframes grow { from { transform: scaleY(.1); } }
-
-/* FAQ */
-.faq { max-width: 820px; margin: 0 auto; border-top: 1px solid var(--line); }
-.faq details { border-bottom: 1px solid var(--line); }
-.faq summary { list-style: none; cursor: pointer; padding: 24px 0; font-weight: 600; font-size: 19px; letter-spacing: -.02em; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
-.faq summary::-webkit-details-marker { display: none; }
-.faq summary::after { content: ""; width: 12px; height: 12px; flex: none; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); transform: rotate(45deg) translateY(-3px); transition: transform .3s; }
-.faq details[open] summary::after { transform: rotate(225deg) translateY(-3px); }
-.faq p { margin: 0 0 24px; color: var(--muted); max-width: 62ch; }
+/* Tools */
+.tools { padding-block: 0 110px; }
+.tool-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.tool { border-radius: 22px; box-shadow: inset 0 0 0 1.5px var(--line); padding: 22px; display: grid; gap: 14px; align-content: start; transition: transform .4s var(--spring), box-shadow .25s; }
+.tool:hover { transform: translateY(-4px); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.tool i { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand-deep); }
+.tool:first-child i { background: var(--brand); color: #FFFFFF; }
+.tool svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.tool b { font-size: 16.5px; letter-spacing: -.02em; line-height: 1.25; }
 
 /* Final call */
-.final { text-align: center; padding-block: 130px; background: linear-gradient(180deg, #FFFFFF, var(--brand-soft)); }
-.final h2 { font-size: clamp(40px, 6.2vw, 84px); line-height: .98; letter-spacing: -.055em; max-width: 14ch; margin: 0 auto; }
-.final p { color: var(--muted); font-size: 19px; margin: 22px auto 34px; max-width: 32em; }
+.final { text-align: center; padding-block: 100px; background: var(--ink); color: #FFFFFF; border-radius: 36px; margin: 0 max(12px, env(safe-area-inset-left, 0px)) 20px; position: relative; overflow: hidden; isolation: isolate; }
+.final::before { content: ""; position: absolute; z-index: -1; left: 50%; bottom: -260px; width: 700px; height: 500px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(255,90,31,.45), transparent); filter: blur(20px); }
+.final h2 { font-size: clamp(38px, 6vw, 76px); line-height: .98; letter-spacing: -.055em; max-width: 13ch; margin: 0 auto 30px; }
+.final .btn { background: #FFFFFF; color: var(--ink); }
+.final .btn:hover { background: var(--brand); color: #FFFFFF; }
 
 /* Footer */
-.site-foot { border-top: 1px solid var(--line); padding-block: 36px calc(40px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 18px; color: var(--muted); font-size: 14px; }
+.site-foot { padding-block: 30px calc(36px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 14px; color: var(--muted); font-size: 13.5px; }
 .foot-top { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; }
-.site-foot .logo { font-size: 24px; color: var(--ink); }
+.site-foot .logo { font-size: 22px; color: var(--ink); }
+.site-foot a { color: inherit; }
 .egg { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: text; letter-spacing: inherit; line-height: inherit; }
 .egg:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 3px; }
-.legal { font-size: 13.5px; }
 .legal summary { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; width: max-content; max-width: 100%; }
 .legal-body { display: grid; gap: 10px; margin-top: 12px; max-width: 75ch; }
 .legal-body p { margin: 0; }
 
-[data-reveal].in { animation: reveal .8s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--d, 0) * 80ms); }
-@keyframes reveal { from { opacity: 0; transform: translateY(24px); } }
-.hero .eyebrow, .hero h1, .hero .lead, .hero-ctas, .hero-note { animation: reveal .9s cubic-bezier(.2,.8,.2,1) both; }
-.hero h1 { animation-delay: .06s; } .hero .lead { animation-delay: .14s; } .hero-ctas { animation-delay: .22s; } .hero-note { animation-delay: .28s; }
-.stage { animation: stageIn 1.1s .3s cubic-bezier(.2,.8,.2,1) both; }
-@keyframes stageIn { from { opacity: 0; transform: translateY(40px); } }
+[data-reveal].in { animation: reveal .8s var(--ease) both; animation-delay: calc(var(--d, 0) * 90ms); }
+@keyframes reveal { from { opacity: 0; transform: translateY(26px); } }
+.hero .shock, .hero h1, .hero .sub { animation: reveal .9s var(--ease) both; }
+.hero h1 { animation-delay: .07s; } .hero .sub { animation-delay: .14s; }
+.hero .composer { animation: rise .9s .2s var(--ease) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(30px) scale(.98); } }
 
-/* ——— Questionnaire ——— */
-.flow { min-height: 100%; display: grid; grid-template-rows: auto 1fr; padding-top: env(safe-area-inset-top, 0px); }
-.flow-head { border-bottom: 1px solid var(--line); background: rgba(255,255,255,.88); backdrop-filter: saturate(1.8) blur(18px); -webkit-backdrop-filter: saturate(1.8) blur(18px); position: sticky; top: 0; z-index: 5; }
-.flow-head .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 16px; }
-.flow-head .logo { font-size: 22px; }
-.where { font-size: 14.5px; color: var(--muted); font-weight: 500; font-variant-numeric: tabular-nums; }
-.meter { display: flex; gap: 4px; }
-.meter i { height: 3px; flex: 1; background: var(--line); transition: background .4s; }
-.meter i.on { background: var(--ink); }
-.meter i.cur { background: var(--brand); }
-.q { max-width: 640px; width: 100%; margin: 0 auto; padding: 40px max(20px, env(safe-area-inset-right, 0px)) 120px max(20px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 20px; }
-.q.anim { animation: rise .45s cubic-bezier(.2,.8,.2,1) both; }
-.q.anim.back { animation-name: fall; }
-@keyframes rise { from { opacity: 0; transform: translateY(16px); } }
-@keyframes fall { from { opacity: 0; transform: translateY(-16px); } }
-.q h2 { font-size: clamp(28px, 4.4vw, 40px); line-height: 1.05; letter-spacing: -.045em; }
-.q h2:focus { outline: none; }
-.q .help { color: var(--muted); margin: -8px 0 0; }
-.choices { display: grid; gap: 10px; }
-.choices.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.choice { display: flex; align-items: center; gap: 14px; min-height: 60px; padding: 12px 18px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--bg); text-align: left; font-weight: 500; transition: border-color .15s, background .15s, transform .2s; min-width: 0; }
-.choice:hover { border-color: #C9C9CF; }
-.choice:active { transform: scale(.98); }
-.choice .tick { width: 24px; height: 24px; flex: none; border-radius: 50%; border: 1.5px solid #CFCFD5; display: grid; place-items: center; transition: .15s; }
-.choice.sq .tick { border-radius: 7px; }
-.choice .tick svg { width: 14px; height: 14px; stroke: #FFFFFF; stroke-width: 2.6; fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transform: scale(.5); transition: .2s cubic-bezier(.3,1.6,.5,1); }
-.choice[aria-checked="true"], .choice[aria-pressed="true"] { border-color: var(--ink); background: var(--soft); }
-.choice[aria-checked="true"] .tick, .choice[aria-pressed="true"] .tick { background: var(--ink); border-color: var(--ink); }
-.choice[aria-checked="true"] .tick svg, .choice[aria-pressed="true"] .tick svg { opacity: 1; transform: none; }
-.choice .txt { min-width: 0; }
-.field { display: grid; gap: 6px; min-width: 0; }
-.field label { font-weight: 600; font-size: 15px; }
-.field label span { color: var(--muted); font-weight: 400; }
-.input, textarea { width: 100%; min-height: 54px; padding: 13px 16px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--bg); font-size: 17px; transition: border-color .15s, box-shadow .15s; }
-textarea { min-height: 110px; resize: vertical; }
-.input:focus, textarea:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 4px rgba(10,10,11,.08); }
-.field.bad .input { border-color: var(--err); }
-.err { color: var(--err); font-size: 14px; }
-.err:empty { display: none; }
-.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.small { font-size: 14px; color: var(--muted); }
-.slots { display: flex; flex-wrap: wrap; gap: 8px; }
-.slots .choice { min-height: 46px; padding: 8px 16px; border-radius: 999px; }
-.slots .choice .tick { display: none; }
-.bar { position: fixed; inset: auto 0 0; z-index: 6; background: rgba(255,255,255,.92); backdrop-filter: saturate(1.8) blur(16px); -webkit-backdrop-filter: saturate(1.8) blur(16px); border-top: 1px solid var(--line); padding: 12px max(20px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px)); }
-.bar .in { max-width: 640px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.linkbtn { color: var(--muted); font-weight: 600; min-height: 48px; padding: 0 6px; display: inline-flex; align-items: center; gap: 6px; }
-.linkbtn:hover { color: var(--ink); }
-.linkbtn svg { width: 16px; height: 16px; }
-.formerr { color: var(--err); font-weight: 600; margin: 0; }
-.done-mark { width: 72px; height: 72px; }
-.done-mark circle { fill: var(--ink); transform-origin: 50% 50%; animation: pop .6s cubic-bezier(.3,1.6,.5,1) both; }
-.done-mark path { stroke: #FFFFFF; stroke-width: 3.5; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw .45s .35s ease-out forwards; }
-@keyframes pop { from { transform: scale(0); } }
+/* ——— Chat ——— */
+.chat { min-height: 100%; display: grid; grid-template-rows: auto 1fr; }
+.chat-head { position: sticky; top: 0; z-index: 5; background: rgba(255,255,255,.88); backdrop-filter: saturate(1.8) blur(18px); -webkit-backdrop-filter: saturate(1.8) blur(18px); border-bottom: 1px solid var(--line); padding-top: env(safe-area-inset-top, 0px); }
+.chat-head .wrap { display: flex; align-items: center; justify-content: space-between; gap: 14px; height: 62px; max-width: 760px; }
+.who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.av { width: 36px; height: 36px; border-radius: 50%; background: var(--ink); color: #FFFFFF; display: grid; place-items: center; font-weight: 800; font-size: 18px; letter-spacing: -.05em; position: relative; flex: none; }
+.av::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 11px; height: 11px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 2.5px #FFFFFF; }
+.who b { display: block; font-size: 15.5px; letter-spacing: -.02em; }
+.who div span { display: block; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.head-acts { display: flex; gap: 4px; }
+.ghost { font-size: 14px; font-weight: 600; color: var(--muted); padding: 8px 12px; border-radius: 999px; }
+.ghost:hover { color: var(--ink); background: var(--soft); }
+.prog { height: 2px; background: var(--line); }
+.prog i { display: block; height: 100%; width: var(--p, 0%); background: var(--brand); transition: width .6s var(--ease); }
+.thread { width: min(720px, 100%); margin: 0 auto; padding: 28px max(20px, env(safe-area-inset-right, 0px)) 220px max(20px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 86%; display: flex; gap: 10px; align-items: flex-end; }
+.msg.bot { align-self: flex-start; }
+.msg.me { align-self: flex-end; }
+.msg .mini { width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: #FFFFFF; display: grid; place-items: center; font-size: 14px; font-weight: 800; flex: none; }
+.msg.cont .mini { visibility: hidden; }
+.bub { padding: 12px 16px; border-radius: 22px; font-size: 16.5px; line-height: 1.45; overflow-wrap: anywhere; }
+.bot .bub { background: var(--soft); border-bottom-left-radius: 7px; }
+.me .bub { background: var(--ink); color: #FFFFFF; border-bottom-right-radius: 7px; }
+.msg.new.bot { animation: inL .5s var(--spring) both; }
+.msg.new.me { animation: inR .5s var(--spring) both; }
+@keyframes inL { from { opacity: 0; transform: translate(-12px, 10px) scale(.94); } }
+@keyframes inR { from { opacity: 0; transform: translate(12px, 10px) scale(.94); transform-origin: right bottom; } }
+.w { opacity: 0; animation: wIn .3s ease forwards; }
+@keyframes wIn { to { opacity: 1; } }
+.typing .bub { display: inline-flex; gap: 5px; padding: 16px 18px; }
+.typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); animation: bounce 1.2s infinite; }
+.typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce { 0%, 60%, 100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-5px); opacity: 1; } }
+.thinking .bub { background: linear-gradient(90deg, var(--soft) 0%, #FFFFFF 50%, var(--soft) 100%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; color: var(--muted); font-weight: 500; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* Diagnostic card in the thread */
+.diag { align-self: stretch; max-width: none; margin: 6px 0 6px 38px; border-radius: 26px; background: var(--ink); color: #FFFFFF; padding: 26px; display: grid; gap: 18px; position: relative; overflow: hidden; isolation: isolate; }
+.diag::before { content: ""; position: absolute; z-index: -1; right: -120px; top: -140px; width: 360px; height: 360px; background: radial-gradient(closest-side, rgba(255,90,31,.4), transparent); }
+.diag.new { animation: pop .7s var(--spring) both; }
+@keyframes pop { from { opacity: 0; transform: translateY(16px) scale(.96); } }
+.diag small { font-size: 13.5px; color: #A9A9B2; font-weight: 500; }
+.diag .big { font-size: clamp(52px, 9vw, 80px); font-weight: 800; letter-spacing: -.06em; line-height: .95; color: var(--brand); font-variant-numeric: tabular-nums; }
+.diag .big em { font-style: normal; font-size: 18px; letter-spacing: -.01em; color: #FFFFFF; font-weight: 600; margin-left: 6px; }
+.diag .yr { color: #A9A9B2; font-size: 15px; } .diag .yr b { color: #FFFFFF; }
+.leaks { display: grid; gap: 12px; border-top: 1px solid #2A2A30; padding-top: 16px; }
+.leak { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; font-size: 15px; }
+.leak b { font-variant-numeric: tabular-nums; }
+.leak .ln { grid-column: 1 / -1; height: 5px; border-radius: 3px; background: #2A2A30; overflow: hidden; }
+.leak .ln i { display: block; height: 100%; width: 0; background: var(--brand); border-radius: inherit; transition: width 1s var(--ease); }
+.recos { display: flex; flex-wrap: wrap; gap: 8px; }
+.recos span { font-size: 13.5px; font-weight: 600; padding: 7px 12px; border-radius: 999px; background: #1E1E23; box-shadow: inset 0 0 0 1px #33333A; }
+.recos span:first-child { background: var(--brand); box-shadow: none; }
+.diag p { margin: 0; color: #D4D4DA; font-size: 15.5px; }
+.diag .hyp { font-size: 12.5px; color: #8A8A93; }
+
+/* Done card */
+.done { align-self: stretch; margin: 6px 0 6px 38px; border-radius: 26px; background: var(--ok-soft); padding: 26px; display: grid; gap: 10px; animation: pop .7s var(--spring) both; }
+.done svg { width: 52px; height: 52px; }
+.done circle { fill: var(--ok); }
+.done path { stroke: #FFFFFF; stroke-width: 3.5; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw .5s .3s ease-out forwards; }
 @keyframes draw { to { stroke-dashoffset: 0; } }
-.card { border: 1px solid var(--line); border-radius: var(--r); padding: 22px; display: grid; gap: 16px; }
-.card h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--muted); letter-spacing: 0; }
-.ideas { display: grid; gap: 14px; }
-.idea { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; }
-.idea em { font-style: normal; font-weight: 750; font-size: 22px; line-height: 1; color: var(--brand); }
-.idea b { display: block; }
-.idea span { color: var(--muted); font-size: 15.5px; }
-.prep { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
-.prep li { display: flex; gap: 10px; }
-.prep li::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--brand); margin-top: .65em; flex: none; }
-.note { font-size: 14px; color: var(--muted); background: var(--soft); border-radius: 10px; padding: 12px 14px; margin: 0; }
+.done b { font-size: 22px; letter-spacing: -.03em; }
+.done span { color: var(--ink-2); }
+
+/* Bottom dock: suggested answers + message box */
+.dock { position: fixed; inset: auto 0 0; z-index: 6; padding: 14px max(16px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: linear-gradient(to top, #FFFFFF 70%, rgba(255,255,255,0)); }
+.dock .composer { margin: 0 auto; width: min(720px, 100%); }
+.dock .composer textarea, .dock .composer input { padding-block: 18px; min-height: 62px; font-size: 17px; }
+.dock .send { bottom: 8px; right: 8px; width: 46px; height: 46px; }
+.answers { width: min(720px, 100%); margin: 0 auto 10px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.answers .chip { animation: chipIn .45s var(--spring) both; animation-delay: calc(var(--i) * 55ms); }
+.answers .chip.hot { background: var(--ink); color: #FFFFFF; box-shadow: none; }
+.answers .chip.hot:hover { background: var(--brand); }
+.chip.picked { animation: picked .35s var(--ease) forwards !important; }
+@keyframes picked { to { transform: translateY(-30px) scale(.9); opacity: 0; } }
+.legal-line { width: min(720px, 100%); margin: 8px auto 0; font-size: 12.5px; color: var(--muted); text-align: center; }
+.fielderr { width: min(720px, 100%); margin: 0 auto 8px; color: var(--err); font-size: 14px; font-weight: 600; text-align: right; }
+.composer.shake { animation: shake .4s ease; }
+@keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+.note { font-size: 13.5px; color: var(--muted); text-align: center; }
+#fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
+
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .45s; }
+::view-transition-group(composer) { animation-duration: .55s; animation-timing-function: cubic-bezier(.2,.8,.2,1); }
 
 [hidden] { display: none !important; }
-@media (max-width: 980px) {
-  .nav-links { display: none; }
-  .stage { height: 560px; }
-  .report { right: 0; width: 260px; top: 300px; }
-  .notif { left: 0; top: 120px; width: 250px; }
-  .calc-grid, .rep-grid { grid-template-columns: minmax(0, 1fr); }
-  .tile.w4, .tile.w2, .tile.w3 { grid-column: span 3; }
-}
-@media (max-width: 700px) {
-  .hero { padding-block: 40px 24px; }
-  .stage { height: auto; display: grid; gap: 14px; justify-items: center; margin-top: 40px; }
-  .stage-bg { inset: 90px -20px 0; border-radius: 28px; }
-  .phone { position: relative; left: auto; transform: none; width: 268px; height: 548px; }
-  .report, .notif { position: relative; inset: auto; width: min(100%, 340px); animation: none; }
-  .notif { order: -1; }
-  .sec { padding-block: 80px; }
-  .calc-sec { border-radius: 28px; margin-inline: 8px; }
-  .calc, .result { padding: 22px; }
-  .bento { grid-template-columns: minmax(0, 1fr); }
-  .tile.w4, .tile.w2, .tile.w3, .tile.w6 { grid-column: auto; min-height: 0; }
-  .site-mock { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 860px) {
+  .tool-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .steps { grid-template-columns: minmax(0, 1fr); }
-  .kpis { grid-template-columns: minmax(0, 1fr); }
-  .final { padding-block: 90px; }
-  .choices.two, .grid2 { grid-template-columns: minmax(0, 1fr); }
-  .hero-ctas .btn { width: 100%; }
-  .hero .eyebrow { display: none; }
-  .ann { font-size: 13.5px; }
+}
+@media (max-width: 640px) {
+  .top-note { display: none; }
+  .hero { padding-top: 24px; }
+  .shock { font-size: 13.5px; border-radius: 20px; padding: 8px 14px 8px 8px; text-align: left; flex-wrap: nowrap; }
+  .nums-grid { grid-template-columns: minmax(0, 1fr); }
+  .num + .num { border-left: 0; border-top: 1px solid var(--line); }
+  .num { padding: 26px 4px; }
+  .tool-row { grid-template-columns: minmax(0, 1fr); }
+  .final { border-radius: 28px; margin-inline: 8px; padding-block: 70px; }
+  .composer textarea { font-size: 17px; padding: 18px 68px 18px 20px; }
+  .msg { max-width: 92%; }
+  .diag, .done { margin-left: 0; padding: 22px; }
+  .answers { justify-content: flex-start; }
+  .who div span { display: none; }
+  .ghost { padding: 8px 9px; font-size: 13.5px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 </style>
-
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="gable" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="5.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M4 10.5h24M4 15.5h24" stroke="currentColor" stroke-width="2.6"/><path d="M10 22h12" stroke="#F0492B" stroke-width="2.8" stroke-linecap="round"/></symbol>
-  <symbol id="chk" viewBox="0 0 16 16"><path d="M3.5 8.4l3 2.9L12.5 5"/></symbol>
-  <symbol id="arr" viewBox="0 0 20 20"><path d="M4 10h12M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="arl" viewBox="0 0 20 20"><path d="M16 10H4M9 5l-5 5 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-</svg>
 
 <!-- Netlify Forms reads this hidden form at deploy time to learn the fields. -->
 <form name="diagnostic" data-netlify="true" netlify-honeypot="bot-field" hidden>
@@ -588,20 +435,21 @@ table.offer tr:last-child td { border-bottom: 0; }
 <div class="adm" id="adm-app"></div>
 <div class="toast" id="adm-toast" role="status"></div>
 </template>
+
 <div id="app"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
 
 <noscript>
-  <div class="wrap" style="padding-block:40px">
+  <div class="wrap" style="padding-block:40px;display:grid;gap:12px;max-width:520px">
     <h1>Caia</h1>
     <p>Laissez-nous vos coordonnées, on vous rappelle sous 24 h ouvrées.</p>
-    <form name="diagnostic" method="POST" action="/" style="display:grid;gap:12px;max-width:420px">
+    <form name="diagnostic" method="POST" action="/" style="display:grid;gap:12px">
       <input type="hidden" name="form-name" value="diagnostic">
-      <label>Ce qui vous embête<textarea class="input" name="probleme" required></textarea></label>
-      <label>Prénom et nom<input class="input" name="nom" required></label>
-      <label>Commerce<input class="input" name="commerce" required></label>
-      <label>Ville<input class="input" name="ville" required></label>
-      <label>Téléphone<input class="input" name="telephone" type="tel" required></label>
-      <button class="btn btn-cta" type="submit">Être rappelé</button>
+      <label>Ce qui coince<textarea name="probleme" required style="width:100%;min-height:90px"></textarea></label>
+      <label>Prénom<input name="prenom" required style="width:100%"></label>
+      <label>Commerce et ville<input name="commerce" required style="width:100%"></label>
+      <label>Téléphone<input name="telephone" type="tel" required style="width:100%"></label>
+      <button class="btn btn-dark" type="submit">Être rappelé</button>
     </form>
   </div>
 </noscript>
@@ -611,114 +459,25 @@ table.offer tr:last-child td { border-bottom: 0; }
 'use strict';
 const app = document.getElementById('app');
 const $ = s => app.querySelector(s);
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
 const LIVE = /^https?:$/.test(location.protocol) && !/(^|\.)(claude\.ai|claudeusercontent\.com|anthropic\.com)$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
-const KEY = 'caia-v1';
 const CFG = window.CAIA_CONFIG || {};
 const DB = typeof CFG.supabaseUrl === 'string' && /^https:\/\//.test(CFG.supabaseUrl) && CFG.supabaseAnonKey ? { url: CFG.supabaseUrl.replace(/\/$/, ''), key: CFG.supabaseAnonKey } : null;
+const KEY = 'caia-chat-v1';
 const store = {
   get() { try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { return null; } },
   set(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} },
 };
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const icon = (id, cls = '') => `<svg class="${cls}" aria-hidden="true"><use href="#${id}"/></svg>`;
-const mark = () => `<svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#gable"/></svg>`;
+const NB = ' ';
+const euro = n => Math.round(n || 0).toLocaleString('fr-FR') + NB + '€';
+const sleep = ms => new Promise(r => setTimeout(r, reduce ? 0 : ms));
+const wm = () => `<span class="wmk">ca<span class="idot">ı</span>a</span>`;
+const SEND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>';
+const ARR = '<svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>';
 
-/* ——— Questions ——— */
-const SOUCIS = [
-  'Mes clients ne reviennent pas assez',
-  'Je rate des appels quand on est débordés',
-  'Les plateformes me prennent trop de commission',
-  'On ne me trouve pas bien sur Google',
-  'Je n’ai pas de site, ou il est vieillot',
-  'Je perds du temps sur la paperasse',
-];
-const Q = [
-  { id: 'soucis', kind: 'problem', title: 'Qu’est-ce qui vous embête le plus en ce moment ?', help: 'Choisissez ce qui vous parle. Vous pouvez aussi l’écrire avec vos mots.' },
-  { id: 'type_commerce', kind: 'one', title: 'Vous tenez quel genre de commerce ?', two: true,
-    opts: ['Restaurant ou snack', 'Café ou bar', 'Boulangerie ou pâtisserie', 'Salon de coiffure ou de beauté', 'Boutique', 'Autre commerce'] },
-  { id: 'deja_en_place', kind: 'many', title: 'Qu’avez-vous déjà ?', help: 'Cochez tout ce que vous avez.', none: 'Rien de tout ça', two: true,
-    opts: ['Un site internet', 'Une fiche Google', 'Une carte de fidélité', 'Uber Eats ou Deliveroo', 'Instagram ou Facebook', 'Rien de tout ça'] },
-  { id: 'delai', kind: 'one', title: 'Vous aimeriez que ce soit réglé quand ?',
-    opts: ['Le plus vite possible', 'Dans le mois', 'Pas pressé, je me renseigne'] },
-  { id: 'contact', kind: 'contact', title: 'À qui doit-on téléphoner ?', help: 'Un conseiller vous appelle avec une proposition prête, prix compris.' },
-];
-const SLOTS = ['Le matin', 'Le midi', 'L’après-midi', 'Peu importe'];
-const BLANK = { soucis: [], probleme: '', type_commerce: '', deja_en_place: [], delai: '', prenom: '', nom: '', commerce: '', ville: '', telephone: '', email: '', creneau: '' };
-
-const saved = store.get() || {};
-const A = {};
-for (const k in BLANK) { const v = saved.A && saved.A[k]; A[k] = Array.isArray(BLANK[k]) ? (Array.isArray(v) ? v.filter(x => typeof x === 'string') : []) : (typeof v === 'string' ? v : BLANK[k]); }
-let view = Number.isInteger(saved.view) && saved.view >= 0 && saved.view < Q.length ? saved.view : -1; // -1 landing, 0..n-1 questions, 'done'
-let dir = 1, sending = false;
-const persist = () => store.set({ A, C: typeof C === 'object' ? C : undefined, view: typeof view === 'number' ? view : -1 });
-
-/* ——— Suggested solutions, from the answers ——— */
-const SOL = {
-  fidelite: { t: 'Une carte de fidélité sur téléphone', d: 'Vos clients cumulent des points sans carte papier, et on leur envoie un petit mot quand ils ne sont pas venus depuis un moment.' },
-  commande: { t: 'La commande à emporter sans commission', d: 'Vos clients commandent et paient sur votre propre page. Vous gardez tout le prix de la commande.' },
-  accueil: { t: 'Un accueil téléphonique automatique', d: 'Quand vous ne pouvez pas décrocher, il répond pour vous : horaires, réservations, commandes.' },
-  google: { t: 'Votre fiche Google et vos avis', d: 'Une fiche complète et à jour, et une demande d’avis envoyée à vos clients après leur passage.' },
-  site: { t: 'Un site simple et soigné', d: 'Une vitrine claire avec vos horaires, vos photos et vos prix, que vous pouvez modifier depuis votre téléphone.' },
-  temps: { t: 'Moins de paperasse', d: 'Rappels de rendez-vous, messages aux clients et petites tâches qui se font toutes seules.' },
-};
-function pistes() {
-  const s = {}, add = (k, n) => s[k] = (s[k] || 0) + n;
-  const so = A.soucis, p = A.probleme.toLowerCase(), d = A.deja_en_place;
-  if (so.includes(SOUCIS[0]) || /revien|fid[eè]l|habitu/.test(p)) add('fidelite', 4);
-  if (so.includes(SOUCIS[1]) || /appel|t[eé]l[eé]phon|d[eé]croch|rush|d[eé]bord/.test(p)) add('accueil', 4);
-  if (so.includes(SOUCIS[2]) || /uber|deliveroo|commission|emporter|livr/.test(p)) add('commande', 4);
-  if (so.includes(SOUCIS[3]) || /google|avis|trouv|visib/.test(p)) add('google', 4);
-  if (so.includes(SOUCIS[4]) || /\bsite\b|internet/.test(p)) add('site', 4);
-  if (so.includes(SOUCIS[5]) || /papier|admin|temps|compta|planning/.test(p)) add('temps', 3);
-  if (d.includes('Uber Eats ou Deliveroo')) add('commande', 1);
-  if (d.includes('Une carte de fidélité')) add('fidelite', 1);
-  if (!d.includes('Une fiche Google')) add('google', 1);
-  if (!d.includes('Un site internet')) add('site', .5);
-  const list = Object.entries(s).sort((a, b) => b[1] - a[1]).map(([k]) => k);
-  return (list.length ? list : ['google', 'fidelite']).slice(0, 3);
-}
-function callWhen() {
-  const n = new Date(), day = n.getDay(), h = n.getHours();
-  if (day === 6 || day === 0) return 'lundi';
-  if (day === 5) return h < 12 ? 'aujourd’hui ou lundi' : 'lundi';
-  if (h < 12) return 'aujourd’hui ou demain';
-  return 'demain au plus tard';
-}
-
-/* ——— Landing ——— */
-/* ——— Money calculator ——— */
-const CALC_DEF = [
-  { k: 'appels', label: 'Appels manqués par semaine', min: 0, max: 40, step: 1, def: 8, fmt: v => v },
-  { k: 'panier', label: 'Panier moyen d’un client', min: 5, max: 80, step: 1, def: 22, fmt: v => v + ' €' },
-  { k: 'plateformes', label: 'Commandes par mois sur Uber Eats ou Deliveroo', min: 0, max: 600, step: 10, def: 120, fmt: v => v },
-  { k: 'clients', label: 'Clients différents par mois', min: 50, max: 3000, step: 50, def: 400, fmt: v => v.toLocaleString('fr-FR') },
-];
-const savedC = saved.C && typeof saved.C === 'object' ? saved.C : {};
-const C = {};
-CALC_DEF.forEach(d => { const v = Number(savedC[d.k]); C[d.k] = Number.isFinite(v) && v >= d.min && v <= d.max ? v : d.def; });
-const euro = n => Math.round(n).toLocaleString('fr-FR') + ' €';
-function money() {
-  const appels = C.appels * 4.33 / 3 * C.panier;          // 1 appel manqué sur 3 était un client
-  const commission = C.plateformes * C.panier * 0.30 * 0.30; // 30 % de commission, 30 % des clients passent en direct
-  const fidelite = C.clients * 0.05 * C.panier;            // 5 % des clients reviennent une fois de plus par mois
-  const total = appels + commission + fidelite;
-  return { appels, commission, fidelite, total };
-}
-function paintCalc() {
-  const m = money();
-  app.querySelectorAll('[data-m]').forEach(el => tweenTo(el, m[el.dataset.m]));
-  app.querySelectorAll('[data-y]').forEach(el => tweenTo(el, m.total * 12));
-  const mx = Math.max(m.appels, m.commission, m.fidelite, 1);
-  app.querySelectorAll('[data-w]').forEach(el => el.style.setProperty('--w', (m[el.dataset.w] / mx * 100).toFixed(1) + '%'));
-  CALC_DEF.forEach(d => {
-    const r = app.querySelector('#r-' + d.k), o = app.querySelector('#o-' + d.k);
-    if (r) r.style.setProperty('--p', ((C[d.k] - d.min) / (d.max - d.min) * 100).toFixed(1) + '%');
-    if (o) o.textContent = d.fmt(C[d.k]);
-  });
-}
-
-/* ——— French typography: thin non-breaking spaces before ? ! ; » and after «, non-breaking before : ——— */
+/* ——— French typography on screen text (thin spaces before ? ! ; » and after «) ——— */
 function frTypo(node) {
   if (!node) return;
   const w = document.createTreeWalker(node, NodeFilter.SHOW_TEXT); let n;
@@ -726,212 +485,449 @@ function frTypo(node) {
     const t = n.nodeValue;
     if (!/ [?!;:»]|« /.test(t)) continue;
     const p = n.parentElement; if (p && p.closest('pre, textarea, script, style')) continue;
-    const v = t.replace(/ ([?!;»])/g, '\u202F$1').replace(/« /g, '«\u202F').replace(/ :/g, '\u00A0:');
+    const v = t.replace(/ ([?!;»])/g, ' $1').replace(/« /g, '« ').replace(/ :/g, ' :');
     if (v !== t) n.nodeValue = v;
   }
 }
-new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => frTypo(n.nodeType === 1 ? n : n.parentNode)))).observe(document.getElementById('app'), { childList: true, subtree: true });
+new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => frTypo(n.nodeType === 1 ? n : n.parentNode)))).observe(app, { childList: true, subtree: true });
 
-/* ——— Motion helpers ——— */
-function tweenTo(el, to) {
-  const from = typeof el._v === 'number' ? el._v : to; el._v = to;
-  if (reduce || from === to) { el.textContent = euro(to); return; }
-  cancelAnimationFrame(el._raf); const t0 = performance.now(), dur = 600;
-  const step = t => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = euro(from + (to - from) * e); if (k < 1) el._raf = requestAnimationFrame(step); };
-  el._raf = requestAnimationFrame(step);
-}
-let carT = null, navObs = null;
-function bindLanding(root) {
-  // Reveal sections as they scroll in (they stay visible if this never runs)
-  if (!reduce && 'IntersectionObserver' in window) {
-    const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }), { rootMargin: '0px 0px -10% 0px' });
-    root.querySelectorAll('[data-reveal]').forEach(el => { if (el.getBoundingClientRect().top > innerHeight * .9) io.observe(el); else el.classList.add('in'); });
-  } else root.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('in'));
-  // Navigation: hairline under the bar once the page scrolls
-  const nav = root.querySelector('.nav'), onScroll = () => nav && nav.classList.toggle('scrolled', scrollY > 8);
-  removeEventListener('scroll', navObs || (() => {})); navObs = onScroll; addEventListener('scroll', onScroll, { passive: true }); onScroll();
-  root.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { const t = root.querySelector('#' + b.dataset.go); if (t) t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }));
-  // Big example number counts up once
-  const bn = root.querySelector('[data-bn]');
-  if (bn) {
-    const D = {}; CALC_DEF.forEach(d => { D[d.k] = d.def; });
-    const year = Math.round((D.appels * 4.33 / 3 * D.panier + D.plateformes * D.panier * .09 + D.clients * .05 * D.panier) * 12);
-    if (reduce) bn.textContent = euro(year);
-    else { const t0 = performance.now() + 250, dur = 1800; const step = t => { const k = Math.max(0, Math.min(1, (t - t0) / dur)), e = 1 - Math.pow(1 - k, 4); bn.textContent = euro(Math.round(year * e / 10) * 10 * (k < 1 ? 1 : 0) + (k < 1 ? 0 : year)); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
-  }
-  // Phone screens take turns
-  const slides = [...root.querySelectorAll('.slide')], dots = [...root.querySelectorAll('.dots i')];
-  let cur = 0;
-  const show = n => { slides.forEach((s, i) => { s.classList.toggle('on', i === n); s.classList.toggle('off', i === (n + slides.length - 1) % slides.length && i !== n); }); dots.forEach((d, i) => d.classList.toggle('on', i === n)); };
-  show(0); clearInterval(carT);
-  if (!reduce && slides.length) carT = setInterval(() => { if (!document.hidden) { cur = (cur + 1) % slides.length; show(cur); } }, 3400);
-}
+/* ——— Ripple on every pressable element ——— */
+document.addEventListener('pointerdown', e => {
+  const el = e.target.closest && e.target.closest('.rp');
+  if (!el || reduce || el.disabled) return;
+  const r = el.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2.2, s = document.createElement('span');
+  s.className = 'ripple'; s.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+  el.appendChild(s); setTimeout(() => s.remove(), 650);
+});
 
-/* ——— Landing ——— */
-const IC = {
-  phone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>',
-  resto: '<path d="M7 3v8M5 3v4a2 2 0 0 0 4 0V3M7 11v10M17 3c-2 0-3 2-3 5s1 4 3 4v9"/>',
-  cafe: '<path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3"/>',
-  bread: '<path d="M4 12a8 5 0 0 1 16 0v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 9l1 3M13 8l1 3"/>',
-  scissors: '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.5 8 20 18M8.5 16 20 6"/>',
-  bag: '<path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+/* ——— Conversation data ——— */
+const TYPES = [['Restaurant', 22], ['Café ou bar', 8], ['Boulangerie', 9], ['Salon de beauté', 40], ['Boutique', 35], ['Autre commerce', 25]];
+const CALLS = [['Aucun', 0], ['1 à 5', 3], ['5 à 10', 8], ['Plus de 10', 15]];
+const PLATF = [['Je n’y suis pas', 0], ['Moins de 50', 30], ['50 à 200', 120], ['Plus de 200', 300]];
+const CLIENTS = [['Moins de 200', 120], ['200 à 500', 350], ['500 à 1 000', 750], ['Plus de 1 000', 1400]];
+const SLOTS = ['Le matin', 'Le midi', 'L’après-midi', 'Peu importe'];
+const IDEAS = ['Je rate des appels pendant le rush', 'Uber Eats me prend trop de commission', 'Mes clients ne reviennent pas assez', 'On ne me trouve pas sur Google'];
+const PLACEHOLDERS = ['Je rate des appels quand on est débordés…', 'Uber Eats me prend 30 % sur chaque commande…', 'Mes clients viennent une fois et ne reviennent pas…', 'Je n’ai pas de site, ou il est vieillot…'];
+const STEPS = ['problem', 'type', 'calls', 'platforms', 'clients', 'consent', 'prenom', 'commerce', 'ville', 'tel', 'slot', 'done'];
+const SOL = {
+  accueil: 'Accueil téléphonique', commande: 'Commande sans commission', fidelite: 'Fidélité sur téléphone', google: 'Avis Google', site: 'Site internet', temps: 'Automatisations',
 };
-const ico = d => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
-const wm = () => `<span class="wmk">ca<span class="idot">ı</span>a</span>`;
-function landing() {
-  document.body.classList.remove('in-flow');
+const SOL_ART = { accueil: 'l’accueil téléphonique', commande: 'la commande sans commission', fidelite: 'la fidélité sur téléphone', google: 'vos avis Google', site: 'votre site internet', temps: 'les automatisations' };
+const BLANK = { probleme: '', reco: '', type: '', panier: 25, appels: null, plateformes: null, clients: null, prenom: '', commerce: '', ville: '', telephone: '', creneau: '' };
+
+/* ——— State (restored safely from the browser) ——— */
+let S = { view: 'home', step: 'problem', msgs: [], A: { ...BLANK } };
+(() => {
+  const s = store.get(); if (!s || typeof s !== 'object') return;
+  if (!STEPS.includes(s.step) || !Array.isArray(s.msgs) || !s.A || typeof s.A !== 'object') return;
+  const A = { ...BLANK };
+  for (const k in BLANK) { const v = s.A[k]; if (typeof BLANK[k] === 'string' && typeof v === 'string') A[k] = v.slice(0, 1000); else if (typeof BLANK[k] !== 'string' && (v === null || Number.isFinite(v))) A[k] = v; }
+  const msgs = s.msgs.filter(m => m && (m.r === 'bot' || m.r === 'me') && (typeof m.t === 'string' || m.k)).slice(-60);
+  S = { view: s.view === 'chat' && msgs.length ? 'chat' : 'home', step: s.step === 'done' ? 'problem' : s.step, msgs: s.step === 'done' ? [] : msgs, A: s.step === 'done' ? { ...BLANK, prenom: A.prenom, commerce: A.commerce, ville: A.ville, telephone: A.telephone } : A };
+  if (S.step === 'problem') S.view = 'home';
+})();
+const save = () => store.set(S);
+
+/* ——— Money estimate (same cautious assumptions as the team space) ——— */
+function money(A = S.A) {
+  const p = Number(A.panier) || 25;
+  const appels = (Number(A.appels) || 0) * 4.33 / 3 * p;            // 1 missed call in 3 was a customer
+  const commission = (Number(A.plateformes) || 0) * p * 0.30 * 0.30; // 30 % commission, 30 % move to direct orders
+  const fidelite = (Number(A.clients) || 0) * 0.05 * p;              // 5 % of customers come back once more a month
+  return { appels, commission, fidelite, total: appels + commission + fidelite };
+}
+function pistes(A = S.A) {
+  const s = {}, add = (k, n) => s[k] = (s[k] || 0) + n, p = A.probleme.toLowerCase(), m = money(A);
+  if (/appel|t[eé]l[eé]phon|d[eé]croch|rush|d[eé]bord/.test(p)) add('accueil', 4);
+  if (/uber|deliveroo|commission|plateforme|emporter|livr/.test(p)) add('commande', 4);
+  if (/revien|fid[eè]l|habitu|client/.test(p)) add('fidelite', 4);
+  if (/google|avis|trouv|visib/.test(p)) add('google', 4);
+  if (/\bsite\b|internet|web/.test(p)) add('site', 4);
+  if (/papier|admin|temps|compta|planning/.test(p)) add('temps', 3);
+  add('accueil', m.appels / 200); add('commande', m.commission / 200); add('fidelite', m.fidelite / 200);
+  const list = Object.entries(s).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([k]) => k);
+  return (list.length ? list : ['fidelite', 'google']).slice(0, 3);
+}
+function callWhen() {
+  const n = new Date(), day = n.getDay(), h = n.getHours();
+  if (day === 6 || day === 0) return 'lundi';
+  if (day === 5) return h < 12 ? 'aujourd’hui ou lundi' : 'lundi';
+  return h < 12 ? 'aujourd’hui ou demain' : 'demain au plus tard';
+}
+function normPhone(v) {
+  let d = String(v).trim().replace(/[^\d+]/g, '');
+  if (d.startsWith('0033')) d = '+33' + d.slice(4); else if (/^00[1-9]/.test(d)) d = '+' + d.slice(2);
+  if (d.startsWith('+33')) d = '0' + d.slice(3).replace(/^0/, '');
+  if (/^0[1-9]\d{8}$/.test(d)) return d.replace(/(\d{2})(?=\d)/g, '$1 ');
+  if (/^\+\d{9,15}$/.test(d)) return d;
+  return null;
+}
+
+/* ——— Optional AI (Netlify function with the API key server-side). Falls back to written answers. ——— */
+async function ai(kind, payload) {
+  if (!LIVE) return null;
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 9000);
+  try {
+    const r = await fetch('/api/caia', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, ...payload }), signal: ctl.signal });
+    if (!r.ok) return null;
+    const j = await r.json(); return typeof j.text === 'string' && j.text.trim() ? j.text.trim().slice(0, 600) : null;
+  } catch (e) { return null; } finally { clearTimeout(t); }
+}
+function ackFor(p) {
+  p = p.toLowerCase();
+  if (/appel|t[eé]l[eé]phon|d[eé]croch|rush|d[eé]bord/.test(p)) return 'Les appels manqués pendant le rush, c’est de l’argent qui part chez le voisin. On peut régler ça.';
+  if (/uber|deliveroo|commission|plateforme/.test(p)) return 'Les commissions des plateformes mangent une grosse part de vos marges, surtout sur vos habitués.';
+  if (/revien|fid[eè]l|habitu/.test(p)) return 'Faire revenir vos clients, c’est souvent le levier le plus rentable d’un commerce.';
+  if (/google|avis|trouv|visib/.test(p)) return 'Avant de pousser la porte, vos futurs clients regardent Google. Ça se travaille.';
+  if (/\bsite\b|internet|web/.test(p)) return 'Un site clair, c’est une vitrine ouverte 24 h sur 24. On s’en occupe.';
+  return 'Merci, c’est noté. On va regarder ça de près.';
+}
+
+/* ——— Rendering ——— */
+function render(withTransition) {
+  const paint = () => { S.view === 'chat' ? chatView() : homeView(); };
+  if (withTransition && document.startViewTransition && !reduce) document.startViewTransition(paint); else paint();
+}
+
+/* Welcome page */
+let phT = null;
+function homeView() {
+  document.title = 'Caia';
+  clearInterval(phT);
   app.innerHTML = `
-  <button type="button" class="ann" data-go="calcul">Sur une commande de 27 €, Uber Eats garde <b>8,45 €</b>.<u>Calculez ce que vous perdez →</u></button>
-  <header class="nav"><div class="wrap">
-    <a class="logo" href="#" aria-label="Caia, accueil">${wm()}</a>
-    <nav class="nav-links" aria-label="Sections"><button data-go="calcul">Calculateur</button><button data-go="solutions">Les outils</button><button data-go="comment">Comment ça marche</button><button data-go="faq">Questions</button></nav>
-    <button class="btn btn-dark" data-start>Diagnostic gratuit</button>
-  </div></header>
+  <header class="top"><div class="wrap"><a class="logo" href="#" aria-label="Caia">${wm()}</a><span class="top-note"><span class="pulse"></span>Un conseiller vous rappelle sous 24 h ouvrées</span></div></header>
   <main>
     <section class="hero"><div class="wrap">
-      <p class="eyebrow"><b>Gratuit</b>Le diagnostic des commerces de quartier</p>
-      <div class="bignum"><span class="bn" data-bn>0 €</span><span class="bn-l">par an. C’est ce que laisse filer un restaurant type, sans même le voir.<sup>1</sup></span></div>
-      <h1>Récupérez le chiffre d’affaires <span class="dim">qui vous échappe.</span></h1>
-      <p class="lead">Appels manqués, commissions des plateformes, clients qui ne reviennent pas. Caia installe les bons outils dans votre commerce et vous montre chaque mois ce qu’ils vous rapportent.</p>
-      <div class="hero-ctas"><button class="btn btn-dark" data-start>Faire mon diagnostic ${icon('arr')}</button><button class="btn btn-ghost" data-go="calcul">Calculer mes pertes</button></div>
-      <p class="hero-note">Gratuit · Sans engagement · Rappel sous 24 h ouvrées</p>
-      <p class="fn"><sup>1</sup> Exemple calculé avec nos hypothèses prudentes : 8 appels manqués par semaine, panier moyen de 22 €, 120 commandes par mois sur Uber Eats ou Deliveroo, 400 clients par mois. Faites le calcul pour votre commerce plus bas.</p>
-      <div class="stage" aria-label="Aperçu de l’application Caia, avec des données d’exemple">
-        <div class="stage-bg" aria-hidden="true"></div>
-        <div class="notif" aria-hidden="true"><span class="ic">${ico(IC.phone)}</span><div><b>Appel décroché à 12 h 47</b><span>Pendant que vous étiez au four.</span></div></div>
-        <div class="phone" aria-hidden="true"><div class="screen">
-          <div class="sbar"><span>12:47</span><span>●●●</span></div>
-          <div class="slide">
-            <span class="app-h"><i>c</i>Accueil téléphonique</span>
-            <span class="app-t">Appel de 06 •• •• 41 18</span>
-            <span class="bubble them">Bonsoir, vous faites des pizzas à emporter ce soir ?</span>
-            <span class="bubble us">Oui, jusqu’à 22 h. Je vous envoie le lien pour commander ?</span>
-            <span class="bubble them">Parfait, merci !</span>
-            <span class="chipline">Commande reçue · 34,50 €</span>
-          </div>
-          <div class="slide">
-            <span class="app-h"><i>c</i>Carte de fidélité</span>
-            <span class="app-t">Bonjour Julie</span>
-            <div class="lcard"><small>Café de la Place</small><b style="font-size:20px;letter-spacing:-.02em">7 tampons sur 10</b><div class="stamps">${'<span class="f"></span>'.repeat(7)}${'<span></span>'.repeat(3)}</div><small>Plus que 3 passages pour un café offert</small></div>
-            <span class="chipline">Revenue cette semaine, après 3 semaines d’absence</span>
-          </div>
-          <div class="slide">
-            <span class="app-h"><i>c</i>Commandes</span>
-            <span class="app-t">Commande n°128</span>
-            <div class="ticket"><div class="row"><span>Retrait</span><b>19 h 30</b></div><div class="row"><span>2 × Margherita</span><span>22,00 €</span></div><div class="row"><span>1 × Tiramisu</span><span>6,50 €</span></div><div class="row tot"><span>Total</span><span>28,50 €</span></div><span class="paid">Payé en ligne · 0 € de commission</span></div>
-          </div>
-          <div class="dots"><i></i><i></i><i></i></div>
-        </div></div>
-        <div class="report" aria-hidden="true">
-          <div class="report-h"><span>Rapport de novembre</span><span class="ex">Exemple</span></div>
-          <div class="report-big"><span>+1 240 €</span></div>
-          <div class="spark"><i style="height:30%"></i><i style="height:38%"></i><i style="height:45%"></i><i style="height:52%"></i><i style="height:70%"></i><i style="height:100%"></i></div>
-          <ul><li><span>Appels décrochés</span><b>38</b></li><li><span>Clients revenus</span><b>112</b></li><li><span>Commission payée</span><b>0 €</b></li></ul>
-        </div>
-      </div>
+      <p class="shock"><b>8,45${NB}€</b><span>Ce qu’Uber Eats garde sur une commande de 27${NB}€.<sup>1</sup></span></p>
+      <h1>Votre commerce perd de l’argent. <span class="dim">Caia vous dit où.</span></h1>
+      <p class="sub">Écrivez ce qui coince. En deux minutes, Caia chiffre ce que vous perdez et vous rappelle avec la solution.</p>
+      <form class="composer" id="start" autocomplete="off">
+        <label for="msg" class="sr" hidden>Votre message</label>
+        <textarea id="msg" rows="1" maxlength="1000" placeholder="${esc(PLACEHOLDERS[0])}" aria-label="Décrivez ce qui coince dans votre commerce"></textarea>
+        <button class="send rp" type="submit" aria-label="Envoyer" disabled>${SEND}</button>
+      </form>
+      <div class="ideas" aria-label="Exemples">${IDEAS.map((t, i) => `<button type="button" class="chip rp" style="--i:${i}" data-idea="${esc(t)}">${esc(t)}</button>`).join('')}</div>
+      <p class="micro">Gratuit · 2 minutes · Sans engagement</p>
     </div></section>
 
-    <section class="forwhom"><div class="wrap">
-      <p>Pensé pour</p>
-      <div class="trades"><span>${ico(IC.resto)}Restaurants</span><span>${ico(IC.cafe)}Cafés et bars</span><span>${ico(IC.bread)}Boulangeries</span><span>${ico(IC.scissors)}Salons</span><span>${ico(IC.bag)}Boutiques</span></div>
+    <section class="nums"><div class="wrap nums-grid" data-reveal>
+      <div class="num"><b class="o" data-count="11180">11${NB}180${NB}€</b><span>par an, laissés filer par un restaurant type.<sup>2</sup></span></div>
+      <div class="num"><b>30${NB}%</b><span>de commission environ sur chaque commande passée par une plateforme.<sup>1</sup></span></div>
+      <div class="num"><b>2${NB}min</b><span>pour votre diagnostic, depuis votre téléphone.</span></div>
     </div></section>
 
-    <div class="sec calc-sec" id="calcul"><div class="wrap">
-      <div class="sec-h" data-reveal><p class="kicker">Le calculateur</p><h2>Combien votre commerce laisse filer chaque mois ?</h2><p>Réglez les curseurs avec vos chiffres. Le calcul se fait sur votre écran, rien n’est envoyé.</p></div>
-      <div class="calc-grid">
-        <div class="calc" aria-label="Vos chiffres" data-reveal>
-          ${CALC_DEF.map(d => `<div class="row"><div class="row-top"><label for="r-${d.k}">${d.label}</label><output id="o-${d.k}" for="r-${d.k}"></output></div><input type="range" id="r-${d.k}" min="${d.min}" max="${d.max}" step="${d.step}" value="${C[d.k]}"></div>`).join('')}
-          <details class="how"><summary>Comment on calcule</summary><p>Un appel manqué sur trois était un client. Les plateformes prennent environ 30 % par commande, et 30 % de vos clients passent en commande directe. Avec une carte de fidélité, 5 % de vos clients reviennent une fois de plus par mois. Ce sont des hypothèses prudentes : on les affine avec vos vrais chiffres pendant l’appel.</p></details>
-        </div>
-        <div class="result" data-reveal style="--d:1">
-          <span class="result-label">Vous laissez filer environ</span>
-          <strong class="result-num"><span data-m="total"></span><small>par mois</small></strong>
-          <span class="result-year">soit <b data-y></b> par an</span>
-          <ul class="split">
-            <li><span>Appels manqués</span><b data-m="appels"></b><span class="mline"><i data-w="appels"></i></span></li>
-            <li><span>Commissions des plateformes</span><b data-m="commission"></b><span class="mline"><i data-w="commission"></i></span></li>
-            <li><span>Clients qui ne reviennent pas</span><b data-m="fidelite"></b><span class="mline"><i data-w="fidelite"></i></span></li>
-          </ul>
-          <button class="btn btn-light btn-block" data-start>Récupérer cet argent ${icon('arr')}</button>
-        </div>
-      </div>
-    </div></div>
-
-    <section class="sec" id="solutions"><div class="wrap">
-      <div class="sec-h" data-reveal><p class="kicker">Les outils</p><h2>Tout ce qu’il faut. <span class="dim">Installé pour vous.</span></h2><p>Vous gardez votre métier. On s’occupe du reste, et on mesure ce que ça rapporte.</p></div>
-      <div class="bento">
-        <article class="tile w4 dark" data-reveal><h3>Un accueil téléphonique qui ne rate rien.</h3><p>Pendant le rush, il décroche à votre place : horaires, réservations, commandes. Vous recevez un résumé de chaque appel.</p><span class="gain">Plus aucun appel perdu</span>
-          <div class="vis" aria-hidden="true"><span class="bubble them" style="background:rgba(255,255,255,.25);color:#FFFFFF">Il vous reste une table pour 4 à 20 h ?</span><span class="bubble us" style="background:#FFFFFF;color:var(--ink)">Oui, je la réserve au nom de Martin. À ce soir !</span></div></article>
-        <article class="tile w2 c-sun" data-reveal style="--d:1"><h3>Vos avis Google.</h3><p>Chaque client reçoit une demande d’avis après son passage.</p>
-          <div class="vis" aria-hidden="true"><div style="display:flex;align-items:baseline;gap:12px"><span class="rating">4,8</span><span class="stars">★★★★★</span></div><div class="review"><b>« Accueil adorable, pizzas parfaites. »</b><br>Réponse envoyée le jour même</div></div></article>
-        <article class="tile w2 c-lilac" data-reveal><h3>La fidélité, sur téléphone.</h3><p>Plus de carte papier perdue. Un petit mot quand un client tarde à revenir.</p>
-          <div class="vis" aria-hidden="true"><div class="lcard"><small>Boulangerie du Marché</small><div class="stamps">${'<span class="f"></span>'.repeat(4)}${'<span></span>'.repeat(6)}</div><small>4 sur 10 · une viennoiserie offerte à 10</small></div></div></article>
-        <article class="tile w4 c-sky" data-reveal style="--d:1"><h3>La commande à emporter, sans commission.</h3><p>Vos habitués commandent et paient sur votre propre page. Vous gardez tout le prix.</p><span class="gain">0 % de commission sur vos commandes directes</span>
-          <div class="vis" aria-hidden="true" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:12px"><div class="ticket" style="background:#FFFFFF"><div class="row"><span>n°129 · 20 h 00</span><b>32,00 €</b></div><span class="paid">Payé en ligne</span></div><div class="ticket" style="background:#FFFFFF"><div class="row"><span>n°130 · 20 h 15</span><b>18,50 €</b></div><span class="paid">Payé en ligne</span></div></div></article>
-        <article class="tile w6 c-rose" data-reveal><h3>Un site qui donne envie de venir.</h3><p>Simple, rapide, à votre image. Vous le modifiez depuis votre téléphone.</p>
-          <div class="vis" aria-hidden="true"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>pizzeria-exemple.fr</span></div><div class="site-mock"><div><h4>Pizzeria Bella, au feu de bois depuis 1998.</h4><p>Ouvert du mardi au dimanche, 11 h 30 à 22 h.</p><span class="fake-btn">Commander</span></div><div class="site-img"></div></div></div></div></article>
-      </div>
-    </div></section>
-
-    <section class="sec" id="comment" style="padding-top:0"><div class="wrap">
-      <div class="sec-h" data-reveal><p class="kicker">Comment ça marche</p><h2>Trois étapes. <span class="dim">Zéro configuration.</span></h2></div>
-      <ol class="steps" data-reveal>
-        <li><b>Vous répondez à 5 questions.</b><span>Depuis votre téléphone, entre deux clients. Deux minutes, pas de compte à créer.</span></li>
-        <li><b>On prépare votre solution.</b><span>Un conseiller étudie votre commerce et chiffre ce que ça peut vous rapporter, prix compris.</span></li>
-        <li><b>On installe, vous encaissez.</b><span>Si ça vous convient, on s’occupe de tout. Vous n’avez rien à configurer.</span></li>
+    <section class="how"><div class="wrap">
+      <h2 data-reveal>Simple comme un message.</h2>
+      <ol class="steps" data-reveal style="--d:1">
+        <li><b>Vous écrivez.</b><span>Ce qui coince, avec vos mots.</span></li>
+        <li><b>Caia chiffre.</b><span>Quatre questions, et l’argent perdu s’affiche.</span></li>
+        <li><b>On installe.</b><span>Un conseiller vous rappelle et s’occupe de tout.</span></li>
       </ol>
     </div></section>
 
-    <section class="sec" style="padding-top:0"><div class="wrap rep-grid">
-      <div data-reveal><p class="kicker">Les résultats</p><h2 style="font-size:clamp(34px,4.4vw,56px);line-height:1.02;letter-spacing:-.05em">Chaque mois, ce que ça vous rapporte. <span class="dim">En euros.</span></h2>
-        <ul class="rep-points"><li>Les appels décrochés et les commandes qu’ils ont apportées.</li><li>Les commissions évitées grâce aux commandes directes.</li><li>Les clients revenus grâce à la fidélité.</li></ul></div>
-      <div class="dash" data-reveal style="--d:1" aria-label="Exemple de rapport mensuel">
-        <div class="dash-h"><b>Rapport de novembre</b><span class="ex">Exemple</span></div>
-        <div class="kpis"><div class="kpi"><span>Chiffre récupéré</span><b>1 240 €</b><em>+18 % sur octobre</em></div><div class="kpi"><span>Appels décrochés</span><b>38</b><em>sur 38 reçus</em></div><div class="kpi"><span>Clients revenus</span><b>112</b><em>+9 sur octobre</em></div></div>
-        <div class="chart" aria-hidden="true">${[['juin', 34], ['juil.', 41], ['août', 38], ['sept.', 57], ['oct.', 78], ['nov.', 100]].map(([m, h]) => `<div><i style="--h:${h}%"></i><span>${m}</span></div>`).join('')}</div>
+    <section class="tools"><div class="wrap">
+      <h2 data-reveal>Ce qu’on met en place.</h2>
+      <div class="tool-row" data-reveal style="--d:1">
+        <div class="tool"><i>${ICO.phone}</i><b>Accueil téléphonique par IA</b></div>
+        <div class="tool"><i>${ICO.bag}</i><b>Commande sans commission</b></div>
+        <div class="tool"><i>${ICO.card}</i><b>Fidélité sur téléphone</b></div>
+        <div class="tool"><i>${ICO.star}</i><b>Avis Google</b></div>
+        <div class="tool"><i>${ICO.web}</i><b>Site internet</b></div>
       </div>
     </div></section>
 
-    <section class="sec" id="faq" style="padding-top:0"><div class="wrap">
-      <div class="sec-h c" data-reveal><p class="kicker">Questions</p><h2>Vos questions.</h2></div>
-      <div class="faq">
-        ${faq('Qu’est-ce que Caia ?', 'Caia installe dans votre commerce les outils qui font revenir vos clients et rentrer de l’argent : accueil téléphonique, commande sans commission, fidélité, avis Google et site. On s’occupe de tout et on vous montre chaque mois ce que ça rapporte.')}
-        ${faq('Le diagnostic est vraiment gratuit ?', 'Oui. Le questionnaire et l’appel sont gratuits. Si une solution vous intéresse, on vous donne le prix avant, par écrit. Vous décidez ensuite.')}
-        ${faq('Combien ça coûte ?', 'Ça dépend de ce dont vous avez besoin. On vous donne un prix mensuel clair pendant l’appel, et on vous montre combien ça vous rapporte en face.')}
-        ${faq('Je ne suis pas à l’aise avec l’informatique.', 'Ce n’est pas un problème. On installe tout pour vous et on vous montre comment ça marche, en quelques minutes.')}
-        ${faq('Est-ce que je m’engage à quelque chose ?', 'Non. Remplir le questionnaire ne vous engage à rien. On vous rappelle, on vous explique, et vous dites oui ou non.')}
-      </div>
-    </div></section>
-
-    <section class="final"><div class="wrap" data-reveal>
-      <h2>Votre commerce peut rapporter plus.</h2>
-      <p>Deux minutes pour le diagnostic. On vous rappelle avec une proposition chiffrée.</p>
-      <button class="btn btn-dark" data-start>Faire mon diagnostic ${icon('arr')}</button>
+    <section class="final" data-reveal><div class="wrap">
+      <h2>Combien perdez-vous, vous ?</h2>
+      <button class="btn rp" data-focus type="button">Faire mon diagnostic ${ARR}</button>
     </div></section>
   </main>
   <footer class="wrap site-foot">
     <div class="foot-top"><span class="logo">ca<button type="button" class="egg idot" aria-label="Espace équipe">ı</button>a</span><span>Le chiffre d’affaires des commerces de quartier.</span></div>
+    <span><sup>1</sup> Test d’une commande de 27${NB}€ publié par <a href="https://www.lyoncapitale.fr/?p=232345" target="_blank" rel="noopener">Lyon Capitale</a> : 8,45${NB}€ HT de commission. <sup>2</sup> Exemple calculé avec nos hypothèses prudentes : 8 appels manqués par semaine, panier de 22${NB}€, 120 commandes en plateforme et 400 clients par mois.</span>
     <span>Vos informations servent uniquement à vous rappeler et à préparer votre proposition. Elles ne sont jamais vendues.</span>
-    <span style="font-size:13px">Source du chiffre Uber Eats : test d’une commande de 27 € publié par <a href="https://www.lyoncapitale.fr/?p=232345" rel="noopener" target="_blank" style="color:inherit">Lyon Capitale</a>, commission de 8,45 € HT.</span>
     <details class="legal"><summary>Mentions légales et confidentialité</summary><div class="legal-body">
-      <p><b>Éditeur du site</b> : [Nom de la société], [forme juridique] au capital de [montant] €, [adresse du siège], SIRET [numéro]. Directeur de la publication : [prénom nom]. Contact : [adresse e-mail].</p>
+      <p><b>Éditeur du site</b> : [Nom de la société], [forme juridique] au capital de [montant]${NB}€, [adresse du siège], SIRET [numéro]. Directeur de la publication : [prénom nom]. Contact : [adresse e-mail].</p>
       <p><b>Hébergement</b> : site hébergé par Netlify, Inc. ([adresse de l’hébergeur]). Données des demandes hébergées par Supabase ([région choisie, par exemple Union européenne]).</p>
-      <p><b>Vos données</b> : les informations que vous saisissez (nom, commerce, ville, téléphone, e-mail, réponses au questionnaire) servent uniquement à vous rappeler et à préparer une proposition adaptée. Notre équipe peut s’aider d’outils de rédaction, dont des assistants d’intelligence artificielle, pour préparer cette proposition. Vos données ne sont jamais vendues. Elles sont conservées au plus 3 ans après notre dernier échange.</p>
+      <p><b>Vos données</b> : les informations que vous saisissez servent uniquement à vous rappeler et à préparer une proposition adaptée. Les messages que vous écrivez à l’assistant peuvent être traités par un service d’intelligence artificielle pour vous répondre, et notre équipe peut s’aider de ces outils pour préparer votre proposition. Vos données ne sont jamais vendues. Elles sont conservées au plus 3 ans après notre dernier échange.</p>
       <p><b>Vos droits</b> : vous pouvez demander l’accès, la correction ou la suppression de vos données à tout moment en écrivant à [adresse e-mail]. Vous pouvez aussi saisir la CNIL (cnil.fr).</p>
     </div></details>
   </footer>`;
-  app.querySelectorAll('[data-start]').forEach(b => b.addEventListener('click', () => go(0)));
-  app.querySelector('.nav .logo').addEventListener('click', e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
+  const form = $('#start'), ta = $('#msg'), send = form.querySelector('.send');
+  const grow = () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 180) + 'px'; send.disabled = ta.value.trim().length < 3; };
+  ta.addEventListener('input', grow);
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && fine) { e.preventDefault(); form.requestSubmit(); } });
+  form.addEventListener('submit', e => { e.preventDefault(); const v = ta.value.trim(); if (v.length < 3) return; send.classList.add('fly'); startChat(v); });
+  app.querySelectorAll('[data-idea]').forEach(b => b.addEventListener('click', () => { ta.value = b.dataset.idea; grow(); b.classList.add('picked'); setTimeout(() => startChat(b.dataset.idea), reduce ? 0 : 260); }));
+  app.querySelector('[data-focus]').addEventListener('click', () => { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); setTimeout(() => ta.focus({ preventScroll: true }), reduce ? 0 : 500); });
   app.querySelector('.egg').addEventListener('click', openTeam);
-  CALC_DEF.forEach(d => {
-    const r = app.querySelector('#r-' + d.k);
-    r.addEventListener('input', () => { C[d.k] = Number(r.value); persist(); paintCalc(); });
-    r.addEventListener('change', () => { const n = app.querySelector('.result-num'); n.classList.remove('bump'); void n.offsetWidth; n.classList.add('bump'); });
-  });
-  paintCalc();
-  bindLanding(app);
+  app.querySelector('.top .logo').addEventListener('click', e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
+  // Placeholder that cycles through real examples
+  let pi = 0; if (!reduce) phT = setInterval(() => { if (document.activeElement !== ta && !ta.value) { pi = (pi + 1) % PLACEHOLDERS.length; ta.placeholder = PLACEHOLDERS[pi]; } }, 3200);
+  // Reveal on scroll, count-up for the big number
+  if (!reduce && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => es.forEach(en => { if (!en.isIntersecting) return; en.target.classList.add('in'); io.unobserve(en.target); en.target.querySelectorAll('[data-count]').forEach(countUp); }), { rootMargin: '0px 0px -8% 0px' });
+    app.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
+  }
 }
-const faq = (q, a) => `<details><summary>${q}</summary><p>${a}</p></details>`;
+function countUp(el) {
+  const to = Number(el.dataset.count), t0 = performance.now(), dur = 1400;
+  const step = t => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 4); el.textContent = euro(k < 1 ? Math.round(to * e / 10) * 10 : to); if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+const ICO = {
+  phone: '<svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>',
+  bag: '<svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
+  card: '<svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M10 7h4M9.5 12h5M10.5 16h3"/></svg>',
+  star: '<svg viewBox="0 0 24 24"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/></svg>',
+  web: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M6.5 6.5h.01M9 6.5h.01"/></svg>',
+};
+
+/* Chat page */
+const STEP_PROGRESS = { problem: 5, type: 15, calls: 28, platforms: 41, clients: 54, consent: 66, later: 66, prenom: 74, commerce: 81, ville: 88, tel: 94, slot: 98, done: 100 };
+function chatView() {
+  document.title = 'Votre diagnostic · Caia';
+  clearInterval(phT);
+  app.innerHTML = `
+  <div class="chat">
+    <header class="chat-head"><div class="wrap">
+      <div class="who"><span class="av" aria-hidden="true">c</span><div><b>Caia</b><span id="status">Votre diagnostic, en direct</span></div></div>
+      <div class="head-acts"><button class="ghost rp" id="restart" type="button">Recommencer</button><button class="ghost rp" id="leave" type="button">Quitter</button></div>
+    </div><div class="prog" aria-hidden="true"><i id="prog"></i></div></header>
+    <main class="thread" id="thread" aria-live="polite"></main>
+  </div>
+  <div class="dock" id="dock"></div>`;
+  const th = $('#thread');
+  S.msgs.forEach(m => th.appendChild(msgEl(m, false)));
+  $('#restart').addEventListener('click', () => { if (busy) return; S = { view: 'home', step: 'problem', msgs: [], A: { ...BLANK, prenom: S.A.prenom, commerce: S.A.commerce, ville: S.A.ville, telephone: S.A.telephone } }; save(); go('home'); });
+  $('#leave').addEventListener('click', () => { if (busy) return; go('home'); });
+  dock(); progress(); scrollEnd(false);
+}
+function progress() { const p = $('#prog'); if (p) p.style.setProperty('--p', (STEP_PROGRESS[S.step] || 0) + '%'); }
+function scrollEnd(smooth = true) { requestAnimationFrame(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: smooth && !reduce ? 'smooth' : 'auto' })); }
+function msgEl(m, isNew) {
+  const el = document.createElement('div');
+  if (m.k === 'diag') { el.className = 'diag' + (isNew ? ' new' : ''); el.innerHTML = diagHtml(m.d); if (!isNew) el.querySelectorAll('.ln i').forEach(i => i.style.width = i.dataset.w); return el; }
+  if (m.k === 'done') { el.className = 'done'; el.innerHTML = `<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="26"/><path d="M15 27l7 7 15-16"/></svg><b>${esc(m.t)}</b><span>${esc(m.sub || '')}</span>`; return el; }
+  const prev = S.msgs[S.msgs.indexOf(m) - 1];
+  el.className = `msg ${m.r}${isNew ? ' new' : ''}${prev && prev.r === m.r && !prev.k && m.r === 'bot' ? ' cont' : ''}`;
+  el.innerHTML = (m.r === 'bot' ? '<span class="mini" aria-hidden="true">c</span>' : '') + `<div class="bub">${esc(m.t)}</div>`;
+  return el;
+}
+function diagHtml(d) {
+  const mx = Math.max(d.appels, d.commission, d.fidelite, 1), w = v => (v / mx * 100).toFixed(1) + '%';
+  return `<small>Votre estimation</small>
+    <div class="big" data-total="${Math.round(d.total)}">${euro(d.total)}<em>par mois</em></div>
+    <span class="yr">soit <b>${euro(d.total * 12)}</b> par an</span>
+    <div class="leaks">
+      <div class="leak"><span>Appels manqués</span><b>${euro(d.appels)}</b><span class="ln"><i data-w="${w(d.appels)}"></i></span></div>
+      <div class="leak"><span>Commissions des plateformes</span><b>${euro(d.commission)}</b><span class="ln"><i data-w="${w(d.commission)}"></i></span></div>
+      <div class="leak"><span>Clients qui ne reviennent pas</span><b>${euro(d.fidelite)}</b><span class="ln"><i data-w="${w(d.fidelite)}"></i></span></div>
+    </div>
+    <div class="recos">${d.pistes.map(k => `<span>${esc(SOL[k] || k)}</span>`).join('')}</div>
+    ${d.text ? `<p>${esc(d.text)}</p>` : ''}
+    <span class="hyp">Estimation prudente : un appel manqué sur trois était un client, environ 30${NB}% de commission par commande en plateforme, 5${NB}% de clients qui reviennent une fois de plus par mois. On l’affine avec vous au téléphone.</span>`;
+}
+
+/* Typing out a bot message */
+let busy = false;
+async function say(text, { wait = 650 } = {}) {
+  const th = $('#thread'); if (!th) return;
+  const ty = document.createElement('div'); ty.className = 'msg bot new typing'; ty.innerHTML = '<span class="mini" aria-hidden="true">c</span><div class="bub" aria-label="Caia écrit"><i></i><i></i><i></i></div>';
+  th.appendChild(ty); scrollEnd();
+  await sleep(wait + Math.min(text.length * 6, 700));
+  ty.remove();
+  const m = { r: 'bot', t: text }; S.msgs.push(m); save();
+  const el = msgEl(m, true); th.appendChild(el);
+  if (!reduce) { const b = el.querySelector('.bub'); b.innerHTML = text.split(' ').map((w, i) => `<span class="w" style="animation-delay:${i * 28}ms">${esc(w)}</span>`).join(' '); }
+  scrollEnd();
+  await sleep(Math.min(text.split(' ').length * 28, 900));
+}
+function me(text) {
+  const m = { r: 'me', t: text }; S.msgs.push(m); save();
+  const th = $('#thread'); if (th) { th.appendChild(msgEl(m, true)); scrollEnd(); }
+}
+async function thinking(label, ms) {
+  const th = $('#thread'); const el = document.createElement('div'); el.className = 'msg bot new thinking';
+  el.innerHTML = `<span class="mini" aria-hidden="true">c</span><div class="bub">${esc(label)}</div>`; th.appendChild(el); scrollEnd();
+  return { done: async () => { await sleep(ms); el.remove(); } };
+}
+
+/* The dock shows what the current step expects */
+const INPUT_STEPS = { prenom: ['Votre prénom', 'given-name', 'text'], commerce: ['Le nom de votre commerce', 'organization', 'text'], ville: ['Votre ville', 'address-level2', 'text'], tel: ['06 12 34 56 78', 'tel', 'tel'] };
+function dock(err) {
+  const d = $('#dock'); if (!d) return;
+  const st = S.step; let chips = [], hot = [];
+  if (st === 'type') chips = TYPES.map(t => t[0]);
+  if (st === 'calls') chips = CALLS.map(t => t[0]);
+  if (st === 'platforms') chips = PLATF.map(t => t[0]);
+  if (st === 'clients') chips = CLIENTS.map(t => t[0]);
+  if (st === 'consent') { chips = ['Pas maintenant', 'Oui, rappelez-moi']; hot = ['Oui, rappelez-moi']; }
+  if (st === 'later') { chips = ['Finalement, oui']; hot = chips; }
+  if (st === 'slot') chips = SLOTS;
+  if (st === 'retry') { chips = ['Réessayer l’envoi']; hot = chips; }
+  if (st === 'done') chips = [];
+  const inp = INPUT_STEPS[st];
+  d.innerHTML = `${err ? `<p class="fielderr" role="alert">${esc(err)}</p>` : ''}
+    ${chips.length ? `<div class="answers" role="group" aria-label="Réponses proposées">${chips.map((c, i) => `<button type="button" class="chip rp${hot.includes(c) ? ' hot' : ''}" style="--i:${i}" data-a="${esc(c)}">${esc(c)}</button>`).join('')}</div>` : ''}
+    ${inp ? `<form class="composer${err ? ' shake' : ''}" id="ans" autocomplete="on"><input id="ansv" name="${st}" type="${inp[2]}" autocomplete="${inp[1]}" ${inp[2] === 'tel' ? 'inputmode="tel"' : ''} maxlength="80" placeholder="${esc(inp[0])}" aria-label="${esc(inp[0])}" value="${esc(st === 'tel' ? S.A.telephone : st === 'prenom' ? S.A.prenom : st === 'commerce' ? S.A.commerce : st === 'ville' ? S.A.ville : '')}"><button class="send rp" type="submit" aria-label="Envoyer">${SEND}</button></form>` : ''}
+    ${st === 'tel' ? '<p class="legal-line">En envoyant votre numéro, vous acceptez qu’on vous rappelle au sujet de votre demande. Rien d’autre.</p>' : ''}
+    ${st === 'done' ? `<p class="note"><button class="btn btn-line rp" type="button" id="home2">Revenir à l’accueil</button></p>` : ''}`;
+  d.querySelectorAll('[data-a]').forEach(b => b.addEventListener('click', () => { if (busy) return; b.classList.add('picked'); answer(b.dataset.a); }));
+  const f = d.querySelector('#ans');
+  if (f) {
+    const i = f.querySelector('input');
+    f.addEventListener('submit', e => { e.preventDefault(); if (busy) return; const v = i.value.trim(); if (!v) { i.focus(); return; } f.querySelector('.send').classList.add('fly'); answer(v); });
+    if (fine) setTimeout(() => i.focus({ preventScroll: true }), 80);
+  }
+  const h2 = d.querySelector('#home2'); if (h2) h2.addEventListener('click', () => { S = { view: 'home', step: 'problem', msgs: [], A: { ...BLANK, prenom: S.A.prenom, commerce: S.A.commerce, ville: S.A.ville, telephone: S.A.telephone } }; save(); go('home'); });
+}
+
+/* ——— Conversation flow ——— */
+async function startChat(text) {
+  if (busy) return;
+  S.view = 'chat'; S.step = 'problem'; S.msgs = []; S.A = { ...BLANK, prenom: S.A.prenom, commerce: S.A.commerce, ville: S.A.ville, telephone: S.A.telephone };
+  save(); go('chat', true);
+  await sleep(250);
+  answer(text);
+}
+async function answer(v) {
+  if (busy) return; busy = true;
+  const st = S.step, A = S.A;
+  let err = null;
+  try {
+    if (st === 'problem') {
+      A.probleme = v.slice(0, 1000); me(v); dockOff();
+      const ack = (await ai('reply', { message: A.probleme })) || ackFor(A.probleme);
+      await say(ack);
+      await say('Quatre questions rapides pour chiffrer tout ça. Vous tenez quel genre de commerce ?', { wait: 300 });
+      S.step = 'type';
+    } else if (st === 'type') {
+      const t = TYPES.find(x => x[0] === v); if (!t) return; A.type = t[0]; A.panier = t[1]; me(v); dockOff();
+      await say('Pendant le rush, combien d’appels vous ratez par semaine, à peu près ?');
+      S.step = 'calls';
+    } else if (st === 'calls') {
+      const t = CALLS.find(x => x[0] === v); if (!t) return; A.appels = t[1]; me(v); dockOff();
+      await say(t[1] >= 8 ? 'C’est beaucoup de clients qui appellent le voisin. Et sur Uber Eats ou Deliveroo, combien de commandes par mois ?' : 'Noté. Et sur Uber Eats ou Deliveroo, combien de commandes par mois ?');
+      S.step = 'platforms';
+    } else if (st === 'platforms') {
+      const t = PLATF.find(x => x[0] === v); if (!t) return; A.plateformes = t[1]; me(v); dockOff();
+      await say('Dernière question : combien de clients différents par mois, environ ?');
+      S.step = 'clients';
+    } else if (st === 'clients') {
+      const t = CLIENTS.find(x => x[0] === v); if (!t) return; A.clients = t[1]; me(v); dockOff();
+      const th = await thinking('Caia calcule votre manque à gagner…', 1300);
+      const m = money(), ps = pistes();
+      const bigKey = m.appels >= m.commission && m.appels >= m.fidelite ? 'accueil' : m.commission >= m.fidelite ? 'commande' : 'fidelite';
+      const big = { accueil: 'les appels manqués', commande: 'les commissions des plateformes', fidelite: 'les clients qui ne reviennent pas' }[bigKey];
+      const order = [bigKey, ...ps.filter(k => k !== bigKey)].slice(0, 3); ps.splice(0, ps.length, ...order);
+      const text = (await ai('diag', { message: A.probleme, type: A.type, appels: A.appels, plateformes: A.plateformes, clients: A.clients, panier: A.panier, total: Math.round(m.total), detail: { appels: Math.round(m.appels), commissions: Math.round(m.commission), fidelite: Math.round(m.fidelite) }, pistes: ps.map(k => SOL[k]) }))
+        || `Votre plus grosse fuite, ce sont ${big} : environ ${euro(m[{ accueil: 'appels', commande: 'commission', fidelite: 'fidelite' }[bigKey]])} par mois. On commencerait par là${ps[1] ? `, puis par ${SOL_ART[ps[1]]}` : ''}.`;
+      A.reco = ps.join(',');
+      await th.done();
+      const d = { total: m.total, appels: m.appels, commission: m.commission, fidelite: m.fidelite, pistes: ps, text };
+      const msg = { r: 'bot', k: 'diag', d }; S.msgs.push(msg); save();
+      const el = msgEl(msg, true); $('#thread').appendChild(el); scrollEnd();
+      animateDiag(el, d.total);
+      await sleep(1400);
+      await say('Un conseiller peut vous rappeler avec une proposition chiffrée, prix compris. On y va ?', { wait: 400 });
+      S.step = 'consent';
+    } else if (st === 'consent' || st === 'later') {
+      me(v); dockOff();
+      if (v === 'Pas maintenant') { await say('Pas de souci. Votre estimation reste ici si vous changez d’avis.'); S.step = 'later'; }
+      else { await say('Parfait. C’est à quel prénom ?', { wait: 350 }); S.step = 'prenom'; }
+    } else if (st === 'prenom') {
+      A.prenom = v.slice(0, 60); me(v); dockOff();
+      await say(`Enchanté, ${A.prenom}. Le nom de votre commerce ?`, { wait: 350 }); S.step = 'commerce';
+    } else if (st === 'commerce') {
+      A.commerce = v.slice(0, 80); me(v); dockOff();
+      await say('Dans quelle ville ?', { wait: 300 }); S.step = 'ville';
+    } else if (st === 'ville') {
+      A.ville = v.slice(0, 60); me(v); dockOff();
+      await say('Et le meilleur numéro pour vous joindre ?', { wait: 300 }); S.step = 'tel';
+    } else if (st === 'tel') {
+      const tel = normPhone(v);
+      if (!tel) { err = 'Ce numéro semble incomplet. Exemple : 06 12 34 56 78'; return; }
+      A.telephone = tel; me(tel); dockOff();
+      await say('On vous appelle plutôt quand ?', { wait: 300 }); S.step = 'slot';
+    } else if (st === 'slot' || st === 'retry') {
+      if (st === 'slot') { A.creneau = v; me(v); } else me(v);
+      dockOff();
+      const th = await thinking('Envoi de votre demande…', 300);
+      const ok = await submit();
+      await th.done();
+      if (!ok) { await say('La demande n’est pas partie. Vérifiez votre connexion, puis réessayez : rien n’est perdu.'); S.step = 'retry'; }
+      else {
+        const when = callWhen(), slot = A.creneau && A.creneau !== 'Peu importe' ? `, plutôt ${A.creneau.toLowerCase()}` : '';
+        const msg = { r: 'bot', k: 'done', t: `C’est noté, ${A.prenom}.`, sub: `Un conseiller vous appelle ${when}${slot}, au ${A.telephone}, avec une proposition pour ${A.commerce}.${LIVE || DB ? '' : ' (Aperçu : rien n’est envoyé.)'}` };
+        S.msgs.push(msg); S.step = 'done'; save();
+        $('#thread').appendChild(msgEl(msg, true)); scrollEnd(); confetti();
+      }
+    }
+  } finally {
+    busy = false; save(); progress(); if (S.view === 'chat') dock(err);
+  }
+}
+function dockOff() { const d = $('#dock'); if (d) d.innerHTML = ''; }
+function animateDiag(el, total) {
+  setTimeout(() => el.querySelectorAll('.ln i').forEach(i => { i.style.width = i.dataset.w; }), 200);
+  const big = el.querySelector('.big'); if (!big || reduce) return;
+  const em = big.querySelector('em').outerHTML, t0 = performance.now(), dur = 1200;
+  const step = t => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 4); big.innerHTML = euro(k < 1 ? total * e : total) + em; if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+
+/* ——— Sending the request (database for the team space, Netlify Forms for the e-mail alert) ——— */
+async function submit() {
+  const A = S.A, m = money(), ps = A.reco ? A.reco.split(',').filter(k => SOL[k]) : pistes();
+  const payload = {
+    'form-name': 'diagnostic', 'bot-field': '',
+    soucis: A.probleme.slice(0, 200), probleme: A.probleme, type_commerce: A.type,
+    deja_en_place: A.plateformes > 0 ? 'Uber Eats ou Deliveroo' : '', delai: '',
+    prenom: A.prenom, nom: '', commerce: A.commerce, ville: A.ville, telephone: A.telephone, email: '',
+    creneau: A.creneau || 'Peu importe', pistes: ps.map(k => SOL[k]).join(' | '),
+    estimation_mois: euro(m.total), appels_manques_semaine: String(A.appels ?? ''), panier_moyen: A.panier + NB + '€', commandes_plateformes_mois: String(A.plateformes ?? ''), clients_mois: String(A.clients ?? ''),
+  };
+  if (!LIVE && !DB) { await sleep(500); return true; }
+  const row = {
+    soucis: payload.soucis, probleme: A.probleme, type_commerce: A.type, deja_en_place: payload.deja_en_place, delai: '',
+    prenom: A.prenom, nom: '', commerce: A.commerce, ville: A.ville, telephone: A.telephone, email: '',
+    creneau: payload.creneau, pistes: ps.join(','), estimation_mois: Math.round(m.total),
+    appels: A.appels, panier: A.panier, plateformes: A.plateformes, clients: A.clients,
+  };
+  const jobs = [];
+  if (DB) jobs.push(fetch(DB.url + '/rest/v1/demandes', { method: 'POST', headers: { apikey: DB.key, Authorization: 'Bearer ' + DB.key, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(row) }).then(r => { if (!r.ok) throw new Error('DB ' + r.status); }));
+  if (LIVE) jobs.push(fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(payload).toString() }).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); }));
+  const res = await Promise.allSettled(jobs);
+  return res.some(x => x.status === 'fulfilled');
+}
+
+/* ——— Confetti in brand colours ——— */
+function confetti() {
+  if (reduce) return;
+  const c = document.getElementById('fx'), g = c.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1);
+  c.width = innerWidth * dpr; c.height = innerHeight * dpr; g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const cols = ['#FF5A1F', '#0A0A0B', '#FFC2A8', '#12A150'], P = Array.from({ length: 140 }, () => ({ x: innerWidth / 2 + (Math.random() - .5) * 120, y: innerHeight * .62, vx: (Math.random() - .5) * 14, vy: -Math.random() * 15 - 6, r: Math.random() * 6.28, vr: (Math.random() - .5) * .3, w: 6 + Math.random() * 6, h: 8 + Math.random() * 8, c: cols[Math.floor(Math.random() * cols.length)] }));
+  const t0 = performance.now();
+  const step = t => { const k = (t - t0) / 1000; g.clearRect(0, 0, innerWidth, innerHeight);
+    P.forEach(p => { p.vy += .45; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.r += p.vr; g.save(); g.globalAlpha = Math.max(0, 1 - Math.max(0, k - 1.4) / .8); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.c; g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); g.restore(); });
+    if (k < 2.3) requestAnimationFrame(step); else g.clearRect(0, 0, innerWidth, innerHeight); };
+  requestAnimationFrame(step);
+}
+
+/* ——— Navigation and history ——— */
+let view = S.view;
+function go(v, transition) {
+  view = v; S.view = v; save();
+  try { history.pushState({ view: v }, ''); } catch (e) {}
+  render(transition);
+  if (v === 'home') window.scrollTo(0, 0);
+}
+addEventListener('popstate', e => {
+  if (teamClose && document.getElementById('team-host')) { teamClose(true); return; }
+  if (busy) { try { history.pushState({ view }, ''); } catch (err) {} return; }
+  const v = e.state && e.state.view === 'chat' && S.msgs.length ? 'chat' : 'home';
+  view = v; S.view = v; save(); render(true);
+});
 
 /* ——— Team space (easter egg): requests, analysis, call script, AI prompts ———
    Opens over the site in its own isolated layer (shadow DOM) so its styles never touch the public pages.
@@ -1324,203 +1320,8 @@ function openTeam() {
 }
 let teamClose = null;
 
-/* ——— Flow ——— */
-function render() {
-  if (view === -1) return landing();
-  clearInterval(carT); if (navObs) { removeEventListener('scroll', navObs); navObs = null; }
-  document.body.classList.add('in-flow');
-  const isDone = view === 'done', step = isDone ? null : Q[view];
-  if (!app.querySelector('.flow')) {
-    app.innerHTML = `<div class="flow"><header class="flow-head"><div class="wrap"><a class="logo" href="#" data-home aria-label="Retour à l’accueil">${wm()}</a><span class="where" id="where" aria-live="polite"></span></div><div class="meter" id="meter" aria-hidden="true">${Q.map(() => '<i></i>').join('')}</div></header><main id="qhost"></main></div>`;
-    $('[data-home]').addEventListener('click', e => { e.preventDefault(); if (!sending) go(-1); });
-  }
-  $('#where').textContent = isDone ? 'Demande envoyée' : `Question ${view + 1} sur ${Q.length}`;
-  app.querySelectorAll('#meter i').forEach((i, n) => { i.className = isDone || n < view ? 'on' : n === view ? 'cur' : ''; });
-  const host = $('#qhost');
-  host.innerHTML = `<section class="q${reduce ? '' : ' anim'}${dir < 0 ? ' back' : ''}">${isDone ? doneHtml() : stepHtml(step)}</section>${isDone ? '' : barHtml(step)}`;
-  if (!isDone) bindStep(step); else bindDone();
-  const h = host.querySelector('h2'); if (h && booted) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
-}
-let booted = false;
-function choice(v, on, multi, cls = '') {
-  return `<button type="button" class="choice${multi ? ' sq' : ''} ${cls}" data-v="${esc(v)}" ${multi ? `aria-pressed="${on}"` : `role="radio" aria-checked="${on}"`}><span class="tick">${icon('chk')}</span><span class="txt">${esc(v)}</span></button>`;
-}
-function stepHtml(s) {
-  const head = `<h2 id="qt">${s.title}</h2>${s.help ? `<p class="help">${s.help}</p>` : ''}`;
-  if (s.kind === 'problem') return `${head}
-    <div class="choices" role="group" aria-labelledby="qt">${SOUCIS.map(v => choice(v, A.soucis.includes(v), true)).join('')}</div>
-    <div class="field"><label for="probleme">Autre chose ? <span>(facultatif)</span></label><textarea id="probleme" maxlength="1000" placeholder="Par exemple : le samedi midi on est deux, le téléphone sonne et on ne peut pas répondre.">${esc(A.probleme)}</textarea></div>`;
-  if (s.kind === 'one' || s.kind === 'many') {
-    const multi = s.kind === 'many';
-    return `${head}<div class="choices${s.two ? ' two' : ''}" role="${multi ? 'group' : 'radiogroup'}" aria-labelledby="qt">${s.opts.map(v => choice(v, multi ? A[s.id].includes(v) : A[s.id] === v, multi)).join('')}</div>`;
-  }
-  return `${head}
-    <form id="cform" novalidate style="display:grid;gap:16px">
-      <div class="grid2">${field('prenom', 'Prénom', 'given-name')}${field('nom', 'Nom', 'family-name')}</div>
-      <div class="grid2">${field('commerce', 'Nom du commerce', 'organization')}${field('ville', 'Ville', 'address-level2')}</div>
-      ${field('telephone', 'Téléphone', 'tel', 'tel')}
-      <div class="field"><span id="sl" style="font-weight:600;font-size:15px">Le meilleur moment pour vous appeler</span><div class="slots" role="radiogroup" aria-labelledby="sl">${SLOTS.map(v => choice(v, A.creneau === v, false)).join('')}</div></div>
-      ${field('email', 'E-mail <span>(facultatif, pour recevoir la proposition par écrit)</span>', 'email', 'email')}
-      <p class="small">En envoyant, vous acceptez qu’on vous rappelle au sujet de votre demande. Rien d’autre.</p>
-      <p class="formerr" id="formerr" role="alert" hidden></p>
-    </form>`;
-}
-function field(id, label, ac, type = 'text') {
-  return `<div class="field" id="f-${id}"><label for="${id}">${label}</label><input class="input" id="${id}" name="${id}" type="${type}" autocomplete="${ac}" ${type === 'tel' ? 'inputmode="tel"' : ''} ${type === 'email' ? 'inputmode="email" autocapitalize="off"' : ''} value="${esc(A[id])}"><span class="err" id="e-${id}"></span></div>`;
-}
-function barHtml(s) {
-  const last = s.kind === 'contact';
-  return `<div class="bar"><div class="in"><button type="button" class="linkbtn" id="prev">${icon('arl')}${view === 0 ? 'Accueil' : 'Retour'}</button><button type="${last ? 'submit' : 'button'}" ${last ? 'form="cform"' : ''} class="btn btn-cta" id="next" ${ready(s) ? '' : 'disabled'}>${last ? 'Être rappelé' : 'Continuer'} ${icon('arr')}</button></div></div>`;
-}
-function ready(s) {
-  if (s.kind === 'problem') return A.soucis.length > 0 || A.probleme.trim().length > 2;
-  if (s.kind === 'one') return !!A[s.id];
-  if (s.kind === 'many') return A[s.id].length > 0;
-  return true;
-}
-let lockUntil = 0;
-function go(to, fromHistory) {
-  if (!fromHistory && Date.now() < lockUntil) return;
-  lockUntil = Date.now() + 400;
-  dir = (to === 'done' || (typeof to === 'number' && (view === 'done' || to > view))) ? 1 : -1;
-  view = to; persist();
-  if (!fromHistory) { try { history.pushState({ view: to }, ''); } catch (e) {} }
-  render(); window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
-}
-addEventListener('popstate', e => {
-  if (teamClose && document.getElementById('team-host')) { teamClose(true); return; }
-  if (sending) { try { history.pushState({ view }, ''); } catch (err) {} return; }
-  if (view === 'done') { try { history.replaceState({ view: -1 }, ''); } catch (err) {} go(-1, true); return; }
-  const v = e.state && 'view' in e.state ? e.state.view : -1;
-  clearTimeout(autoT);
-  go(v === 'done' ? -1 : v, true);
-});
-let autoT = null;
-function bindStep(s) {
-  const next = $('#next'), update = () => { next.disabled = !ready(s); };
-  $('#prev').addEventListener('click', () => { if (sending) return; clearTimeout(autoT); go(view === 0 ? -1 : view - 1); });
-  if (s.kind !== 'contact') next.addEventListener('click', () => { clearTimeout(autoT); if (ready(s)) go(view + 1); });
-  if (s.kind === 'problem' || s.kind === 'many') {
-    const key = s.kind === 'problem' ? 'soucis' : s.id;
-    app.querySelectorAll('.choices .choice').forEach(b => b.addEventListener('click', () => {
-      const v = b.dataset.v; let arr = A[key].slice();
-      if (arr.includes(v)) arr = arr.filter(x => x !== v);
-      else if (s.none && v === s.none) arr = [v];
-      else { arr = arr.filter(x => x !== s.none); arr.push(v); }
-      A[key] = arr; persist();
-      app.querySelectorAll('.choices .choice').forEach(x => x.setAttribute('aria-pressed', arr.includes(x.dataset.v)));
-      update();
-    }));
-  }
-  if (s.kind === 'problem') {
-    const t = $('#probleme');
-    t.addEventListener('input', () => { A.probleme = t.value; persist(); update(); });
-  }
-  if (s.kind === 'one') {
-    app.querySelectorAll('.choices .choice').forEach(b => b.addEventListener('click', () => {
-      A[s.id] = b.dataset.v; persist();
-      app.querySelectorAll('.choices .choice').forEach(x => x.setAttribute('aria-checked', x === b));
-      update();
-      const at = view; clearTimeout(autoT);
-      autoT = setTimeout(() => { if (view === at) go(view + 1); }, 320);
-    }));
-  }
-  if (s.kind === 'contact') {
-    ['prenom', 'nom', 'commerce', 'ville', 'telephone', 'email'].forEach(k => {
-      const el = $('#' + k);
-      el.addEventListener('input', () => { A[k] = el.value; persist(); $('#f-' + k).classList.remove('bad'); $('#e-' + k).textContent = ''; el.removeAttribute('aria-invalid'); });
-    });
-    app.querySelectorAll('.slots .choice').forEach(b => b.addEventListener('click', () => {
-      A.creneau = b.dataset.v; persist();
-      app.querySelectorAll('.slots .choice').forEach(x => x.setAttribute('aria-checked', x === b));
-    }));
-    $('#cform').addEventListener('submit', submit);
-  }
-}
-
-function normPhone(v) {
-  const raw = v.trim(); let d = raw.replace(/[^\d+]/g, '');
-  if (d.startsWith('0033')) d = '+33' + d.slice(4);
-  else if (/^00[1-9]/.test(d)) d = '+' + d.slice(2);
-  if (d.startsWith('+33')) d = '0' + d.slice(3).replace(/^0/, '');
-  if (/^0[1-9]\d{8}$/.test(d)) return d.replace(/(\d{2})(?=\d)/g, '$1 ');
-  if (/^\+\d{9,15}$/.test(d)) return d;
-  return null;
-}
-async function submit(e) {
-  e.preventDefault();
-  if (sending) return;
-  if (!A.soucis.length && !A.probleme.trim()) { go(0); return; }
-  const errs = {};
-  const req = { prenom: 'Indiquez votre prénom', nom: 'Indiquez votre nom', commerce: 'Indiquez le nom de votre commerce', ville: 'Indiquez votre ville' };
-  Object.keys(req).forEach(k => { if (!A[k].trim()) errs[k] = req[k]; });
-  const tel = normPhone(A.telephone);
-  if (!A.telephone.trim()) errs.telephone = 'Indiquez un numéro où vous joindre';
-  else if (!tel) errs.telephone = 'Ce numéro semble incomplet. Exemple : 06 12 34 56 78';
-  if (A.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(A.email.trim())) errs.email = 'Cette adresse e-mail semble incomplète';
-  ['prenom', 'nom', 'commerce', 'ville', 'telephone', 'email'].forEach(k => { const el = $('#' + k); $('#f-' + k).classList.toggle('bad', !!errs[k]); $('#e-' + k).textContent = errs[k] || ''; if (errs[k]) { el.setAttribute('aria-invalid', 'true'); el.setAttribute('aria-describedby', 'e-' + k); } else { el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby'); } });
-  const fe = $('#formerr'); fe.hidden = true;
-  const first = ['prenom', 'nom', 'commerce', 'ville', 'telephone', 'email'].find(k => errs[k]);
-  if (first) { $('#' + first).focus(); return; }
-  A.telephone = tel; $('#telephone').value = tel; persist();
-  const btn = $('#next'); sending = true; btn.disabled = true; btn.textContent = 'Envoi en cours…';
-  const payload = {
-    'form-name': 'diagnostic', 'bot-field': '',
-    soucis: A.soucis.join(' | '), probleme: A.probleme.trim(), type_commerce: A.type_commerce,
-    deja_en_place: A.deja_en_place.join(', '), delai: A.delai,
-    prenom: A.prenom.trim(), nom: A.nom.trim(), commerce: A.commerce.trim(), ville: A.ville.trim(),
-    telephone: tel, email: A.email.trim(), creneau: A.creneau || 'Peu importe', pistes: pistes().map(k => SOL[k].t).join(' | '),
-    estimation_mois: euro(money().total), appels_manques_semaine: String(C.appels), panier_moyen: C.panier + ' €', commandes_plateformes_mois: String(C.plateformes), clients_mois: String(C.clients),
-  };
-  try {
-    if (LIVE || DB) {
-      const m = money();
-      const row = {
-        soucis: payload.soucis, probleme: payload.probleme, type_commerce: payload.type_commerce, deja_en_place: payload.deja_en_place, delai: payload.delai,
-        prenom: payload.prenom, nom: payload.nom, commerce: payload.commerce, ville: payload.ville, telephone: payload.telephone, email: payload.email,
-        creneau: payload.creneau, pistes: pistes().join(','), estimation_mois: Math.round(m.total),
-        appels: C.appels, panier: C.panier, plateformes: C.plateformes, clients: C.clients,
-      };
-      // Database (team space) and Netlify Forms (e-mail alert): the request counts as sent if either one gets it
-      const jobs = [];
-      if (DB) jobs.push(fetch(DB.url + '/rest/v1/demandes', { method: 'POST', headers: { apikey: DB.key, Authorization: 'Bearer ' + DB.key, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(row) }).then(r => { if (!r.ok) throw new Error('DB ' + r.status); }));
-      if (LIVE) jobs.push(fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(payload).toString() }).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); }));
-      const res = await Promise.allSettled(jobs);
-      if (!res.some(x => x.status === 'fulfilled')) throw new Error('send failed');
-    } else {
-      await new Promise(r => setTimeout(r, 600));
-    }
-  } catch (err) {
-    sending = false; btn.disabled = false; btn.innerHTML = 'Être rappelé ' + icon('arr');
-    fe.textContent = 'La demande n’est pas partie. Vérifiez votre connexion internet et appuyez de nouveau sur « Être rappelé ». Vos réponses sont gardées.';
-    fe.hidden = false; return;
-  }
-  sending = false;
-  lastSent = { ...A, pistes: pistes() };
-  lockUntil = 0;
-  // Keep only the contact details for a next visit, never the answers
-  Object.assign(A, { soucis: [], probleme: '', type_commerce: '', deja_en_place: [], delai: '' });
-  go('done');
-}
-let lastSent = null;
-
-function doneHtml() {
-  const S = lastSent || { ...A, pistes: pistes() };
-  const slot = S.creneau && S.creneau !== 'Peu importe' ? `, plutôt ${S.creneau.toLowerCase()}` : '';
-  return `<svg class="done-mark" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="36"/><path d="M23 37l9 9 17-19"/></svg>
-    <h2>C’est envoyé, ${esc(S.prenom)}.</h2>
-    <p style="margin:0">On vous appelle ${callWhen()}${slot}, au <b>${esc(S.telephone)}</b>. Vous aurez une proposition pour ${esc(S.commerce)}, avec le prix.</p>
-    <div class="card"><h3>Ce que vous pourriez récupérer</h3><p style="margin:0"><b style="font-family:var(--f-head);font-stretch:118%;font-weight:900;font-size:34px;color:var(--num);font-variant-numeric:tabular-nums">${euro(money().total)}</b> <span class="small">par mois, d’après votre estimation. On la vérifie ensemble pendant l’appel.</span></p></div>
-    <div class="card"><h3>Ce qu’on va sûrement vous proposer</h3><div class="ideas">${S.pistes.map((k, i) => `<div class="idea"><em>${i + 1}</em><div><b>${SOL[k].t}</b><span>${SOL[k].d}</span></div></div>`).join('')}</div></div>
-    <div class="card"><h3>Pour gagner du temps pendant l’appel, gardez sous la main</h3><ul class="prep"><li>votre carte ou vos tarifs</li><li>vos horaires d’ouverture</li><li>l’accès à votre fiche Google, si vous en avez une</li></ul></div>
-    ${LIVE ? '' : '<p class="note">Aperçu : sur le site en ligne, cette demande arrive par e-mail à votre équipe.</p>'}
-    <div><button type="button" class="linkbtn" id="home">${icon('arl')}Revenir à l’accueil</button></div>`;
-}
-function bindDone() { $('#home').addEventListener('click', () => go(-1)); }
-
 try { history.replaceState({ view }, ''); } catch (e) {}
-render();
-booted = true;
+render(false);
 if (location.hash === '#equipe') openTeam();
 addEventListener('hashchange', () => { if (location.hash === '#equipe') openTeam(); });
 })();

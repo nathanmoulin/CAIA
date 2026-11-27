@@ -1,12 +1,14 @@
 # Caia
 
-Le site de Caia : un calculateur de pertes, le diagnostic en 5 questions et l'espace équipe caché (demandes, analyse, script d'appel, prompts IA).
+Le site de Caia : le commerçant écrit ce qui coince, l'assistant lui pose 4 questions, chiffre l'argent perdu et prend ses coordonnées pour un rappel. Il y a aussi l'espace équipe caché (demandes, analyse, script d'appel, prompts IA).
 
 ## Organisation du projet
 
 | Fichier | Rôle |
 |---|---|
-| `src/page.html` | Tout le site : textes, design, questionnaire et espace équipe. **C'est le fichier à modifier.** |
+| `src/page.html` | Tout le site : textes, design, conversation et espace équipe. **C'est le fichier à modifier.** |
+| `netlify/functions/caia.mjs` | Les réponses de l'assistant par IA (Claude), côté serveur. |
+| `package.json` | La bibliothèque officielle d'Anthropic utilisée par la fonction. |
 | `src/config.js` | Les deux réglages de la base de données Supabase. |
 | `src/assets/` | Favicon, icône iPhone, image de partage (`og.png`). |
 | `build.sh` | Fabrique le site final dans `site/`, avec le référencement Google (titre, description, sitemap, robots, données structurées). |
@@ -42,7 +44,24 @@ La clé « anon » est faite pour être publique. La sécurité vient des règle
 - le site peut seulement **ajouter** des demandes ;
 - seules les personnes de la table `equipe`, une fois connectées, peuvent les lire.
 
-## 4. Être trouvé sur Google
+## 4. Activer les réponses par IA (facultatif)
+
+Sans clé, l'assistant fonctionne déjà avec des réponses écrites à l'avance. Avec une clé, deux de ses messages sont rédigés par Claude :
+- la première réponse, qui reformule le problème du commerçant ;
+- l'explication du diagnostic.
+
+1. Créez une clé API sur https://platform.claude.com (rubrique **API Keys**) et ajoutez un moyen de paiement.
+2. Dans Netlify, ouvrez **Site configuration → Environment variables** et ajoutez `ANTHROPIC_API_KEY` avec la clé. Elle reste sur le serveur et n'apparaît jamais dans la page.
+3. Relancez un déploiement.
+
+Comment c'est réglé :
+- **Modèle** : Claude Opus 5.5, avec un effort de réflexion « bas » (`low`), car ses réponses sont courtes.
+- **Relais automatique** : si le modèle refuse une demande, une autre IA reprend la main (option `fallbacks`).
+- **Limite** : 20 requêtes par minute et par visiteur, pour éviter les abus.
+- **Coût** : environ 4 $ par million de jetons envoyés et 20 $ par million générés. Un diagnostic n'utilise que quelques milliers de jetons.
+- **En cas d'erreur** ou de lenteur (plus de 9 secondes), le site reprend ses réponses écrites, sans que le commerçant le remarque.
+
+## 5. Être trouvé sur Google
 
 1. **Nom de domaine** : achetez `caia.fr` (ou `.ai`, `.com`), puis reliez-le dans Netlify (**Domain management → Add a domain**). Le HTTPS est automatique.
 2. **Adresse du site** : dans Netlify, **Site configuration → Environment variables**, ajoutez `SITE_URL` = `https://votre-domaine.fr`, puis relancez un déploiement. Le titre, l'image de partage et le sitemap utiliseront cette adresse.
@@ -56,14 +75,14 @@ Déjà en place dans le code :
 - titre et description optimisés ;
 - adresse canonique ;
 - image de partage pour WhatsApp, LinkedIn et Facebook ;
-- données structurées (entreprise, site, FAQ) ;
+- données structurées (entreprise, site) ;
 - `robots.txt` et `sitemap.xml` ;
 - favicon et icône iPhone.
 
-## 5. Avant d'ouvrir au public
+## 6. Avant d'ouvrir au public
 
 - Complétez les **mentions légales**, en bas de `src/page.html` (cherchez `[Nom de la société]`). Elles sont obligatoires en France.
-- Vérifiez que les promesses du site correspondent à ce que l'équipe peut tenir : rappel sous 24 h ouvrées, prix annoncé à l'avance, rapport mensuel.
+- Vérifiez que les promesses du site correspondent à ce que l'équipe peut tenir : rappel sous 24 h ouvrées, proposition chiffrée avec le prix.
 - Ajustez les **prix** utilisés par l'espace équipe : ligne `const PRIX` dans `src/page.html`.
 
 ## Construire en local (facultatif)
@@ -72,3 +91,5 @@ Déjà en place dans le code :
 sh build.sh
 python3 -m http.server 8080 --directory site
 ```
+
+Les réponses par IA ne marchent qu'une fois le site sur Netlify. En local, l'assistant utilise ses réponses écrites.
