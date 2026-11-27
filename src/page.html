@@ -1089,13 +1089,17 @@ async function submit() {
     estimation_mois: euro(L.total), appels_manques_semaine: String(q.calls ?? ''), panier_moyen: A.panier + NB + '€', commandes_plateformes_mois: String(q.platforms ?? ''), clients_mois: String(clients ?? ''),
     detail: L.items.map(i => `${i.label} : ${euro(i.v)}`).join(' | '),
   };
-  if (!LIVE && !DB) { await sleep(500); return true; }
   const row = {
     soucis: payload.soucis, probleme: A.probleme, type_commerce: A.type, deja_en_place: deja, delai: '',
     prenom: A.prenom, nom: '', commerce: A.commerce, ville: A.ville, telephone: A.telephone, email: '',
     creneau: payload.creneau, pistes: ps.join(','), estimation_mois: Math.round(L.total),
     appels: q.calls ?? null, panier: A.panier, plateformes: q.platforms ?? null, clients, detail,
   };
+  if (!DB) {
+    // No database yet (preview or site not connected): keep the request in this browser so the team space shows it.
+    try { const k = 'caia-local-demandes', all = JSON.parse(localStorage.getItem(k) || '[]'); all.unshift({ ...row, id: 'loc-' + Date.now(), local: true, created_at: new Date().toISOString(), statut: 'nouveau', notes: '' }); localStorage.setItem(k, JSON.stringify(all.slice(0, 50))); } catch (e) {}
+    if (!LIVE) { await sleep(500); return true; }
+  }
   const jobs = [];
   if (DB) jobs.push(fetch(DB.url + '/rest/v1/demandes', { method: 'POST', headers: { apikey: DB.key, Authorization: 'Bearer ' + DB.key, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(row) }).then(r => { if (!r.ok) throw new Error('DB ' + r.status); }));
   if (LIVE) jobs.push(fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(payload).toString() }).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); }));
@@ -1262,10 +1266,10 @@ function openTeam() {
   const has = (d, txt) => String(d.soucis || '').includes(txt) || String(d.deja_en_place || '').includes(txt);
   function analyse(d) {
     const m = money(d), why = [];
-    let s = Math.min((m.has ? m.total : Number(d.estimation_mois) || 0) / 1500, 1) * 40;
+    let s = Math.min((m.has ? m.total : Number(d.estimation_mois) || 0) / 800, 1) * 45;
     why.push(`Pertes estimées : ${euro(m.has ? m.total : d.estimation_mois)} par mois`);
-    const urg = { 'Le plus vite possible': 30, 'Dans le mois': 18, 'Pas pressé, je me renseigne': 6 }[d.delai] ?? 10;
-    s += urg; why.push(`Délai : ${d.delai || 'non précisé'}`);
+    if (d.delai) { s += { 'Le plus vite possible': 30, 'Dans le mois': 18, 'Pas pressé, je me renseigne': 6 }[d.delai] ?? 10; why.push(`Délai : ${d.delai}`); }
+    else { s += 25; why.push('A fait le diagnostic jusqu’au bout et demandé à être rappelé'); }
     const nbSoucis = String(d.soucis || '').split('|').filter(x => x.trim()).length + (String(d.probleme || '').trim() ? 1 : 0);
     s += Math.min(nbSoucis, 3) * 6; why.push(`${nbSoucis} problème${nbSoucis > 1 ? 's' : ''} exprimé${nbSoucis > 1 ? 's' : ''}`);
     if (Number(d.plateformes) > 0) { s += 6; why.push('Utilise déjà une plateforme de livraison'); }
@@ -1374,11 +1378,11 @@ function openTeam() {
       <label>Mot de passe<input class="input" id="pw" type="password" autocomplete="current-password" required></label>
       <p class="login-err" id="le" role="alert"${err ? '' : ' hidden'}>${esc(err || '')}</p>
       <button class="btn btn-ui" type="submit">Se connecter</button>`
-      : `<p class="demo-note">La base de données n’est pas encore branchée, donc personne ne peut se connecter pour l’instant. Le guide d’installation explique comment la relier en 10 minutes.</p>
-      <button class="btn btn-ui" type="button" id="demo">Voir l’espace avec des exemples</button>`}
+      : `<p class="demo-note">La base de données n’est pas encore branchée. En attendant, vous voyez ici les demandes faites depuis ce navigateur, avec quelques exemples. Le guide d’installation explique comment la relier en 10 minutes.</p>
+      <button class="btn btn-ui" type="button" id="demo">Voir les demandes</button>`}
       <button type="button" class="closer" data-close>Retour au site</button>
     </form></div>`;
-    if (!DB) { $('#demo').addEventListener('click', () => { demo = true; rows = SAMPLE.map(r => ({ ...r, notes: (store.get('caia-demo-notes') || {})[r.id] ?? r.notes, statut: (store.get('caia-demo-statut') || {})[r.id] ?? r.statut })); shell(); }); return; }
+    if (!DB) { $('#demo').addEventListener('click', () => { demo = true; rows = demoRows(); shell(); }); return; }
     $('#lf').addEventListener('submit', async e => {
       e.preventDefault();
       const em = $('#em').value.trim(), pw = $('#pw').value, le = $('#le'), b = e.target.querySelector('button');
@@ -1389,6 +1393,24 @@ function openTeam() {
     });
     setTimeout(() => $('#em') && $('#em').focus(), 50);
   }
+  function demoRows() {
+    const notes = store.get('caia-demo-notes') || {}, st = store.get('caia-demo-statut') || {};
+    let mine = store.get('caia-local-demandes'); if (!Array.isArray(mine)) mine = [];
+    return [...mine.filter(r => r && r.id), ...SAMPLE].map(r => ({ ...r, notes: notes[r.id] ?? r.notes ?? '', statut: st[r.id] ?? r.statut ?? 'nouveau' }));
+  }
+  // Pulls new requests. Silent mode (every 30 s, or when you come back to the tab) only repaints if something changed.
+  async function refresh(silent) {
+    const before = rows.map(r => r.id + r.statut).join();
+    try { if (demo) rows = demoRows(); else await load(); }
+    catch (e) { if (!silent) toast('Impossible de charger les demandes'); return; }
+    if (!app.querySelector('#shell')) return;
+    const changed = rows.map(r => r.id + r.statut).join() !== before;
+    if (!silent) { paint(); toast(changed ? 'Nouvelles demandes chargées' : 'À jour'); }
+    else if (changed) { paintKpis(); paintList(); if (sel && !rows.some(r => r.id === sel)) { sel = null; paintDetail(); } }
+  }
+  const tick = setInterval(() => { if (!root.isConnected) { clearInterval(tick); return; } refresh(true); }, 30000);
+  const onBack = () => { if (!root.isConnected) { document.removeEventListener('visibilitychange', onBack); return; } if (!document.hidden) refresh(true); };
+  document.addEventListener('visibilitychange', onBack);
   function logout() { store.del(SKEY); session = null; rows = []; sel = null; demo = false; loginView(); }
   async function load() {
     try { rows = await api('demandes?select=*&order=created_at.desc&limit=1000'); }
@@ -1399,7 +1421,7 @@ function openTeam() {
   function shell() {
     app.innerHTML = `<div class="shell" id="shell">
       <header class="bar"><span class="logo">${wm()} <small>Équipe</small></span>
-        <div class="acts">${demo ? '<span class="pill p-demo">Mode exemples</span>' : `<span class="who">${esc(session && session.email || '')}</span>`}
+        <div class="acts">${demo ? '<span class="pill p-demo">Aperçu, sans base de données</span>' : `<span class="who">${esc(session && session.email || '')}</span>`}
           <button class="btn btn-line" id="rf" title="Actualiser">${icon(I.refresh)}<span>Actualiser</span></button>
           <button class="btn btn-line" id="csv" title="Exporter en CSV">${icon(I.down)}<span>Exporter</span></button>
           <button class="btn btn-line" data-close title="Revenir au site">${icon(I.back)}<span>Site</span></button>
@@ -1411,7 +1433,7 @@ function openTeam() {
         <div class="rows" id="rows"></div></aside>
         <section class="detail" id="detail" aria-live="polite"></section></div></div>`;
     $('#lo').addEventListener('click', logout);
-    $('#rf').addEventListener('click', async () => { if (demo) { toast('Mode exemples : rien à actualiser'); return; } try { await load(); paint(); toast('À jour'); } catch (e) { toast('Impossible de charger les demandes'); } });
+    $('#rf').addEventListener('click', () => refresh(false));
     $('#csv').addEventListener('click', exportCsv);
     $('#qq').addEventListener('input', e => { q = e.target.value; paintList(); });
     app.querySelectorAll('.filters button').forEach(b => b.addEventListener('click', () => { filter = b.dataset.f; app.querySelectorAll('.filters button').forEach(x => x.setAttribute('aria-pressed', x === b)); paintList(); }));
