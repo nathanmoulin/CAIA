@@ -7,7 +7,7 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic();
 
-const SYSTEM = `Tu es Caia, l'assistant d'une entreprise française qui installe des outils simples dans les commerces de quartier : accueil téléphonique par IA, commande à emporter sans commission, carte de fidélité sur téléphone, rappels de rendez-vous par SMS, avis Google, site internet, réseaux sociaux clés en main (tournage mensuel et publications Instagram ou TikTok).
+const SYSTEM = `Tu es Caia, l'assistant d'une entreprise française qui installe des outils simples dans les commerces de quartier : site internet optimisé pour Google et pour les IA (référencement SEO et GEO), carte de fidélité sur téléphone avec relances SMS, réseaux sociaux et pub locale (tournage mensuel, publications Instagram ou TikTok), fiche et avis Google, réservation en ligne avec rappels SMS, commande en ligne sans commission.
 Tu parles à des commerçants (restaurants, cafés, boulangeries, salons, boutiques). Tu vouvoies. Phrases courtes, chaleureuses, concrètes, sans jargon technique, sans emoji, sans liste.
 Tu ne promets jamais de chiffre précis de gain, de délai ou de prix : un conseiller rappellera avec une proposition chiffrée.
 Si le message ne parle pas d'un commerce, ramène poliment la conversation au commerce de la personne.`;
@@ -25,14 +25,14 @@ Réponds en une ou deux phrases (40 mots maximum) pour montrer que tu as compris
   }
   if (body.kind === "diag") {
     const n = v => (Number.isFinite(Number(v)) ? Math.round(Number(v)) : "?");
-    const d = body.detail || {};
-    const pistes = Array.isArray(body.pistes) ? body.pistes.slice(0, 3).map(p => clip(p, 60)).join(", ") : "";
+    const postes = Array.isArray(body.postes) ? body.postes.slice(0, 5).map(p => `${clip(p && p.poste, 80)} : ${n(p && p.euros)} €`).join(" ; ") : "";
+    const autres = Array.isArray(body.autres_pistes) ? body.autres_pistes.slice(0, 2).map(p => clip(p, 60)).join(", ") : "";
     return `Diagnostic d'un commerce.
 Problème décrit : « ${clip(body.message, 600)} »
-Type : ${clip(body.type, 40)}. Panier moyen : ${n(body.panier)} €. Appels manqués par semaine : ${n(body.appels)}. Commandes par mois sur les plateformes : ${n(body.plateformes)}. Clients différents par mois : ${n(body.clients)}.
-Estimation de pertes par mois : ${n(body.total)} € (appels manqués ${n(d.appels)} €, commissions ${n(d.commissions)} €, clients qui ne reviennent pas ${n(d.fidelite)} €).
-Solutions retenues, dans l'ordre : ${pistes}.
-Écris deux ou trois phrases (60 mots maximum) : la plus grosse fuite d'argent, et par quelle solution commencer et pourquoi. Ne répète pas tous les chiffres, ne donne aucun prix.`;
+Type : ${clip(body.type, 40)}. Panier moyen : ${n(body.panier)} €.
+Estimation prudente de pertes par mois : ${n(body.total)} € (${postes || "non chiffré"}).
+Solution recommandée : ${clip(body.solution_recommandee, 80)}.${autres ? ` Ensuite : ${autres}.` : ""}
+Écris une ou deux phrases (45 mots maximum) qui expliquent pourquoi cette solution répond à son problème, avec ses mots à lui. Si la solution est un site internet, tu peux dire qu'il aide à être trouvé sur Google et cité par les IA comme ChatGPT. Ne répète pas les chiffres, ne donne aucun prix.`;
   }
   return null;
 }

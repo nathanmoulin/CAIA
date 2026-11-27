@@ -116,7 +116,8 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
 
 /* Tools */
 .tools { padding-block: 0 110px; }
-.tool-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.tool-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tool span { font-size: 14.5px; color: var(--muted); line-height: 1.4; margin-top: -6px; }
 .tool { border-radius: 22px; box-shadow: inset 0 0 0 1.5px var(--line); padding: 22px; display: grid; gap: 14px; align-content: start; transition: transform .4s var(--spring), box-shadow .25s; }
 .tool:hover { transform: translateY(-4px); box-shadow: inset 0 0 0 1.5px var(--ink); }
 .tool i { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand-deep); }
@@ -205,6 +206,15 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
 .recos span { font-size: 13.5px; font-weight: 600; padding: 7px 12px; border-radius: 999px; background: #1E1E23; box-shadow: inset 0 0 0 1px #33333A; }
 .recos span:first-child { background: var(--brand); box-shadow: none; }
 .diag p { margin: 0; color: #D4D4DA; font-size: 15.5px; }
+.reco { align-self: stretch; margin: 6px 0 6px 38px; border-radius: 26px; background: #FFFFFF; box-shadow: inset 0 0 0 2px var(--brand); padding: 24px; display: grid; gap: 12px; }
+.reco small { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--brand-deep); }
+.reco-t { font-size: 22px; line-height: 1.15; letter-spacing: -.03em; }
+.reco ul { list-style: none; display: grid; gap: 9px; margin: 2px 0 0; padding: 0; }
+.reco li { position: relative; padding-left: 28px; font-size: 15.5px; line-height: 1.4; }
+.reco li::before { content: ""; position: absolute; left: 0; top: 2px; width: 19px; height: 19px; border-radius: 50%; background: var(--brand-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-7' fill='none' stroke='%23D9420B' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 100% no-repeat; }
+.reco p { font-size: 14.5px; color: var(--muted); margin: 0; }
+.reco-next { font-size: 13.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+.reco.new { animation: rise .6s var(--ease) both; }
 .diag .hyp { font-size: 12.5px; color: #8A8A93; }
 
 /* Done card */
@@ -249,12 +259,12 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
   .nums-grid { grid-template-columns: minmax(0, 1fr); }
   .num + .num { border-left: 0; border-top: 1px solid var(--line); }
   .num { padding: 26px 4px; }
-  .tool-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .tool { padding: 16px; gap: 12px; } .tool b { font-size: 15px; }
+  .tool-row { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .tool { padding: 18px; gap: 10px; grid-template-columns: 44px minmax(0, 1fr); align-items: center; column-gap: 14px; } .tool i { grid-row: span 2; } .tool span { margin-top: 0; }
   .final { border-radius: 28px; margin-inline: 8px; padding-block: 70px; }
   .composer textarea { font-size: 17px; padding: 18px 68px 18px 20px; }
   .msg { max-width: 92%; }
-  .diag, .done { margin-left: 0; padding: 22px; }
+  .diag, .done, .reco { margin-left: 0; padding: 22px; }
   .answers { justify-content: flex-start; }
   .who div span { display: none; }
   .ghost { padding: 8px 9px; font-size: 13.5px; }
@@ -504,39 +514,68 @@ document.addEventListener('pointerdown', e => {
 });
 
 /* ——— Conversation data ——— */
-// Every business belongs to one profile; the profile decides which three questions make sense.
-// [name, profile, average basket in €]
+// [name, profile, average basket in €, what people type on Google]
 const CATS = [
-  ['Restauration', [['Restaurant', 'food', 25], ['Pizzeria', 'food', 22], ['Fast-food, kebab, burger', 'food', 14], ['Sushi, cuisine asiatique', 'food', 24], ['Food truck', 'food', 13], ['Traiteur', 'food', 30]]],
-  ['Cafés et boissons', [['Café, bar', 'counter', 9], ['Coffee shop', 'counter', 8], ['Salon de thé', 'counter', 12], ['Bar à cocktails', 'counter', 18]]],
-  ['Métiers de bouche', [['Boulangerie, pâtisserie', 'counter', 9], ['Boucherie, charcuterie', 'counter', 28], ['Fromagerie', 'counter', 25], ['Primeur', 'counter', 18], ['Épicerie fine', 'counter', 20], ['Caviste', 'counter', 35], ['Chocolatier', 'counter', 22]]],
-  ['Beauté et bien-être', [['Coiffeur', 'rdv', 45], ['Barbier', 'rdv', 25], ['Institut de beauté', 'rdv', 55], ['Onglerie', 'rdv', 40], ['Spa, massage', 'rdv', 70], ['Tatoueur, pierceur', 'rdv', 120]]],
-  ['Boutiques', [['Vêtements, chaussures', 'shop', 60], ['Fleuriste', 'shop', 35], ['Librairie, papeterie', 'shop', 22], ['Déco, cadeaux', 'shop', 40], ['Opticien', 'shop', 150], ['Bijouterie', 'shop', 90]]],
-  ['Services et sport', [['Pressing, retouches', 'service', 18], ['Cordonnerie, clés', 'service', 20], ['Garage, réparation', 'service', 180], ['Salle de sport, coach', 'rdv', 45], ['Autre commerce', 'service', 30]]],
+  ['Restauration', [['Restaurant', 'food', 25, 'restaurant'], ['Pizzeria', 'food', 22, 'pizzeria'], ['Fast-food, kebab, burger', 'food', 14, 'burger'], ['Sushi, cuisine asiatique', 'food', 24, 'sushi'], ['Food truck', 'food', 13, 'food truck'], ['Traiteur', 'food', 30, 'traiteur']]],
+  ['Cafés et boissons', [['Café, bar', 'counter', 9, 'bar'], ['Coffee shop', 'counter', 8, 'coffee shop'], ['Salon de thé', 'counter', 12, 'salon de thé'], ['Bar à cocktails', 'counter', 18, 'bar à cocktails']]],
+  ['Métiers de bouche', [['Boulangerie, pâtisserie', 'counter', 9, 'boulangerie'], ['Boucherie, charcuterie', 'counter', 28, 'boucherie'], ['Fromagerie', 'counter', 25, 'fromagerie'], ['Primeur', 'counter', 18, 'primeur'], ['Épicerie fine', 'counter', 20, 'épicerie fine'], ['Caviste', 'counter', 35, 'caviste'], ['Chocolatier', 'counter', 22, 'chocolatier']]],
+  ['Beauté et bien-être', [['Coiffeur', 'rdv', 45, 'coiffeur'], ['Barbier', 'rdv', 25, 'barbier'], ['Institut de beauté', 'rdv', 55, 'institut de beauté'], ['Onglerie', 'rdv', 40, 'onglerie'], ['Spa, massage', 'rdv', 70, 'massage'], ['Tatoueur, pierceur', 'rdv', 120, 'tatoueur']]],
+  ['Boutiques', [['Vêtements, chaussures', 'shop', 60, 'boutique de vêtements'], ['Fleuriste', 'shop', 35, 'fleuriste'], ['Librairie, papeterie', 'shop', 22, 'librairie'], ['Déco, cadeaux', 'shop', 40, 'boutique déco'], ['Opticien', 'shop', 150, 'opticien'], ['Bijouterie', 'shop', 90, 'bijouterie']]],
+  ['Services et sport', [['Pressing, retouches', 'service', 18, 'pressing'], ['Cordonnerie, clés', 'service', 20, 'cordonnerie'], ['Garage, réparation', 'service', 180, 'garage'], ['Salle de sport, coach', 'rdv', 45, 'coach sportif'], ['Autre commerce', 'service', 30, 'commerce']]],
 ];
 const ALL_TYPES = CATS.flatMap(c => c[1]);
-const PROFILES = {
-  food: { intro: 'En restauration, l’argent part surtout au téléphone pendant le service, dans les commissions des plateformes et avec les clients qui ne reviennent pas.', qs: ['calls', 'platforms', 'clients'] },
-  counter: { intro: 'Dans un commerce de comptoir, tout se joue sur les habitués : les faire revenir plus souvent, et ne pas laisser de commission aux plateformes.', qs: ['visits', 'loyalty', 'platforms'] },
-  rdv: { intro: 'Dans un métier sur rendez-vous, l’argent se perd au téléphone pendant que vous travaillez, et dans les rendez-vous non honorés.', qs: ['calls', 'noshow', 'clients'] },
-  shop: { intro: 'Pour une boutique, tout commence par être trouvé sur Google, puis par faire revenir les clients.', qs: ['clients', 'google', 'loyalty'] },
-  service: { intro: 'Pour un commerce de services, chaque appel manqué est un client qui part ailleurs, et la note Google fait la différence.', qs: ['calls', 'clients', 'google'] },
+const term = A => (ALL_TYPES.find(t => t[0] === A.type) || [])[3] || 'commerce';
+const isResto = A => A.profil === 'food';
+
+/* Each problem follows its own path of questions. The last question always checks the website. */
+const TRACKS = {
+  visibilite: { intro: 'On va regarder comment vos futurs clients vous trouvent : sur Google, et de plus en plus dans les IA comme ChatGPT.', qs: () => ['site', 'rank', 'ia', 'nouveaux'] },
+  fidelite: { intro: 'On va voir combien de vos clients pourraient revenir plus souvent.', qs: p => [p === 'counter' ? 'visits' : 'clients', 'loyalty', 'relance', 'site'] },
+  reseaux: { intro: 'On va voir ce que les réseaux sociaux pourraient vous amener comme clients.', qs: () => ['post', 'pub', 'nouveaux', 'site'] },
+  commission: { intro: 'On va chiffrer ce que les plateformes vous coûtent vraiment.', qs: () => ['platforms', 'direct', 'clients', 'site'] },
+  rdv: { intro: 'On va chiffrer ce que vous coûtent les absences, et comment les éviter.', qs: () => ['noshow', 'booking', 'clients', 'site'] },
+  appels: { intro: 'On va voir pourquoi le téléphone sonne autant, et comment l’alléger.', qs: () => ['calls', 'motif', 'site'] },
+  general: { intro: 'Pour bien vous orienter, une première question.', qs: () => ['route'] },
 };
+function detectTrack(text, profil) {
+  const t = String(text).toLowerCase();
+  if (/lapin|rendez|rdv|annul|pas venu|no.?show|r[eé]servation/.test(t) && (profil === 'rdv' || profil === 'food')) return 'rdv';
+  if (/uber|deliveroo|commission|plateforme|too good|just eat/.test(t) && (profil === 'food' || profil === 'counter')) return 'commission';
+  if (/insta|tiktok|r[eé]seau|facebook|poster|publi|vid[eé]o|\bpub\b|sponsor/.test(t)) return 'reseaux';
+  if (/google|\bsite\b|internet|\bweb|seo|geo|r[eé]f[eé]renc|trouv|visib|chatgpt|\bia\b|connai|nouveaux clients|personne ne vient|pas assez de clients/.test(t)) return 'visibilite';
+  if (/revien|fid[eé]l|habitu/.test(t)) return 'fidelite';
+  if (/appel|t[eé]l[eé]phon|d[eé]croch|r[eé]pond/.test(t)) return 'appels';
+  return 'general';
+}
+
 const QS = {
-  calls: {
-    ask: p => p === 'food' ? 'Pendant le service, combien d’appels vous ratez par semaine, à peu près ?' : 'Quand vous êtes occupé avec un client, combien d’appels vous ratez par semaine, à peu près ?',
-    opts: [['Aucun', 0], ['1 à 5', 3], ['5 à 10', 8], ['Plus de 10', 15]],
-    react: v => v === 0 ? 'Très bien, le téléphone est sous contrôle.' : v <= 3 ? 'Quelques appels par semaine, ça finit par compter.' : 'C’est beaucoup : une partie de ces gens appellent ailleurs.',
+  route: {
+    ask: () => 'Qu’est-ce qui vous aiderait le plus en ce moment ?',
+    opts: A => [['Plus de nouveaux clients', 'visibilite'], ['Que mes clients reviennent plus souvent', 'fidelite'], ['Être plus visible sur les réseaux', 'reseaux'],
+      ...(A.profil === 'food' || A.profil === 'counter' ? [['Payer moins de commissions', 'commission']] : []),
+      ...(A.profil === 'rdv' ? [['Moins de rendez-vous ratés', 'rdv']] : A.profil === 'food' ? [['Moins de réservations ratées', 'rdv']] : []),
+      ['Moins d’appels à gérer', 'appels']],
+    react: () => 'Très bien, regardons ça.',
   },
-  platforms: {
-    ask: p => p === 'counter' ? 'Vous vendez sur Uber Eats, Deliveroo ou Too Good To Go ? Combien de commandes par mois ?' : 'Combien de commandes par mois passent par Uber Eats ou Deliveroo ?',
-    opts: [['Je n’y suis pas', 0], ['Moins de 50', 30], ['50 à 200', 120], ['Plus de 200', 300]],
-    react: v => v === 0 ? 'Parfait, aucune commission à payer de ce côté.' : v >= 120 ? 'Ça fait beaucoup de commission, souvent payée sur vos habitués.' : 'Même à petite dose, la commission pèse sur vos marges.',
+  site: {
+    ask: A => A.track === 'visibilite' ? 'Vous avez un site internet aujourd’hui ?' : 'Dernière question : vous avez un site internet ?',
+    opts: [['Non', 0], ['Oui, mais il date', 1], ['Oui, récent et à jour', 2]],
+    react: v => v === 0 ? 'Sans site, Google et les IA ont très peu d’informations sur vous. Ils recommandent d’abord ceux qui en ont un.' : v === 1 ? 'Un site ancien, souvent lent ou mal affiché sur téléphone, Google le fait descendre.' : 'Très bien. Reste à vérifier qu’il est bien construit pour Google et pour les IA.',
   },
-  noshow: {
-    ask: () => 'Combien de rendez-vous non honorés par semaine, les fameux « lapins » ?',
-    opts: [['Aucun', 0], ['1 ou 2', 1.5], ['3 à 5', 4], ['Plus de 5', 7]],
-    react: v => v === 0 ? 'Bravo, c’est rare.' : v >= 4 ? 'Chaque lapin, c’est un créneau perdu. Des rappels par SMS règlent souvent ça.' : 'Même un ou deux par semaine, ça fait des créneaux perdus.',
+  rank: {
+    ask: A => `Quand quelqu’un tape « ${term(A)} » et votre ville sur Google, vous sortez où ?`,
+    opts: [['Dans les 3 premiers', 0], ['Plus bas', 0.08], ['Je ne me trouve pas', 0.15], ['Je ne sais pas', 0.07]],
+    react: v => v === 0 ? 'Belle place : c’est là que se font la plupart des clics.' : 'Les trois premiers résultats prennent la grande majorité des clics. Les suivants se partagent le reste.',
+  },
+  ia: {
+    ask: A => `Et si on demande à ChatGPT « ${term(A)} près de chez moi », il vous cite ?`,
+    opts: [['Oui', 0], ['Non', 0.05], ['Jamais essayé', 0.04]],
+    react: v => v === 0 ? 'Excellent, c’est encore rare.' : 'C’est le GEO, le référencement dans les IA : de plus en plus de clients demandent à une IA au lieu de chercher sur Google. Elle cite les commerces dont le site et la fiche Google sont clairs et complets.',
+  },
+  nouveaux: {
+    ask: () => 'Combien de nouveaux clients par mois, à peu près ?',
+    opts: [['Moins de 10', 6], ['10 à 30', 20], ['30 à 80', 50], ['Plus de 80', 110]],
+    react: () => null,
   },
   clients: {
     ask: () => 'Combien de clients différents par mois, environ ?',
@@ -551,79 +590,145 @@ const QS = {
   loyalty: {
     ask: () => 'Vous avez une carte de fidélité ?',
     opts: [['Non', 1], ['Oui, en papier', 0.7], ['Oui, sur téléphone', 0.3]],
-    react: v => v === 1 ? 'Une carte de fidélité ferait revenir vos habitués plus souvent.' : v === 0.7 ? 'Les cartes papier se perdent et ne relancent personne.' : 'Vous êtes déjà équipé, j’en tiens compte.',
+    react: v => v === 1 ? 'C’est pourtant le moyen le plus simple de faire revenir vos clients.' : v === 0.7 ? 'Les cartes papier se perdent, s’oublient, et ne relancent personne.' : 'Vous êtes déjà équipé, j’en tiens compte.',
   },
-  google: {
-    ask: () => 'Les gens vous trouvent facilement sur Google ?',
-    opts: [['Oui, bien noté', 0.01], ['Moyennement', 0.03], ['Pas vraiment', 0.05], ['Je ne sais pas', 0.03]],
-    react: v => v === 0.01 ? 'Belle réputation, il faut la montrer encore plus.' : 'Une fiche Google bien tenue, ce sont des clients en plus chaque semaine.',
+  relance: {
+    ask: () => 'Quand un client tarde à revenir, vous le relancez ?',
+    opts: [['Jamais', 1], ['Parfois', 0.6], ['Oui, à chaque fois', 0.2]],
+    react: v => v === 1 ? 'Normal, personne n’a le temps. Une carte sur téléphone le fait toute seule : un SMS au bon moment, et le client revient.' : v === 0.6 ? 'Une relance automatique, ce serait la même chose sans y penser.' : 'Bravo, c’est rare. On peut vous faire gagner le temps que ça prend.',
+  },
+  post: {
+    ask: () => 'Vous publiez sur Instagram ou TikTok ?',
+    opts: [['Jamais', 0.10], ['De temps en temps', 0.05], ['Chaque semaine', 0.02]],
+    react: (v, A) => v === 0.10 ? `Beaucoup de gens regardent Instagram avant de choisir un ${term(A)}. Sans publications, ils ne vous voient pas.` : v === 0.05 ? 'La régularité fait tout : un compte qui publie chaque semaine est montré à bien plus de monde.' : 'Bravo. Une pub locale peut maintenant amplifier ça autour de chez vous.',
+  },
+  pub: {
+    ask: () => 'Vous avez déjà fait de la pub sponsorisée sur Instagram ou Facebook ?',
+    opts: [['Jamais', 0.05], ['Oui, sans résultat', 0.04], ['Oui, et ça marche', 0.01]],
+    react: v => v === 0.01 ? 'Parfait, on peut aller plus loin.' : 'Une pub bien ciblée, c’est quelques euros par jour pour toucher les gens à quelques rues de chez vous.',
+  },
+  platforms: {
+    ask: A => A.profil === 'counter' ? 'Combien de commandes par mois passent par Uber Eats, Deliveroo ou Too Good To Go ?' : 'Combien de commandes par mois passent par Uber Eats ou Deliveroo ?',
+    opts: [['Moins de 50', 30], ['50 à 200', 120], ['Plus de 200', 300]],
+    react: v => v >= 120 ? 'Ça fait beaucoup de commission, souvent payée sur vos propres habitués.' : 'Même à petite dose, la commission pèse sur vos marges.',
+  },
+  direct: {
+    ask: () => 'Vos clients peuvent-ils commander chez vous en ligne, sans plateforme ?',
+    opts: [['Non', 1], ['Oui', 0.4]],
+    react: v => v === 1 ? 'C’est la clé : vos habitués commanderaient chez vous en direct, sans commission.' : 'Très bien. Il faut surtout que vos habitués le sachent.',
+  },
+  noshow: {
+    ask: A => isResto(A) ? 'Combien de réservations non honorées par semaine ?' : 'Combien de rendez-vous non honorés par semaine, les fameux « lapins » ?',
+    opts: [['Aucun', 0], ['1 ou 2', 1.5], ['3 à 5', 4], ['Plus de 5', 7]],
+    react: v => v === 0 ? 'Bravo, c’est rare.' : v >= 4 ? 'C’est beaucoup : chaque absence, c’est un créneau payé pour rien.' : 'Même une ou deux par semaine, ça finit par compter.',
+  },
+  booking: {
+    ask: A => isResto(A) ? 'Comment vos clients réservent-ils ?' : 'Comment vos clients prennent-ils rendez-vous ?',
+    opts: [['Par téléphone', 1], ['En ligne', 0.2], ['Les deux', 0.5]],
+    react: (v, A) => v === 1 ? `Avec la réservation en ligne, vos clients réservent seuls, même quand vous avez les mains prises ou que c’est fermé.` : 'Très bien. Un rappel par SMS la veille éviterait encore la plupart des absences.',
+  },
+  calls: {
+    ask: A => isResto(A) ? 'Pendant le service, combien d’appels vous ratez par semaine, à peu près ?' : 'Quand vous êtes occupé, combien d’appels vous ratez par semaine, à peu près ?',
+    opts: [['1 à 5', 3], ['5 à 10', 8], ['Plus de 10', 15]],
+    react: v => v >= 8 ? 'C’est beaucoup : une partie de ces gens appellent ailleurs.' : null,
+  },
+  motif: {
+    ask: () => 'Ces appels, c’est surtout pour :',
+    opts: A => [[isResto(A) ? 'Réserver une table' : 'Prendre rendez-vous', 1], ...(A.profil === 'food' || A.profil === 'counter' ? [['Passer commande', 2]] : []), ['Horaires, prix, infos', 3], ['Un peu de tout', 4]],
+    react: v => v === 1 ? 'La réservation en ligne règle ça : vos clients réservent seuls, sans vous appeler.' : v === 2 ? 'Avec la commande en ligne, ils commandent sans appeler, et sans commission.' : 'La plupart de ces appels disparaissent avec un site clair : horaires, prix, accès, tout y est.',
   },
 };
+const optsOf = (Q, A) => typeof Q.opts === 'function' ? Q.opts(A) : Q.opts;
 const SLOTS = ['Le matin', 'Le midi', 'L’après-midi', 'Peu importe'];
-const IDEAS = ['Je rate des appels quand je suis occupé', 'Uber Eats me prend trop de commission', 'Mes clients ne reviennent pas assez', 'On ne me trouve pas sur Google'];
-const PLACEHOLDERS = ['Je rate des appels quand on est débordés…', 'Trop de rendez-vous non honorés…', 'Mes clients viennent une fois et ne reviennent pas…', 'On ne me trouve pas sur Google…'];
+const IDEAS = ['On ne me trouve pas sur Google', 'Mes clients ne reviennent pas assez', 'Je n’ai pas le temps pour les réseaux', 'Uber Eats me prend trop de commission'];
+const PLACEHOLDERS = ['On ne me trouve pas sur Google…', 'Mes clients viennent une fois et ne reviennent pas…', 'Trop de rendez-vous non honorés…', 'Je n’ai pas le temps de poster sur Instagram…'];
 const STEPS = ['problem', 'cat', 'type', 'q', 'consent', 'later', 'prenom', 'commerce', 'ville', 'tel', 'slot', 'retry', 'done'];
-const SOL = { accueil: 'Accueil téléphonique', rdv: 'Rappels de rendez-vous', commande: 'Commande sans commission', fidelite: 'Fidélité sur téléphone', google: 'Avis et fiche Google', site: 'Site internet', reseaux: 'Réseaux sociaux clés en main', temps: 'Automatisations' };
-const SOL_ART = { accueil: 'l’accueil téléphonique', rdv: 'les rappels de rendez-vous par SMS', commande: 'la commande sans commission', fidelite: 'la fidélité sur téléphone', google: 'votre fiche et vos avis Google', site: 'votre site internet', reseaux: 'vos réseaux sociaux, pris en main par nous', temps: 'les automatisations' };
-const BLANK = { probleme: '', reco: '', cat: '', type: '', profil: '', panier: 25, q: {}, prenom: '', commerce: '', ville: '', telephone: '', creneau: '' };
-const blankKeepContact = A => ({ ...BLANK, q: {}, prenom: A.prenom, commerce: A.commerce, ville: A.ville, telephone: A.telephone });
+const SOL = { site: 'Site internet (Google et IA)', fidelite: 'Carte de fidélité', reseaux: 'Réseaux sociaux et pub locale', google: 'Fiche Google et avis', rdv: 'Réservation en ligne et rappels', commande: 'Commande en ligne sans commission', accueil: 'Accueil téléphonique', temps: 'Automatisations' };
+const SOL_ART = { site: 'un site pensé pour Google et pour l’IA', fidelite: 'une carte de fidélité sur téléphone', reseaux: 'vos réseaux sociaux et une pub locale', google: 'votre fiche et vos avis Google', rdv: 'la réservation en ligne avec rappels par SMS', commande: 'la commande en ligne sans commission', accueil: 'l’accueil téléphonique', temps: 'les automatisations' };
+// What we tell the shop owner to convince them, per solution.
+const PITCH = {
+  site: A => ({ title: 'Un site internet pensé pour Google et pour l’IA', pts: [`Vous sortez quand on tape « ${term(A)} » et votre ville`, 'Les IA comme ChatGPT peuvent vous recommander : c’est le GEO', A.profil === 'rdv' ? 'Vos clients réservent en un clic depuis leur téléphone' : isResto(A) ? 'Menu, horaires, réservation et commande au même endroit' : 'Horaires, prix et itinéraire en un clic depuis le téléphone'], foot: 'Clé en main : on écrit, on photographie, on met en ligne.' }),
+  fidelite: () => ({ title: 'Une carte de fidélité sur téléphone', pts: ['Plus de carte papier perdue : elle est dans le téléphone du client', 'Un SMS automatique quand un client tarde à revenir', 'Vous voyez enfin qui sont vos meilleurs clients'], foot: 'Installée en une heure, rien à configurer de votre côté.' }),
+  reseaux: () => ({ title: 'Vos réseaux sociaux et votre pub locale, gérés pour vous', pts: ['On vient filmer chez vous une fois par mois', '8 publications par mois, dont 4 vidéos', 'De la pub ciblée sur les gens autour de votre commerce'], foot: 'Vous validez, on publie. Vous ne touchez plus à rien.' }),
+  google: () => ({ title: 'Une fiche Google complète, et plus d’avis', pts: ['Photos, horaires et services toujours à jour', 'Plus d’avis grâce à un QR code au comptoir', 'Des réponses à chaque avis : Google et les IA adorent ça'], foot: 'On s’occupe de tout, vous gardez la main.' }),
+  rdv: A => ({ title: isResto(A) ? 'La réservation en ligne, avec rappels par SMS' : 'La prise de rendez-vous en ligne, avec rappels par SMS', pts: [isResto(A) ? 'Vos clients réservent seuls, 24 h sur 24' : 'Vos clients prennent rendez-vous seuls, 24 h sur 24', 'Un SMS de rappel la veille : beaucoup moins d’absences', 'Moins d’appels pendant que vous travaillez'], foot: 'Sans commission sur vos clients.' }),
+  commande: () => ({ title: 'La commande en ligne, sans commission', pts: ['Vos habitués commandent chez vous en direct', '0 % de commission sur ces commandes', 'Vous gardez le contact de vos clients'], foot: 'Uber pour les nouveaux clients, votre page pour les habitués.' }),
+};
+const BLANK = { probleme: '', reco: '', cat: '', type: '', profil: '', track: '', panier: 25, q: {}, prenom: '', commerce: '', ville: '', telephone: '', creneau: '' };
+const blankKeepContact = A => ({ ...BLANK, q: {}, qs: [], prenom: A.prenom, commerce: A.commerce, ville: A.ville, telephone: A.telephone });
 
 /* ——— State (restored safely from the browser) ——— */
-let S = { view: 'home', step: 'problem', qi: 0, msgs: [], A: { ...BLANK, q: {} } };
+let S = { view: 'home', step: 'problem', qi: 0, msgs: [], A: { ...BLANK, q: {}, qs: [] } };
 (() => {
   const s = store.get(); if (!s || typeof s !== 'object') return;
   if (!STEPS.includes(s.step) || !Array.isArray(s.msgs) || !s.A || typeof s.A !== 'object') return;
-  const A = { ...BLANK, q: {} };
+  const A = { ...BLANK, q: {}, qs: [] };
   for (const k in BLANK) { if (k === 'q') continue; const v = s.A[k]; if (typeof BLANK[k] === 'string' && typeof v === 'string') A[k] = v.slice(0, 1000); else if (typeof BLANK[k] === 'number' && Number.isFinite(v)) A[k] = v; }
   if (s.A.q && typeof s.A.q === 'object') for (const k in QS) if (Number.isFinite(s.A.q[k])) A.q[k] = s.A.q[k];
-  if (A.profil && !PROFILES[A.profil]) A.profil = '';
-  const qi = Number.isInteger(s.qi) && s.qi >= 0 && s.qi < 3 ? s.qi : 0;
+  if (Array.isArray(s.A.qs)) A.qs = s.A.qs.filter(k => QS[k]).slice(0, 6);
+  if (A.track && !TRACKS[A.track]) A.track = '';
+  if (!['food', 'counter', 'rdv', 'shop', 'service'].includes(A.profil)) A.profil = '';
+  const qi = Number.isInteger(s.qi) && s.qi >= 0 && s.qi < A.qs.length ? s.qi : 0;
   const msgs = s.msgs.filter(m => m && (m.r === 'bot' || m.r === 'me') && (typeof m.t === 'string' || m.k)).slice(-60);
   const finished = s.step === 'done';
   S = { view: s.view === 'chat' && msgs.length && !finished ? 'chat' : 'home', step: finished ? 'problem' : s.step, qi, msgs: finished ? [] : msgs, A: finished ? blankKeepContact(A) : A };
-  if (S.step === 'q' && !A.profil) S.step = 'cat';
+  if (S.step === 'q' && (!A.profil || !A.qs.length)) S.step = 'cat';
   if (S.step === 'problem') S.view = 'home';
 })();
 const save = () => store.set(S);
 
-/* ——— Money estimate: only what applies to this business, with cautious assumptions ——— */
+/* ——— Money estimate: prudent, with every assumption shown to the shop owner ——— */
 function losses(A = S.A) {
-  // Prudent monthly estimates, each with the assumption shown to the shop owner.
-  const q = A.q || {}, p = Number(A.panier) || 25, pr = A.profil, items = [];
+  const q = A.q || {}, p = Number(A.panier) || 25, items = [];
   const add = (k, label, v, sol, h) => { v = Math.round(v); if (v > 0) items.push({ k, label, v, sol, h }); };
-  if (q.calls) add('appels', 'Appels manqués', q.calls * 4.33 * (pr === 'rdv' ? 0.5 : 1 / 3) * p, 'accueil', pr === 'rdv' ? 'un appel manqué sur deux était une prise de rendez-vous' : 'un appel manqué sur trois était un client');
-  if (q.noshow) add('lapins', 'Rendez-vous non honorés', q.noshow * 4.33 * p * 0.5, 'rdv', 'la moitié des lapins évitée grâce aux rappels par SMS');
-  if (q.platforms) add('commission', 'Commissions des plateformes', q.platforms * p * 0.3 * 0.3, 'commande', 'environ 30 % de commission, et 30 % des clients qui passent en commande directe');
-  const visitsMonth = q.visits != null ? q.visits * 26 : null, loyal = q.loyalty ?? 1;
-  if (visitsMonth != null) add('fidelite', 'Habitués qui pourraient revenir plus souvent', visitsMonth * 0.02 * p * loyal, 'fidelite', '2 % de passages en plus grâce à la fidélité');
-  else if (q.clients != null && pr !== 'service') {
-    const r = pr === 'rdv' ? 0.02 : 0.03;
-    add('fidelite', 'Clients qui ne reviennent pas', q.clients * r * p * loyal, 'fidelite', `${Math.round(r * 100)} % de clients qui reviennent une fois de plus par mois`);
+  const pct = x => Math.round(x * 100) + ' %';
+  const rep = { counter: 3, food: 1.5 }[A.profil] || 1, repTxt = rep > 1 ? ', en comptant leurs passages suivants dans le mois' : ', sans compter leurs visites suivantes';
+  const nouveaux = q.nouveaux ?? (q.clients != null ? q.clients * 0.2 : q.visits != null ? q.visits * 26 * 0.05 : null);
+  if (A.track === 'visibilite' && q.site != null && nouveaux != null) {
+    const g = 0.05 + [0.20, 0.12, 0.03][q.site] + (q.rank ?? 0.08) + (q.ia ?? 0.05);
+    add('visibilite', 'Nouveaux clients qui partent chez un concurrent', nouveaux * g * p * rep, q.site < 2 || (q.rank ?? 0) > 0 ? 'site' : 'google', `${pct(g)} de nouveaux clients en plus avec un site bien référencé sur Google et dans les IA${repTxt}`);
+  } else if (q.site != null && q.site < 2 && nouveaux != null) {
+    const g = q.site === 0 ? 0.15 : 0.08;
+    add('site', 'Clients qui ne vous trouvent pas en ligne', nouveaux * g * p * rep, 'site', `${pct(g)} de nouveaux clients en plus avec un site bien référencé${repTxt}`);
   }
-  if (q.google != null) add('google', 'Clients qui ne vous trouvent pas', (visitsMonth ?? q.clients ?? 0) * q.google * p, 'google', 'quelques pour cent de clients en plus avec une fiche Google soignée');
+  if (A.track === 'fidelite') {
+    const base = q.visits != null ? q.visits * 26 : q.clients, r = q.visits != null ? 0.025 : 0.04, f = ((q.loyalty ?? 1) + (q.relance ?? 1)) / 2;
+    if (base != null) add('fidelite', 'Clients qui pourraient revenir plus souvent', base * r * f * p, 'fidelite', `${pct(r)} de visites en plus avec une carte sur téléphone qui relance vos clients`);
+  }
+  if (A.track === 'reseaux' && nouveaux != null) {
+    const g = (q.post ?? 0.05) + (q.pub ?? 0.05);
+    add('reseaux', 'Clients du quartier qui ne vous connaissent pas encore', nouveaux * g * p * rep, 'reseaux', `${pct(g)} de nouveaux clients en plus grâce aux réseaux et à la pub locale${repTxt}`);
+  }
+  if (q.platforms) add('commission', 'Commissions des plateformes', q.platforms * p * 0.3 * 0.3 * (q.direct ?? 1), 'commande', 'environ 30 % de commission, et 30 % de vos clients qui passent en commande directe');
+  if (q.noshow) add('lapins', isResto(A) ? 'Réservations non honorées' : 'Rendez-vous non honorés', q.noshow * 4.33 * p * 0.5, 'rdv', 'la moitié des absences évitée grâce au rappel par SMS');
+  if (q.booking && q.clients != null) add('booking', isResto(A) ? 'Réservations perdues quand vous ne répondez pas' : 'Rendez-vous perdus quand vous ne répondez pas', q.clients * 0.03 * q.booking * p, 'rdv', '3 % de réservations en plus quand on peut réserver en ligne à toute heure');
+  if (q.calls) {
+    const sol = { 1: 'rdv', 2: 'commande', 3: 'site', 4: 'site' }[q.motif] || 'site';
+    add('appels', 'Appels sans réponse', q.calls * 4.33 * (q.motif === 1 ? 0.5 : 1 / 3) * p, sol, q.motif === 1 ? 'un appel manqué sur deux était une réservation' : 'un appel manqué sur trois était un client');
+  }
   items.sort((x, y) => y.v - x.v);
   return { items, hyp: items.map(i => i.h), total: items.reduce((t, i) => t + i.v, 0) };
 }
-// The loss the shop owner described in their own words, if we measured it.
-function focusItem(A = S.A, L = losses(A)) {
-  const t = A.probleme.toLowerCase(), by = k => L.items.find(i => i.k === k);
-  const rules = [[/lapin|rendez|rdv|annul|pas venu|viennent pas/, 'lapins'], [/uber|deliveroo|commission|plateforme|too good/, 'commission'], [/appel|t[eé]l[eé]phon|d[eé]croch|r[eé]pond/, 'appels'], [/google|avis|trouv|visib|connai/, 'google'], [/revien|fid[eé]l|habitu|reviens/, 'fidelite']];
-  for (const [re, k] of rules) if (re.test(t) && by(k)) return by(k);
-  return null;
-}
-const SOCIAL = /insta|tiktok|r[eé]seaux|facebook|poster|publi|vid[eé]o/;
+// Recommended solutions: the one that answers the shop owner's own problem first, then the website if needed.
 function pistes(A = S.A) {
-  const L = losses(A), out = [], add = k => { if (k && !out.includes(k)) out.push(k); }, p = A.probleme.toLowerCase(), f = focusItem(A, L);
-  if (f) add(f.sol); else if (SOCIAL.test(p)) add('reseaux');
-  L.items.forEach(i => add(i.sol));
-  if (/google|avis|trouv|visib/.test(p)) add('google');
-  if (/\bsite\b|internet|web/.test(p)) add('site');
-  if (SOCIAL.test(p) || /nouveaux clients|faire conna/.test(p)) add('reseaux');
-  if (!out.length) add(A.profil === 'service' || A.profil === 'shop' ? 'google' : 'fidelite');
-  // Growth offer for businesses people choose with their eyes (not garages or pressings).
-  if (out.length < 3 && A.profil !== 'service') add('reseaux');
+  const q = A.q || {}, out = [], add = k => { if (k && !out.includes(k)) out.push(k); };
+  const first = { visibilite: q.site === 2 && q.rank === 0 ? 'google' : 'site', fidelite: 'fidelite', reseaux: 'reseaux', commission: 'commande', rdv: 'rdv', appels: { 1: 'rdv', 2: 'commande' }[q.motif] || 'site' }[A.track];
+  add(first);
+  if (q.site != null && q.site < 2) add('site');
+  if (A.track === 'visibilite') add('google');
+  add({ rdv: 'fidelite', counter: 'fidelite', food: 'fidelite', shop: 'reseaux', service: 'google' }[A.profil]);
+  if (A.profil !== 'service') add('reseaux');
+  add('google');
   return out.slice(0, 3);
 }
+const LEAD = {
+  visibilite: A => A.q.site === 0 ? 'Sans site, Google et les IA ne savent presque rien de vous : ces clients choisissent ceux qu’ils trouvent.' : 'Ces clients vous cherchent, mais tombent d’abord sur vos concurrents.',
+  fidelite: () => 'Vos clients vous aiment déjà. Le plus rentable, c’est de les faire revenir un peu plus souvent.',
+  reseaux: () => 'Autour de vous, beaucoup de gens ne savent pas encore que vous existez. Les réseaux sont le moyen le plus direct de les toucher.',
+  commission: () => 'Une bonne partie de ces commissions est payée sur vos propres habitués. Ça se récupère.',
+  rdv: () => 'Chaque absence, c’est un créneau payé pour rien. Un simple SMS la veille en évite la plupart.',
+  appels: () => 'La plupart de ces appels peuvent disparaître : vos clients trouvent la réponse, ou réservent, sans vous appeler.',
+};
 function callWhen() {
   const n = new Date(), day = n.getDay(), h = n.getHours();
   if (day === 6 || day === 0) return 'lundi';
@@ -650,15 +755,16 @@ async function ai(kind, payload) {
   } catch (e) { return null; } finally { clearTimeout(t); }
 }
 function ackFor(p) {
-  p = p.toLowerCase();
-  if (/lapin|rendez|rdv|annul/.test(p)) return 'Les rendez-vous non honorés, ce sont des créneaux payés pour rien. Ça se règle très bien.';
-  if (/appel|t[eé]l[eé]phon|d[eé]croch|rush|d[eé]bord|occup/.test(p)) return 'Chaque appel manqué, c’est un client qui peut partir chez le voisin. On peut régler ça.';
-  if (/uber|deliveroo|commission|plateforme/.test(p)) return 'Les commissions des plateformes mangent une grosse part de vos marges, surtout sur vos habitués.';
-  if (/revien|fid[eè]l|habitu/.test(p)) return 'Faire revenir vos clients, c’est souvent le levier le plus rentable d’un commerce.';
-  if (/insta|tiktok|r[eé]seaux|facebook|poster|publi|vid[eé]o/.test(p)) return 'Poster régulièrement prend un temps fou quand on tient un commerce. On peut s’en charger pour vous.';
-  if (/google|avis|trouv|visib/.test(p)) return 'Avant de pousser la porte, vos futurs clients regardent Google. Ça se travaille.';
-  if (/\bsite\b|internet|web/.test(p)) return 'Un site clair, c’est une vitrine ouverte 24 h sur 24. On s’en occupe.';
-  return 'Merci, c’est noté. On va regarder ça de près.';
+  // Same order as detectTrack, so the first answer matches the questions that follow.
+  const t = detectTrack(p, 'food');
+  return {
+    rdv: 'Les absences, ce sont des créneaux payés pour rien. Ça se règle très bien.',
+    commission: 'Les commissions des plateformes mangent une grosse part de vos marges, surtout sur vos habitués.',
+    reseaux: 'Poster régulièrement prend un temps fou quand on tient un commerce. On peut s’en charger pour vous.',
+    visibilite: 'Avant de pousser la porte, vos futurs clients regardent Google, et de plus en plus une IA comme ChatGPT. Ça se travaille.',
+    fidelite: 'Faire revenir vos clients, c’est souvent le levier le plus rentable d’un commerce.',
+    appels: 'Un téléphone qui sonne sans arrêt, c’est du temps perdu et des clients qui raccrochent. On peut alléger ça.',
+  }[t] || 'Merci, c’est noté. On va regarder ça de près.';
 }
 
 /* ——— Rendering ——— */
@@ -676,7 +782,7 @@ function homeView() {
   <header class="top"><div class="wrap"><a class="logo" href="#" aria-label="Caia">${wm()}</a><span class="top-note"><span class="pulse"></span>Un conseiller vous rappelle sous 24 h ouvrées</span></div></header>
   <main>
     <section class="hero"><div class="wrap">
-      <p class="shock"><b>8,45${NB}€</b><span>Ce qu’Uber Eats garde sur une commande de 27${NB}€.<sup>1</sup></span></p>
+      <p class="shock"><b>76${NB}%</b><span>des gens qui cherchent un commerce proche sur leur téléphone y vont dans la journée.<sup>1</sup></span></p>
       <h1>Votre commerce perd de l’argent. <span class="dim">Caia vous dit où.</span></h1>
       <p class="sub">Écrivez ce qui coince. En deux minutes, Caia chiffre ce que vous perdez et vous rappelle avec la solution.</p>
       <form class="composer" id="start" autocomplete="off">
@@ -689,8 +795,8 @@ function homeView() {
     </div></section>
 
     <section class="nums"><div class="wrap nums-grid" data-reveal>
-      <div class="num"><b class="o" data-count="11180">11${NB}180${NB}€</b><span>par an, laissés filer par un restaurant type.<sup>2</sup></span></div>
-      <div class="num"><b>30${NB}%</b><span>de commission environ sur chaque commande passée par une plateforme.<sup>1</sup></span></div>
+      <div class="num"><b class="o">3</b><span>premiers résultats Google : c’est là que se joue la majorité des clics.</span></div>
+      <div class="num"><b>8,45${NB}€</b><span>ce qu’Uber Eats garde sur une commande de 27${NB}€.<sup>2</sup></span></div>
       <div class="num"><b>2${NB}min</b><span>pour votre diagnostic, depuis votre téléphone.</span></div>
     </div></section>
 
@@ -698,7 +804,7 @@ function homeView() {
       <h2 data-reveal>Simple comme un message.</h2>
       <ol class="steps" data-reveal style="--d:1">
         <li><b>Vous écrivez.</b><span>Ce qui coince, avec vos mots.</span></li>
-        <li><b>Caia chiffre.</b><span>Trois questions sur votre métier, et l’argent perdu s’affiche.</span></li>
+        <li><b>Caia chiffre.</b><span>Quelques questions sur votre métier, et l’argent perdu s’affiche.</span></li>
         <li><b>On installe.</b><span>Un conseiller vous rappelle et s’occupe de tout.</span></li>
       </ol>
     </div></section>
@@ -706,14 +812,12 @@ function homeView() {
     <section class="tools"><div class="wrap">
       <h2 data-reveal>Ce qu’on met en place.</h2>
       <div class="tool-row" data-reveal style="--d:1">
-        <div class="tool"><i>${ICO.phone}</i><b>Accueil téléphonique par IA</b></div>
-        <div class="tool"><i>${ICO.bag}</i><b>Commande sans commission</b></div>
-        <div class="tool"><i>${ICO.card}</i><b>Fidélité sur téléphone</b></div>
-        <div class="tool"><i>${ICO.bell}</i><b>Rappels de rendez-vous</b></div>
-        <div class="tool"><i>${ICO.star}</i><b>Avis et fiche Google</b></div>
-        <div class="tool"><i>${ICO.cam}</i><b>Réseaux sociaux clés en main</b></div>
-        <div class="tool"><i>${ICO.web}</i><b>Site internet</b></div>
-        <div class="tool"><i>${ICO.bolt}</i><b>Automatisations</b></div>
+        <div class="tool"><i>${ICO.web}</i><b>Site internet</b><span>Pensé pour Google et pour les IA comme ChatGPT.</span></div>
+        <div class="tool"><i>${ICO.card}</i><b>Carte de fidélité</b><span>Sur le téléphone de vos clients, avec relances par SMS.</span></div>
+        <div class="tool"><i>${ICO.cam}</i><b>Réseaux sociaux et pub locale</b><span>On filme, on publie, on cible votre quartier.</span></div>
+        <div class="tool"><i>${ICO.star}</i><b>Fiche Google et avis</b><span>Complète, à jour, et plus d’avis chaque mois.</span></div>
+        <div class="tool"><i>${ICO.bell}</i><b>Réservation en ligne</b><span>Avec un rappel par SMS la veille.</span></div>
+        <div class="tool"><i>${ICO.bag}</i><b>Commande sans commission</b><span>Vos habitués commandent chez vous en direct.</span></div>
       </div>
     </div></section>
 
@@ -724,7 +828,7 @@ function homeView() {
   </main>
   <footer class="wrap site-foot">
     <div class="foot-top"><span class="logo">ca<button type="button" class="egg idot" aria-label="Espace équipe">ı</button>a</span><span>Le chiffre d’affaires des commerces de quartier.</span></div>
-    <span><sup>1</sup> Test d’une commande de 27${NB}€ publié par <a href="https://www.lyoncapitale.fr/?p=232345" target="_blank" rel="noopener">Lyon Capitale</a> : 8,45${NB}€ HT de commission. <sup>2</sup> Exemple calculé avec nos hypothèses prudentes : 8 appels manqués par semaine, panier de 22${NB}€, 120 commandes en plateforme et 400 clients par mois.</span>
+    <span><sup>1</sup> Google, étude Think with Google sur la recherche locale sur mobile (2016). <sup>2</sup> Test d’une commande de 27${NB}€ publié par <a href="https://www.lyoncapitale.fr/?p=232345" target="_blank" rel="noopener">Lyon Capitale</a> : 8,45${NB}€ HT de commission.</span>
     <span>Vos informations servent uniquement à vous rappeler et à préparer votre proposition. Elles ne sont jamais vendues.</span>
     <details class="legal"><summary>Mentions légales et confidentialité</summary><div class="legal-body">
       <p><b>Éditeur du site</b> : [Nom de la société], [forme juridique] au capital de [montant]${NB}€, [adresse du siège], SIRET [numéro]. Directeur de la publication : [prénom nom]. Contact : [adresse e-mail].</p>
@@ -767,7 +871,7 @@ const ICO = {
 };
 
 /* Chat page */
-function stepProgress() { return { problem: 6, cat: 14, type: 20, q: 30 + S.qi * 12, consent: 66, later: 66, prenom: 74, commerce: 81, ville: 88, tel: 94, slot: 98, retry: 98, done: 100 }[S.step] || 0; }
+function stepProgress() { return { problem: 6, cat: 14, type: 20, q: 26 + Math.round(S.qi * 38 / Math.max(1, S.A.qs.length)), consent: 66, later: 66, prenom: 74, commerce: 81, ville: 88, tel: 94, slot: 98, retry: 98, done: 100 }[S.step] || 0; }
 function chatView() {
   document.title = 'Votre diagnostic · Caia';
   clearInterval(phT);
@@ -791,6 +895,7 @@ function scrollEnd(smooth = true) { requestAnimationFrame(() => window.scrollTo(
 function msgEl(m, isNew) {
   const el = document.createElement('div');
   if (m.k === 'diag') { el.className = 'diag' + (isNew ? ' new' : ''); el.innerHTML = diagHtml(m.d); if (!isNew) el.querySelectorAll('.ln i').forEach(i => i.style.width = i.dataset.w); return el; }
+  if (m.k === 'reco') { const d = m.d || {}; el.className = 'reco' + (isNew ? ' new' : ''); el.innerHTML = `<small>Notre recommandation</small><b class="reco-t">${esc(d.title)}</b><ul>${(d.pts || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>${d.foot ? `<p>${esc(d.foot)}</p>` : ''}${d.next && d.next.length ? `<span class="reco-next">Ensuite, si besoin : ${esc(d.next.join(' · '))}</span>` : ''}`; return el; }
   if (m.k === 'done') { el.className = 'done'; el.innerHTML = `<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="26"/><path d="M15 27l7 7 15-16"/></svg><b>${esc(m.t)}</b><span>${esc(m.sub || '')}</span>`; return el; }
   const prev = S.msgs[S.msgs.indexOf(m) - 1];
   el.className = `msg ${m.r}${isNew ? ' new' : ''}${prev && prev.r === m.r && !prev.k && m.r === 'bot' ? ' cont' : ''}`;
@@ -803,7 +908,6 @@ function diagHtml(d) {
     <div class="big" data-total="${Math.round(d.total)}">${euro(d.total)}<em>par mois</em></div>
     <span class="yr">soit <b>${euro(d.total * 12)}</b> par an</span>
     <div class="leaks">${items.map(i => `<div class="leak"><span>${esc(i.label)}</span><b>${euro(i.v)}</b><span class="ln"><i data-w="${w(i.v)}"></i></span></div>`).join('')}</div>
-    <div class="recos">${(d.pistes || []).map(k => `<span>${esc(SOL[k] || k)}</span>`).join('')}</div>
     ${d.text ? `<p>${esc(d.text)}</p>` : ''}
     ${d.hyp && d.hyp.length ? `<span class="hyp">Estimation prudente : ${esc(d.hyp.join(', '))}. On l’affine avec vous au téléphone.</span>` : ''}`;
 }
@@ -834,13 +938,13 @@ async function thinking(label, ms) {
 
 /* The dock shows what the current step expects */
 const INPUT_STEPS = { prenom: ['Votre prénom', 'given-name', 'text'], commerce: ['Le nom de votre commerce', 'organization', 'text'], ville: ['Votre ville', 'address-level2', 'text'], tel: ['06 12 34 56 78', 'tel', 'tel'] };
-const curQ = () => QS[(PROFILES[S.A.profil] || PROFILES.service).qs[S.qi]];
+const curQ = () => QS[S.A.qs[S.qi]] || QS.route;
 function dock(err) {
   const d = $('#dock'); if (!d) return;
   const st = S.step; let chips = [], hot = [], back = false;
   if (st === 'cat') chips = CATS.map(c => c[0]);
   if (st === 'type') { const c = CATS.find(x => x[0] === S.A.cat); chips = c ? c[1].map(t => t[0]) : []; back = true; }
-  if (st === 'q') chips = curQ().opts.map(o => o[0]);
+  if (st === 'q') chips = optsOf(curQ(), S.A).map(o => o[0]);
   if (st === 'consent') { chips = ['Pas maintenant', 'Oui, rappelez-moi']; hot = ['Oui, rappelez-moi']; }
   if (st === 'later') { chips = ['Finalement, oui']; hot = chips; }
   if (st === 'slot') chips = SLOTS;
@@ -887,17 +991,19 @@ async function answer(v) {
     } else if (st === 'type') {
       const t = ALL_TYPES.find(x => x[0] === v); if (!t) return;
       A.type = t[0]; A.profil = t[1]; A.panier = t[2]; A.q = {}; S.qi = 0; me(v); dockOff();
-      await say(PROFILES[A.profil].intro);
-      await say(curQ().ask(A.profil), { wait: 300 });
+      A.track = detectTrack(A.probleme, A.profil); A.qs = TRACKS[A.track].qs(A.profil);
+      await say(TRACKS[A.track].intro);
+      await say(curQ().ask(A), { wait: 300 });
       S.step = 'q';
     } else if (st === 'q') {
-      const qid = PROFILES[A.profil].qs[S.qi], Q = QS[qid], o = Q.opts.find(x => x[0] === v); if (!o) return;
-      A.q[qid] = o[1]; me(v); dockOff();
-      const r = Q.react(o[1]);
-      if (S.qi < PROFILES[A.profil].qs.length - 1) {
+      const qid = A.qs[S.qi], Q = QS[qid], o = Q && optsOf(Q, A).find(x => x[0] === v); if (!o) return;
+      me(v); dockOff();
+      if (qid === 'route') { A.track = o[1]; A.qs = ['route', ...TRACKS[A.track].qs(A.profil)]; } else A.q[qid] = o[1];
+      const r = Q.react(o[1], A);
+      if (S.qi < A.qs.length - 1) {
         S.qi += 1; save();
         if (r) await say(r);
-        await say(curQ().ask(A.profil), { wait: r ? 250 : 500 });
+        await say(curQ().ask(A), { wait: r ? 250 : 500 });
       } else {
         if (r) await say(r);
         await diagnose();
@@ -943,22 +1049,21 @@ async function diagnose() {
   const A = S.A, th = await thinking('Caia calcule votre manque à gagner…', 1300);
   const L = losses(), ps = pistes(), top = L.items[0];
   A.reco = ps.join(',');
-  let text = await ai('diag', { message: A.probleme, type: A.type, panier: A.panier, total: L.total, postes: L.items.map(i => ({ poste: i.label, euros: i.v })), pistes: ps.map(k => SOL[k]) });
-  if (!text) {
-    const f = focusItem(A, L), two = ps[1] ? `, puis par ${SOL_ART[ps[1]]}` : '';
-    const soc = ps[0] === 'reseaux' ? 'Pour vos réseaux, on peut tout prendre en main : on vient filmer une fois par mois et on publie pour vous. ' : '';
-    if (soc) text = soc + (top ? `Côté chiffres, votre plus grosse fuite : ${top.label.toLowerCase()}, environ ${euro(top.v)} par mois, à régler avec ${SOL_ART[top.sol]}.` : '');
-    else if (!top) text = `Bonne nouvelle : avec vos réponses, peu d’argent se perd. On peut surtout vous aider à attirer de nouveaux clients, en commençant par ${SOL_ART[ps[0]]}.`;
-    else if (f && f !== top) text = `Ce que vous décriviez, ${f.label.toLowerCase()}, c’est environ ${euro(f.v)} par mois. Le plus gros poste reste ${top.label.toLowerCase()}, à ${euro(top.v)}. On commencerait par ${SOL_ART[ps[0]]}${two}.`;
-    else text = `${f ? 'Vous aviez vu juste' : 'Votre plus grosse fuite'} : ${top.label.toLowerCase()}, environ ${euro(top.v)} par mois. On commencerait par ${SOL_ART[ps[0]]}${two}.`;
-  }
+  let text = await ai('diag', { message: A.probleme, type: A.type, panier: A.panier, total: L.total, postes: L.items.map(i => ({ poste: i.label, euros: i.v })), solution_recommandee: SOL[ps[0]], autres_pistes: ps.slice(1).map(k => SOL[k]) });
+  if (!text) text = (LEAD[A.track] || LEAD.visibilite)(A);
   await th.done();
-  const d = { type: A.type, total: L.total, items: L.items.map(({ k, label, v }) => ({ k, label, v })), hyp: L.hyp, pistes: ps, text };
-  const msg = { r: 'bot', k: 'diag', d }; S.msgs.push(msg); save();
-  const el = msgEl(msg, true); $('#thread').appendChild(el); scrollEnd();
-  animateDiag(el, d.total);
-  await sleep(1400);
-  await say('Un conseiller peut vous rappeler avec une proposition chiffrée, prix compris. On y va ?', { wait: 400 });
+  if (top) {
+    const d = { type: A.type, total: L.total, items: L.items.map(({ k, label, v }) => ({ k, label, v })), hyp: L.hyp, text };
+    const msg = { r: 'bot', k: 'diag', d }; S.msgs.push(msg); save();
+    const el = msgEl(msg, true); $('#thread').appendChild(el); scrollEnd();
+    animateDiag(el, d.total);
+    await sleep(1500);
+  } else await say('Bonne nouvelle : avec vos réponses, vous ne perdez pas grand-chose de ce côté. On peut surtout vous aider à attirer plus de clients.');
+  const pt = PITCH[ps[0]](A);
+  const reco = { r: 'bot', k: 'reco', d: { title: pt.title, pts: pt.pts, foot: pt.foot, next: ps.slice(1).map(k => SOL[k]) } };
+  S.msgs.push(reco); save(); $('#thread').appendChild(msgEl(reco, true)); scrollEnd();
+  await sleep(1100);
+  await say('Un conseiller vous rappelle pour vous montrer des exemples de commerces comme le vôtre, avec le prix. On y va ?', { wait: 400 });
 }
 function dockOff() { const d = $('#dock'); if (d) d.innerHTML = ''; }
 function animateDiag(el, total) {
@@ -972,9 +1077,9 @@ function animateDiag(el, total) {
 /* ——— Sending the request (database for the team space, Netlify Forms for the e-mail alert) ——— */
 async function submit() {
   const A = S.A, L = losses(), ps = A.reco ? A.reco.split(',').filter(k => SOL[k]) : pistes(), q = A.q;
-  const label = (qid, v) => { const o = QS[qid] && QS[qid].opts.find(x => x[1] === v); return o ? o[0] : ''; };
-  const deja = [q.platforms ? 'Uber Eats ou Deliveroo' : '', q.loyalty === 0.7 ? 'Carte de fidélité papier' : q.loyalty === 0.3 ? 'Fidélité sur téléphone' : '', q.google != null ? 'Google : ' + label('google', q.google) : ''].filter(Boolean).join(', ');
-  const detail = { profil: A.profil, items: L.items.map(({ k, label: l, v, sol }) => ({ k, label: l, v, sol })), hyp: L.hyp, reponses: Object.fromEntries(Object.entries(q).map(([k, v]) => [k, label(k, v)])) };
+  const label = (qid, v) => { const o = QS[qid] && optsOf(QS[qid], A).find(x => x[1] === v); return o ? o[0] : ''; };
+  const deja = [q.site != null ? 'Site : ' + label('site', q.site) : '', q.platforms ? 'Uber Eats ou Deliveroo' : '', q.loyalty === 0.7 ? 'Carte de fidélité papier' : q.loyalty === 0.3 ? 'Fidélité sur téléphone' : '', q.post != null ? 'Réseaux : ' + label('post', q.post) : ''].filter(Boolean).join(', ');
+  const detail = { profil: A.profil, parcours: A.track, items: L.items.map(({ k, label: l, v, sol }) => ({ k, label: l, v, sol })), hyp: L.hyp, reponses: Object.fromEntries(Object.entries(q).map(([k, v]) => [k, label(k, v)])) };
   const clients = q.clients ?? null;
   const payload = {
     'form-name': 'diagnostic', 'bot-field': '',
@@ -1056,15 +1161,15 @@ function openTeam() {
   setTimeout(() => { const f = root.querySelector('input, button'); if (f) f.focus({ preventScroll: true }); }, 60);
   /* ——— Settings you may change ——— */
   // Monthly prices used to build the offer and the ROI in the analysis. Adjust to your real prices.
-  const PRIX = { fidelite: 39, commande: 59, accueil: 79, rdv: 19, google: 29, site: 49, reseaux: 249, temps: 29 };
+  const PRIX = { site: 59, fidelite: 39, reseaux: 249, google: 29, rdv: 29, commande: 59, accueil: 79, temps: 29 };
   const PRODUITS = {
-    fidelite: 'Carte de fidélité sur téléphone',
-    commande: 'Commande à emporter sans commission',
-    accueil: 'Accueil téléphonique automatique',
-    rdv: 'Rappels de rendez-vous par SMS',
+    site: 'Site internet optimisé Google et IA (SEO + GEO)',
+    fidelite: 'Carte de fidélité sur téléphone, avec relances SMS',
+    reseaux: 'Réseaux sociaux et pub locale (tournage mensuel, 8 publications dont 4 vidéos)',
     google: 'Fiche Google et avis',
-    site: 'Site vitrine',
-    reseaux: 'Réseaux sociaux clés en main (tournage mensuel, 8 publications dont 4 vidéos)',
+    rdv: 'Réservation en ligne et rappels SMS',
+    commande: 'Commande en ligne sans commission',
+    accueil: 'Accueil téléphonique automatique',
     temps: 'Automatisations du quotidien',
   };
   const STATUTS = [['nouveau', 'Nouveau'], ['a_rappeler', 'À rappeler'], ['appele', 'Appelé'], ['proposition', 'Proposition envoyée'], ['signe', 'Signé'], ['perdu', 'Perdu']];
@@ -1152,7 +1257,7 @@ function openTeam() {
     ].sort((x, y) => y.v - x.v);
     return { items, total: items.reduce((t, i) => t + i.v, 0), has: n('panier') > 0, reponses: {} };
   }
-  const QLABEL = { calls: 'Appels manqués par semaine', platforms: 'Commandes en plateforme par mois', noshow: 'Rendez-vous non honorés par semaine', clients: 'Clients différents par mois', visits: 'Clients par jour', loyalty: 'Fidélité aujourd’hui', google: 'Présence sur Google' };
+  const QLABEL = { site: 'Site internet', rank: 'Position sur Google', ia: 'Cité par ChatGPT', nouveaux: 'Nouveaux clients par mois', clients: 'Clients différents par mois', visits: 'Passages par jour', loyalty: 'Carte de fidélité', relance: 'Relance les clients', post: 'Publie sur les réseaux', pub: 'Pub sponsorisée', platforms: 'Commandes en plateforme par mois', direct: 'Commande en ligne en direct', noshow: 'Absences par semaine', booking: 'Prise de rendez-vous', calls: 'Appels manqués par semaine', motif: 'Motif des appels', google: 'Présence sur Google' };
   const keysOf = d => String(d.pistes || '').split(',').map(s => s.trim()).filter(k => PRODUITS[k]);
   const has = (d, txt) => String(d.soucis || '').includes(txt) || String(d.deja_en_place || '').includes(txt);
   function analyse(d) {
@@ -1177,6 +1282,7 @@ function openTeam() {
     if (has(d, 'Rien de tout ça') || d.type_commerce === 'Boulangerie ou pâtisserie') objections.push(['« Je ne suis pas à l’aise avec l’informatique. »', 'On installe tout et on lui montre en dix minutes. Il n’a rien à configurer.']);
     if (d.delai === 'Pas pressé, je me renseigne') objections.push(['« Je n’ai pas le temps en ce moment. »', `Chaque mois d’attente coûte environ ${euro(gain)}. L’installation prend moins d’une heure de son temps.`]);
     if (has(d, 'Une carte de fidélité')) objections.push(['« J’ai déjà une carte de fidélité. »', 'La carte papier se perd et ne relance personne. La version téléphone fait revenir les clients qui tardent.']);
+    if (keysOf(d).includes('site')) objections.push(['« J’ai déjà une page Facebook, ou Planity. »', 'Ces pages ne lui appartiennent pas, et Google comme les IA citent d’abord les commerces qui ont leur propre site, clair et complet. Son site devient la base de tout le reste.']);
     if (keysOf(d).includes('reseaux')) objections.push(['« Les réseaux, je peux le faire moi-même. »', 'Oui, mais combien d’heures par mois ? Nous venons filmer une demi-journée, et tout le reste est fait sans lui. Il valide avant publication.']);
     objections.push(['« Je vais réfléchir. »', 'Demander ce qui le fait hésiter, puis proposer un essai sur un mois avec un point chiffré à la fin.']);
     return { m, score, temp, why, offer, cost, gain, objections };
@@ -1192,7 +1298,7 @@ function openTeam() {
       ['Ouverture', [`« Bonjour ${P}, c’est [votre prénom] de Caia. Vous avez fait le diagnostic pour ${d.commerce || 'votre commerce'} ${ago(d.created_at)}. Vous avez deux minutes, ou je vous rappelle ${String(d.creneau || '').toLowerCase() !== 'peu importe' && d.creneau ? String(d.creneau).toLowerCase() : 'plus tard'} ? »`]],
       ['Ce qu’il nous a dit', soucis.length || d.probleme || Object.keys(a.m.reponses).length ? [...(d.probleme ? [`En ses mots : « ${d.probleme} »`] : soucis.map(x => `« ${x} »`)), ...Object.entries(a.m.reponses).filter(([, v]) => v).map(([k, v]) => `${QLABEL[k] || k} : ${v}`)] : ['Pas de problème précis : commencer par les questions de découverte.']],
       ['Questions de découverte', [
-        a.m.reponses.calls ? 'Ces appels manqués, c’est surtout à quel moment de la journée ?' : a.m.reponses.noshow ? 'Comment vos clients prennent-ils rendez-vous aujourd’hui ?' : 'Combien de fois par semaine le téléphone sonne sans réponse, à votre avis ?',
+        a.m.reponses.site ? 'Quand un client vous cherche aujourd’hui, il tombe sur quoi en premier ?' : 'Si vous aviez dix clients de plus par mois, vous auriez la place de les recevoir ?',
         Number(d.plateformes) > 0 ? `Sur vos ${d.plateformes} commandes par mois en plateforme, combien sont des habitués ?` : 'Comment vos clients vous trouvent-ils aujourd’hui ?',
         'Qu’est-ce qui vous ferait dire, dans un mois, que ça valait le coup ?',
         'Qui d’autre décide avec vous ?',
