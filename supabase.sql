@@ -1,4 +1,4 @@
--- Rideau · base de données des demandes
+-- Caia · base de données des demandes
 -- À coller dans Supabase : SQL Editor > New query > Run.
 -- Remplacez TON-EMAIL@exemple.fr (en bas) par l'e-mail de chaque membre de l'équipe.
 
