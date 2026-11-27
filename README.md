@@ -47,19 +47,18 @@ La clé « anon » est faite pour être publique. La sécurité vient des règle
 ## 4. Activer les réponses par IA (facultatif)
 
 Sans clé, l'assistant fonctionne déjà avec des réponses écrites à l'avance. Avec une clé, deux de ses messages sont rédigés par Claude :
-- la première réponse, qui reformule le problème du commerçant ;
-- l'explication du diagnostic.
+- la conversation libre : le commerçant pose n'importe quelle question sur son commerce, Caia répond, puis propose que Nathan le rappelle ;
+- l'explication du diagnostic chiffré.
 
 1. Créez une clé API sur https://platform.claude.com (rubrique **API Keys**) et ajoutez un moyen de paiement.
 2. Dans Netlify, ouvrez **Site configuration → Environment variables** et ajoutez `ANTHROPIC_API_KEY` avec la clé. Elle reste sur le serveur et n'apparaît jamais dans la page.
 3. Relancez un déploiement.
 
 Comment c'est réglé :
-- **Modèle** : Claude Opus 5.5, avec un effort de réflexion « bas » (`low`), car ses réponses sont courtes.
-- **Relais automatique** : si le modèle refuse une demande, une autre IA reprend la main (option `fallbacks`).
-- **Limite** : 20 requêtes par minute et par visiteur, pour éviter les abus.
-- **Coût** : environ 4 $ par million de jetons envoyés et 20 $ par million générés. Un diagnostic n'utilise que quelques milliers de jetons.
-- **En cas d'erreur** ou de lenteur (plus de 9 secondes), le site reprend ses réponses écrites, sans que le commerçant le remarque.
+- **Modèle** : Claude Haiku 5.5, le plus rapide, sans réflexion et avec un effort « bas » (`low`). La réponse s'affiche au fil de l'eau, mot après mot.
+- **Limites** : 15 questions par jour et par visiteur (au-delà, Caia propose le rappel par Nathan), et 10 requêtes par minute par adresse IP côté serveur.
+- **Coût** : environ 0,10 $ par million de jetons envoyés et 0,50 $ par million générés. Une conversation coûte une fraction de centime.
+- **En cas d'erreur** ou sans clé, le site répond avec ses phrases écrites et propose le chiffrage ou le rappel, sans que le commerçant le remarque.
 
 ## 5. Être trouvé sur Google
 

@@ -1,6 +1,6 @@
 <title>Caia</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Dites à Caia ce qui coince dans votre commerce : en 2 minutes, l’assistant chiffre ce que vous laissez filer, et je vous rappelle avec la solution. Prix affichés, sans engagement.">
+<meta name="description" content="Posez n’importe quelle question sur votre commerce à Caia, l’IA des commerçants : clients, Google, Uber Eats, fournisseurs, rendez-vous. Réponse immédiate et gratuite, avec une vraie personne derrière.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
@@ -138,6 +138,14 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
 .sec[aria-pressed="true"] { background: var(--ink); color: #FFFFFF; box-shadow: none; }
 .founders b { color: var(--ink); }
 .promise { padding-block: 0 100px; }
+.asks { padding-block: 0 90px; }
+.asks h2 { font-size: clamp(32px, 4.4vw, 54px); line-height: 1; letter-spacing: -.05em; margin-bottom: 40px; }
+.ask-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ask { display: grid; grid-template-columns: 44px minmax(0, 1fr) 20px; gap: 14px; align-items: center; text-align: left; padding: 18px 20px; border-radius: 22px; background: #FFFFFF; box-shadow: inset 0 0 0 1.5px var(--line); font-size: 16.5px; font-weight: 600; line-height: 1.35; color: var(--ink); transition: transform .35s var(--spring), box-shadow .2s; }
+.ask:hover { transform: translateY(-3px); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.ask i { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand-deep); }
+.ask svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.ask > svg:last-child { color: var(--dim); }
 .promise ul { list-style: none; margin: 0; padding: 26px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 28px; border-radius: 26px; background: var(--brand-soft); }
 .promise li { font-size: 16px; line-height: 1.45; color: var(--ink-2); }
 .promise li b { color: var(--ink); }
@@ -240,6 +248,9 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
 .reco-price { font-size: 15px; color: var(--brand-deep); }
 .reco-next { font-size: 13.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
 .reco.new { animation: rise .6s var(--ease) both; }
+.msg.bot .bub { white-space: pre-line; }
+.bub.live::after { content: ""; display: inline-block; width: 7px; height: 1em; margin-left: 3px; vertical-align: -2px; background: var(--brand); border-radius: 2px; animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
 .diag .hyp { font-size: 14px; line-height: 1.45; color: #B4B4BC; }
 
 /* Done card */
@@ -290,7 +301,8 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
   .nums-grid { grid-template-columns: minmax(0, 1fr); }
   .num + .num { border-left: 0; border-top: 1px solid var(--line); }
   .num { padding: 26px 4px; }
-  .tool-row, .pack-row, .promise ul { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .tool-row, .pack-row, .promise ul, .ask-row { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .ask { font-size: 15.5px; padding: 15px 16px; }
   .pack .pp { font-size: 34px; }
   .tool { padding: 18px; gap: 10px; grid-template-columns: 44px minmax(0, 1fr); align-items: center; column-gap: 14px; } .tool i { grid-row: span 2; } .tool span { margin-top: 0; }
   .final { border-radius: 28px; margin-inline: 8px; padding-block: 70px; }
@@ -447,7 +459,7 @@ table.offer tr:last-child td { border-bottom: 0; }
 .obj span { color: var(--muted); font-size: 14.5px; }
 .facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 16px; font-size: 14.5px; margin: 0; }
 .facts dt { color: var(--muted); font-weight: 600; }
-.facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; white-space: pre-line; }
 .script { display: grid; gap: 18px; }
 .script section { display: grid; gap: 6px; }
 .script h4 { margin: 0; font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ui); }
@@ -748,15 +760,15 @@ const optsOf = (Q, A) => typeof Q.opts === 'function' ? Q.opts(A) : Q.opts;
 const SLOTS = ['Le matin', 'Le midi', 'L’après-midi', 'Peu importe'];
 // The hero adapts to the visitor's trade: a hook that speaks to them and examples from their daily life.
 const SECTORS = [
-  ['Restaurant', '8,45 €', 'ce qu’Uber Eats garde sur une commande de 27 €.<sup>1</sup>', ['Uber Eats me prend trop de commission', 'Je rate des appels pendant le rush', 'Mes clients ne reviennent pas assez', 'Trop de réservations non honorées']],
-  ['Café, boulangerie, boucherie', '1 clic', 'pour valider la commande de chaque fournisseur, au lieu de la soirée au téléphone.', ['Les commandes fournisseurs me prennent un temps fou', 'Je jette trop d’invendus', 'Je rate des appels quand je sers', 'Les précommandes de fêtes, c’est l’enfer']],
-  ['Garage, artisan', '1', 'appel manqué, c’est souvent un client qui appelle le suivant sur Google.', ['Je rate des appels quand je travaille', 'On ne me trouve pas sur Google', 'J’ai peu d’avis Google', 'Les devis se perdent']],
-  ['Salon, beauté', '0', 'lapin de plus : un acompte à la réservation suffit souvent.', ['Trop de rendez-vous non honorés', 'J’ai des heures creuses à remplir', 'Mes clientes ne reviennent pas assez', 'Je rate des appels quand je travaille']],
-  ['Boutique', '3', 'premiers résultats Google prennent la majorité des clics.', ['On ne me trouve pas sur Google', 'Mes clients ne reviennent pas assez', 'J’ai peu d’avis Google', 'Le magasin est vide en semaine']],
+  ['Restaurant', '8,45 €', 'ce qu’Uber Eats garde sur une commande de 27 €.<sup>1</sup>', ['Comment payer moins de commission à Uber Eats ?', 'Je rate des appels pendant le rush, je fais quoi ?', 'Comment avoir plus d’avis Google ?', 'Comment remplir la salle le lundi soir ?']],
+  ['Café, boulangerie, boucherie', '1 clic', 'pour valider la commande de chaque fournisseur, au lieu de la soirée au téléphone.', ['Comment gagner du temps sur mes commandes fournisseurs ?', 'Comment jeter moins d’invendus ?', 'Comment organiser les précommandes de fêtes ?', 'Une carte de fidélité, ça vaut le coup ?']],
+  ['Garage, artisan', '1', 'appel manqué, c’est souvent un client qui appelle le suivant sur Google.', ['Je rate des appels quand je travaille, je fais quoi ?', 'Comment sortir en premier sur Google ?', 'Comment avoir plus d’avis ?', 'Comment ne plus perdre de devis ?']],
+  ['Salon, beauté', '0', 'lapin de plus : un acompte à la réservation suffit souvent.', ['Comment éviter les rendez-vous non honorés ?', 'Comment remplir mes heures creuses ?', 'Comment faire revenir mes clientes plus souvent ?', 'Planity ou mon propre site ?']],
+  ['Boutique', '3', 'premiers résultats Google prennent la majorité des clics.', ['Comment être mieux trouvé sur Google ?', 'Comment faire venir du monde en semaine ?', 'Instagram, ça vaut le coup pour une boutique ?', 'Comment fidéliser sans carte papier ?']],
 ];
 const IDEAS = ['Uber Eats me prend trop de commission', 'Je rate des appels quand je travaille', 'Les commandes fournisseurs me prennent un temps fou', 'On ne me trouve pas sur Google'];
-const PLACEHOLDERS = ['Uber Eats me prend 30 % sur chaque commande…', 'Je rate des appels quand je suis en plein rush…', 'Je passe mes dimanches sur les commandes fournisseurs…', 'Mes clients viennent une fois et ne reviennent pas…', 'Trop de rendez-vous non honorés…'];
-const STEPS = ['problem', 'cat', 'type', 'owned', 'q', 'consent', 'later', 'prenom', 'commerce', 'ville', 'tel', 'slot', 'retry', 'done'];
+const PLACEHOLDERS = ['Posez votre question… par exemple : comment avoir plus d’avis Google ?', 'Comment payer moins de commission à Uber Eats ?', 'Je rate des appels quand je travaille, je fais quoi ?', 'Comment gagner du temps sur mes commandes fournisseurs ?', 'Comment éviter les rendez-vous non honorés ?'];
+const STEPS = ['problem', 'free', 'cat', 'type', 'owned', 'q', 'consent', 'later', 'prenom', 'commerce', 'ville', 'tel', 'slot', 'retry', 'done'];
 // The offer. Prices per month, no commitment. Keys are shared with the team space.
 const SOL = { google: 'Fiche Google et avis', appels: 'Appels manqués → SMS', commande: 'Commande en ligne sans commission', rdv: 'Réservation en ligne avec acompte', fidelite: 'Carte de fidélité', stock: 'Commandes fournisseurs automatiques', site: 'Site internet', pub: 'Pub locale', reseaux: 'Réseaux sociaux', accueil: 'Accueil téléphonique', temps: 'Automatisations' };
 const SOL_ART = { google: 'votre fiche et vos avis Google', appels: 'le SMS automatique sur appel manqué', commande: 'la commande en ligne sans commission', rdv: 'la réservation en ligne avec acompte', fidelite: 'une carte de fidélité sur téléphone', stock: 'les commandes fournisseurs automatiques', site: 'un site pensé pour Google et pour l’IA', pub: 'une pub locale ciblée', reseaux: 'vos réseaux sociaux', accueil: 'l’accueil téléphonique', temps: 'les automatisations' };
@@ -882,6 +894,48 @@ async function ai(kind, payload) {
     const j = await r.json(); return typeof j.text === 'string' && j.text.trim() ? j.text.trim().slice(0, 600) : null;
   } catch (e) { return null; } finally { clearTimeout(t); }
 }
+/* ——— Free conversation with Caia (streamed while it is written) ——— */
+const CH_DIAG = 'Chiffrer ce que je pourrais récupérer', CH_CALL = 'Être rappelé par Nathan';
+const DAILY_LIMIT = 15; // questions per visitor and per day, to keep the AI bill under control
+const quota = {
+  key: 'caia-quota', today: () => new Date().toISOString().slice(0, 10),
+  get() { try { const q = JSON.parse(localStorage.getItem(this.key)); return q && q.d === this.today() ? q.n : 0; } catch (e) { return 0; } },
+  add() { try { localStorage.setItem(this.key, JSON.stringify({ d: this.today(), n: this.get() + 1 })); } catch (e) {} },
+  left() { return DAILY_LIMIT - this.get(); },
+};
+async function chatReply() {
+  const hist = S.msgs.filter(m => !m.k && typeof m.t === 'string').slice(-16).map(m => ({ role: m.r === 'me' ? 'user' : 'assistant', content: m.t }));
+  const lastUser = [...S.msgs].reverse().find(m => m.r === 'me' && !m.k);
+  const ctx = [S.A.type && 'métier : ' + S.A.type, S.A.ville && 'ville : ' + S.A.ville, S.A.commerce && 'nom : ' + S.A.commerce].filter(Boolean).join(', ');
+  const th = $('#thread');
+  if (LIVE && th) {
+    const ty = document.createElement('div'); ty.className = 'msg bot new typing'; ty.innerHTML = '<span class="mini" aria-hidden="true">c</span><div class="bub" aria-label="Caia écrit"><i></i><i></i><i></i></div>';
+    th.appendChild(ty); scrollEnd();
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 30000);
+    let text = '', el = null;
+    try {
+      const r = await fetch('/api/caia', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind: 'chat', messages: hist, context: ctx }), signal: ctl.signal });
+      if (r.ok && r.body && /^text\/plain/.test(r.headers.get('content-type') || '')) {
+        const rd = r.body.getReader(), dec = new TextDecoder();
+        for (;;) {
+          const { done, value } = await rd.read(); if (done) break;
+          text += dec.decode(value, { stream: true });
+          if (!el && text.trim()) { ty.remove(); el = msgEl({ r: 'bot', t: '' }, true); el.querySelector('.bub').classList.add('live'); th.appendChild(el); }
+          if (el) { el.querySelector('.bub').textContent = text.trim(); scrollEnd(false); }
+        }
+      }
+    } catch (e) {} finally { clearTimeout(t); ty.remove(); }
+    if (text.trim()) {
+      const m = { r: 'bot', t: text.trim().slice(0, 2500) }; S.msgs.push(m); save();
+      if (el) el.querySelector('.bub').classList.remove('live');
+      return;
+    }
+    if (el) el.remove();
+  }
+  // No AI (preview, no key, network): written answer, then the two ways forward.
+  await say(ackFor(lastUser ? lastUser.t : ''));
+  await say('Je peux chiffrer ce que vous pourriez récupérer, ou demander à Nathan, qui a créé Caia, de vous rappeler pour en parler.', { wait: 300 });
+}
 function ackFor(p) {
   // Same order as detectTrack, so the first answer matches the questions that follow.
   const t = detectTrack(p, 'food');
@@ -908,73 +962,57 @@ function homeView() {
   document.title = 'Caia';
   clearInterval(phT);
   app.innerHTML = `
-  <header class="top"><div class="wrap"><a class="logo" href="#" aria-label="Caia">${wm()}</a><span class="top-note"><span class="pulse"></span>Je vous rappelle moi-même sous 24 h ouvrées</span></div></header>
+  <header class="top"><div class="wrap"><a class="logo" href="#" aria-label="Caia">${wm()}</a><span class="top-note"><span class="pulse"></span>L’IA des commerçants, avec une vraie personne derrière</span></div></header>
   <main>
     <section class="hero"><div class="wrap">
       <div class="sectors" role="group" aria-label="Votre métier">${SECTORS.map((x, i) => `<button type="button" class="sec rp" data-sec="${i}" aria-pressed="${i === 0}">${esc(x[0])}</button>`).join('')}</div>
       <p class="shock" id="shock"><b>${SECTORS[0][1]}</b><span>${SECTORS[0][2]}</span></p>
-      <h1>Ce que vous pourriez récupérer chaque mois, <span class="dim">chiffré en 2 minutes.</span></h1>
-      <p class="sub">Commissions, appels ratés, commandes fournisseurs, clients qui ne reviennent pas : écrivez ce qui coince, Caia fait le calcul, et je vous propose la solution.</p>
+      <h1>L’IA qui répond à toutes les questions <span class="dim">de votre commerce.</span></h1>
+      <p class="sub">Clients, Google, Uber Eats, fournisseurs, rendez-vous, réseaux… Posez votre question : Caia vous répond tout de suite, et peut chiffrer ce que vous pourriez récupérer.</p>
       <form class="composer" id="start" autocomplete="off">
         <label for="msg" class="sr" hidden>Votre message</label>
-        <textarea id="msg" rows="1" maxlength="1000" placeholder="${esc(PLACEHOLDERS[0])}" aria-label="Décrivez ce qui coince dans votre commerce"></textarea>
+        <textarea id="msg" rows="1" maxlength="1000" placeholder="${esc(PLACEHOLDERS[0])}" aria-label="Posez votre question à Caia"></textarea>
         <button class="send rp" type="submit" aria-label="Envoyer" disabled>${SEND}</button>
       </form>
       <div class="ideas" id="ideas" aria-label="Exemples">${SECTORS[0][3].map((t, i) => `<button type="button" class="chip rp" style="--i:${i}" data-idea="${esc(t)}">${esc(t)}</button>`).join('')}</div>
-      <p class="micro">Gratuit · 2 minutes · Sans engagement · Tout reste à votre nom</p>
-    </div></section>
-
-    <section class="nums"><div class="wrap nums-grid" data-reveal>
-      <div class="num"><b class="o">0</b><span>engagement. Vous arrêtez quand vous voulez, en un message.</span></div>
-      <div class="num"><b>29${NB}€</b><span>par mois pour commencer. Les prix sont affichés, sans surprise.</span></div>
-      <div class="num"><b>100${NB}%</b><span>à votre nom : domaine, fiche Google, contenus. Si on arrête, vous gardez tout.</span></div>
+      <p class="micro">Gratuit · Sans inscription · Réponse immédiate</p>
     </div></section>
 
     <section class="how"><div class="wrap">
-      <h2 data-reveal>Simple comme un message.</h2>
+      <h2 data-reveal>Une question, une réponse.</h2>
       <ol class="steps" data-reveal style="--d:1">
-        <li><b>Vous écrivez.</b><span>Ce qui coince, avec vos mots.</span></li>
-        <li><b>Caia chiffre.</b><span>Quelques questions sur votre métier, et ce qui vous échappe s’affiche en euros.</span></li>
-        <li><b>J’installe tout.</b><span>Je vous rappelle et je mets tout en place avec vous, sur place ou à distance.</span></li>
+        <li><b>Vous posez votre question.</b><span>Avec vos mots, comme à quelqu’un qui connaît bien le commerce.</span></li>
+        <li><b>Caia répond tout de suite.</b><span>Des conseils concrets, et si vous voulez, ce que vous pourriez récupérer, en euros.</span></li>
+        <li><b>Nathan le met en place, si vous voulez.</b><span>Il vous rappelle, sans engagement. Tout reste à votre nom.</span></li>
       </ol>
     </div></section>
 
-    <section class="tools"><div class="wrap">
-      <h2 data-reveal>Commencez par un seul service.</h2>
-      <div class="tool-row" data-reveal style="--d:1">
-        <div class="tool"><i>${ICO.star}</i><b>Fiche Google et avis</b><span>Complète, à jour, et plus d’avis chaque mois.</span><em>${PRICE.google}${NB}€ / mois</em></div>
-        <div class="tool"><i>${ICO.phone}</i><b>Appels manqués → SMS</b><span>Chaque appel sans réponse reçoit un SMS avec un lien.</span><em>${PRICE.appels}${NB}€ / mois</em></div>
-        <div class="tool"><i>${ICO.bag}</i><b>Commande sans commission</b><span>Vos habitués commandent chez vous en direct.</span><em>${PRICE.commande}${NB}€ / mois</em></div>
-        <div class="tool"><i>${ICO.box}</i><b>Commandes fournisseurs</b><span>Préparées toutes seules, validées en un clic.</span><em>${PRICE.stock}${NB}€ / mois</em></div>
-        <div class="tool"><i>${ICO.bell}</i><b>Réservation avec acompte</b><span>Et un rappel par SMS la veille : fini les lapins.</span><em>${PRICE.rdv}${NB}€ / mois</em></div>
-        <div class="tool"><i>${ICO.card}</i><b>Carte de fidélité</b><span>Sur le téléphone de vos clients, avec relances SMS.</span><em>${PRICE.fidelite}${NB}€ / mois</em></div>
-        <div class="tool"><i>${ICO.web}</i><b>Site internet</b><span>Pensé pour Google et pour les IA comme ChatGPT.</span><em>${PRICE.site}${NB}€ / mois</em></div>
-        <div class="tool"><i>${ICO.box}</i><b>Précommandes de fêtes</b><span>Bûches, plateaux, Aïd : en ligne, avec acompte et rappel SMS.</span><em>${PRICE.fetes}${NB}€ la saison</em></div>
-      </div>
-      <p class="founders" data-reveal><b>Pour les ${FOUNDERS} premiers commerces :</b> premier mois gratuit, sans carte bancaire. Mise en place offerte (${SETUP_FEE}${NB}€ ensuite). Prix bloqué à vie, en échange d’un avis honnête.</p>
-    </div></section>
-
-    <section class="packs"><div class="wrap">
-      <h2 data-reveal>Et quand ça marche, les formules.</h2>
-      <div class="pack-row" data-reveal style="--d:1">
-        <div class="pack"><small>Garages, artisans, boutiques, salons</small><b>Visible</b><p class="pp">49${NB}€<span> / mois</span></p><ul><li>Fiche Google à jour et plus d’avis</li><li>SMS automatique sur chaque appel manqué</li><li>Un rapport simple chaque mois</li></ul></div>
-        <div class="pack hot"><small>Pizzerias, kebabs, burgers, sushis</small><b>Commande directe</b><p class="pp">89${NB}€<span> / mois</span></p><ul><li>Commande en ligne, 0 % de commission</li><li>Carte de fidélité sur téléphone</li><li>Plan pour faire passer vos habitués d’Uber à chez vous</li></ul></div>
-        <div class="pack"><small>Cafés, boulangeries, boucheries, épiceries</small><b>Gain de temps</b><p class="pp">69${NB}€<span> / mois</span></p><ul><li>Commandes fournisseurs automatiques</li><li>Suivi des invendus pour jeter moins</li><li>SMS automatique sur chaque appel manqué</li></ul></div>
+    <section class="asks"><div class="wrap">
+      <h2 data-reveal>Demandez-lui n’importe quoi.</h2>
+      <div class="ask-row" data-reveal style="--d:1">
+        <button type="button" class="ask rp" data-ask="Comment avoir plus d’avis Google sans les demander à chaque client ?"><i>${ICO.star}</i><span>Comment avoir plus d’avis Google sans les demander à chaque client ?</span>${ARR}</button>
+        <button type="button" class="ask rp" data-ask="Uber Eats me prend 30 %. Comment faire commander mes habitués en direct ?"><i>${ICO.bag}</i><span>Uber Eats me prend 30 %. Comment faire commander mes habitués en direct ?</span>${ARR}</button>
+        <button type="button" class="ask rp" data-ask="Je rate des appels quand je travaille. Comment ne plus perdre ces clients ?"><i>${ICO.phone}</i><span>Je rate des appels quand je travaille. Comment ne plus perdre ces clients ?</span>${ARR}</button>
+        <button type="button" class="ask rp" data-ask="Je passe mes dimanches sur les commandes fournisseurs. On peut automatiser ?"><i>${ICO.box}</i><span>Je passe mes dimanches sur les commandes fournisseurs. On peut automatiser ?</span>${ARR}</button>
+        <button type="button" class="ask rp" data-ask="Comment arrêter les rendez-vous non honorés ?"><i>${ICO.bell}</i><span>Comment arrêter les rendez-vous non honorés ?</span>${ARR}</button>
+        <button type="button" class="ask rp" data-ask="Comment faire revenir mes clients plus souvent ?"><i>${ICO.card}</i><span>Comment faire revenir mes clients plus souvent ?</span>${ARR}</button>
+        <button type="button" class="ask rp" data-ask="ChatGPT recommande-t-il mon commerce quand on lui demande ?"><i>${ICO.web}</i><span>ChatGPT recommande-t-il mon commerce quand on lui demande ?</span>${ARR}</button>
+        <button type="button" class="ask rp" data-ask="Comment trouver et garder un apprenti ?"><i>${ICO.bolt}</i><span>Comment trouver et garder un apprenti ?</span>${ARR}</button>
       </div>
     </div></section>
 
     <section class="promise"><div class="wrap" data-reveal>
       <ul>
-        <li><b>Sans engagement.</b> Résiliable chaque mois, en un message.</li>
-        <li><b>Jamais de location financière.</b> Pas de contrat de 48 mois, pas de petites lignes.</li>
-        <li><b>Tout reste à votre nom.</b> Domaine, fiche, contenus : si on arrête, vous gardez tout.</li>
-        <li><b>Un seul interlocuteur.</b> Moi, Nathan, fondateur de Caia, du premier appel à l’installation.</li>
+        <li><b>Gratuit, sans inscription.</b> Vous posez vos questions, Caia répond.</li>
+        <li><b>Une vraie personne derrière.</b> Nathan, fondateur de Caia, vous rappelle si vous le demandez.</li>
+        <li><b>Sans engagement.</b> Pas de contrat de 48 mois, jamais de location financière.</li>
+        <li><b>Tout reste à votre nom.</b> Si Nathan installe quelque chose, c’est à vous, pour de bon.</li>
       </ul>
     </div></section>
 
     <section class="final" data-reveal><div class="wrap">
-      <h2>Combien pourriez-vous récupérer <em>chaque mois</em>&#8239;?</h2><p class="final-sub">Deux minutes pour le savoir. Gratuit, sans engagement.</p>
-      <button class="btn rp" data-focus type="button">Faire mon diagnostic ${ARR}</button>
+      <h2>Une question sur votre commerce&#8239;? <em>Posez-la à Caia.</em></h2><p class="final-sub">Réponse immédiate. Gratuit, sans inscription.</p>
+      <button class="btn rp" data-focus type="button">Poser ma question ${ARR}</button>
     </div></section>
   </main>
   <footer class="wrap site-foot">
@@ -1002,6 +1040,7 @@ function homeView() {
     bindIdeas();
   }));
   bindIdeas();
+  app.querySelectorAll('[data-ask]').forEach(b => b.addEventListener('click', () => { b.classList.add('picked'); setTimeout(() => startChat(b.dataset.ask), reduce ? 0 : 200); }));
   app.querySelector('[data-focus]').addEventListener('click', () => { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); setTimeout(() => ta.focus({ preventScroll: true }), reduce ? 0 : 500); });
   app.querySelector('.egg').addEventListener('click', openTeam);
   app.querySelector('.top .logo').addEventListener('click', e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
@@ -1097,7 +1136,7 @@ async function thinking(label, ms) {
 }
 
 /* The dock shows what the current step expects */
-const INPUT_STEPS = { prenom: ['Votre prénom', 'given-name', 'text'], commerce: ['Le nom de votre commerce', 'organization', 'text'], ville: ['Votre ville', 'address-level2', 'text'], tel: ['06 12 34 56 78', 'tel', 'tel'] };
+const INPUT_STEPS = { free: ['Posez une autre question…', 'off', 'text'], later: ['Une autre question ?', 'off', 'text'], prenom: ['Votre prénom', 'given-name', 'text'], commerce: ['Le nom de votre commerce', 'organization', 'text'], ville: ['Votre ville', 'address-level2', 'text'], tel: ['06 12 34 56 78', 'tel', 'tel'] };
 const curQ = () => QS[S.A.qs[S.qi]] || QS.route;
 function dock(err) {
   const d = $('#dock'); if (!d) return;
@@ -1108,10 +1147,11 @@ function dock(err) {
   const multi = st === 'owned';
   if (multi) { chips = [...OWNED.map(o => o[1]), NONE_OWNED]; }
   if (st === 'consent') { chips = ['Pas maintenant', 'Oui, rappelez-moi']; hot = ['Oui, rappelez-moi']; }
+  if (st === 'free') { const over = quota.left() <= 0; chips = S.A.reco || over ? [CH_CALL] : [CH_DIAG, CH_CALL]; hot = [CH_CALL]; }
   if (st === 'later') { chips = ['Finalement, oui']; hot = chips; }
   if (st === 'slot') chips = SLOTS;
   if (st === 'retry') { chips = ['Réessayer l’envoi']; hot = chips; }
-  const inp = INPUT_STEPS[st];
+  const inp = (st === 'free' || st === 'later') && quota.left() <= 0 ? null : INPUT_STEPS[st];
   d.innerHTML = `${err ? `<p class="fielderr" role="alert">${esc(err)}</p>` : ''}
     ${chips.length ? `<div class="answers" role="group" aria-label="Réponses proposées">${back ? `<button type="button" class="chip rp" style="--i:0" data-back>← Autre catégorie</button>` : ''}${chips.map((c, i) => multi ? `<button type="button" class="chip rp" style="--i:${i}" data-o="${esc(c)}" aria-pressed="false">${esc(c)}</button>` : `<button type="button" class="chip rp${hot.includes(c) ? ' hot' : ''}" style="--i:${i + (back ? 1 : 0)}" data-a="${esc(c)}">${esc(c)}</button>`).join('')}${multi ? `<button type="button" class="chip rp hot ok" style="--i:${chips.length}" data-ok disabled>Valider</button>` : ''}</div>` : ''}
     ${inp ? `<form class="composer${err ? ' shake' : ''}" id="ans" autocomplete="on"><input id="ansv" name="${st}" type="${inp[2]}" autocomplete="${inp[1]}" ${inp[2] === 'tel' ? 'inputmode="tel"' : ''} maxlength="80" placeholder="${esc(inp[0])}" aria-label="${esc(inp[0])}" value="${esc(st === 'tel' ? S.A.telephone : st === 'prenom' ? S.A.prenom : st === 'commerce' ? S.A.commerce : st === 'ville' ? S.A.ville : '')}"><button class="send rp" type="submit" aria-label="Envoyer">${SEND}</button></form>` : ''}
@@ -1153,12 +1193,20 @@ async function answer(v) {
   const st = S.step, A = S.A;
   let err = null;
   try {
-    if (st === 'problem') {
-      A.probleme = v.slice(0, 1000); me(v); dockOff();
-      const ack = (await ai('reply', { message: A.probleme })) || ackFor(A.probleme);
-      await say(ack);
-      await say('Quelques questions rapides pour chiffrer tout ça. Votre commerce, c’est plutôt :', { wait: 300 });
+    if (st === 'problem' || ((st === 'free' || st === 'later') && v !== CH_DIAG && v !== CH_CALL && v !== 'Finalement, oui')) {
+      if (st === 'problem') A.probleme = v.slice(0, 1000);
+      if (quota.left() <= 0) { me(v); dockOff(); await say('Vous avez posé beaucoup de questions aujourd’hui, merci ! Pour aller plus loin, le mieux est d’en parler directement avec Nathan : il vous rappelle, sans engagement.'); S.step = 'free'; return; }
+      quota.add(); me(v.slice(0, 1000)); dockOff();
+      await chatReply();
+      S.step = 'free';
+    } else if (st === 'free' && v === CH_DIAG) {
+      me(v); dockOff();
+      await say('Très bien. Quelques questions rapides, et je vous montre en euros ce que vous pourriez récupérer. Votre commerce, c’est plutôt :', { wait: 300 });
       S.step = 'cat';
+    } else if (st === 'free' && v === CH_CALL) {
+      me(v); dockOff();
+      await say('Avec plaisir. Nathan vous rappelle lui-même, sans engagement. C’est à quel prénom ?', { wait: 300 });
+      S.step = 'prenom';
     } else if (st === 'cat') {
       if (!CATS.some(c => c[0] === v)) return;
       A.cat = v; S.step = 'type'; // the choice only opens the list, no message
@@ -1240,7 +1288,7 @@ async function diagnose() {
     await sleep(1500);
   } else await say('Bonne nouvelle : avec vos réponses, vous ne perdez pas grand-chose de ce côté. On peut surtout vous aider à attirer plus de clients.');
   const pt = PITCH[ps[0]](A);
-  const reco = { r: 'bot', k: 'reco', d: { title: pt.title, pts: pt.pts, foot: pt.foot, price: PRICE[ps[0]] ? `${PRICE[ps[0]]}${NB}€ par mois, sans engagement. Pour les ${FOUNDERS} premiers commerces : premier mois gratuit sans carte bancaire, mise en place offerte, prix bloqué.` : '', next: ps.slice(1).map(k => `${SOL[k]}${PRICE[k] ? ` (${PRICE[k]}${NB}€)` : ''}`) } };
+  const reco = { r: 'bot', k: 'reco', d: { title: pt.title, pts: pt.pts, foot: pt.foot, price: 'Sans engagement, et tout reste à votre nom. Nathan vous donne le prix au téléphone.', next: ps.slice(1).map(k => SOL[k]) } };
   S.msgs.push(reco); save(); $('#thread').appendChild(msgEl(reco, true)); scrollEnd();
   await sleep(1100);
   await say('Je m’appelle Nathan, c’est moi qui installe tout. Je vous rappelle pour vous montrer à quoi ça ressemble dans votre métier, sans engagement. On y va ?', { wait: 400 });
@@ -1256,10 +1304,11 @@ function animateDiag(el, total) {
 
 /* ——— Sending the request (database for the team space, Netlify Forms for the e-mail alert) ——— */
 async function submit() {
-  const A = S.A, L = losses(), ps = A.reco ? A.reco.split(',').filter(k => SOL[k]) : pistes(), q = A.q;
+  const A = S.A, L = losses(), ps = A.reco ? A.reco.split(',').filter(k => SOL[k]) : A.track ? pistes() : [], q = A.q;
   const label = (qid, v) => { const o = QS[qid] && optsOf(QS[qid], A).find(x => x[1] === v); return o ? o[0] : ''; };
   const deja = [...OWNED.filter(o => owns(A, o[0])).map(o => o[1]), q.site != null && !owns(A, 'site') ? 'Site : ' + label('site', q.site) : '', q.platforms ? 'Uber Eats ou Deliveroo' : '', q.loyalty === 0.7 ? 'Carte de fidélité papier' : q.loyalty === 0.3 ? 'Fidélité sur téléphone' : '', q.post != null ? 'Réseaux : ' + label('post', q.post) : ''].filter(Boolean).join(', ');
-  const detail = { profil: A.profil, parcours: A.track, deja: A.owned, items: L.items.map(({ k, label: l, v, sol }) => ({ k, label: l, v, sol })), hyp: L.hyp, reponses: Object.fromEntries(Object.entries(q).map(([k, v]) => [k, label(k, v)])) };
+  const conversation = S.msgs.filter(m => !m.k && typeof m.t === 'string').slice(-24).map(m => (m.r === 'me' ? 'Commerçant : ' : 'Caia : ') + m.t.slice(0, 1200));
+  const detail = { conversation, profil: A.profil, parcours: A.track, deja: A.owned, items: L.items.map(({ k, label: l, v, sol }) => ({ k, label: l, v, sol })), hyp: L.hyp, reponses: Object.fromEntries(Object.entries(q).map(([k, v]) => [k, label(k, v)])) };
   const clients = q.clients ?? null;
   const payload = {
     'form-name': 'diagnostic', 'bot-field': '',
@@ -1267,7 +1316,7 @@ async function submit() {
     prenom: A.prenom, nom: '', commerce: A.commerce, ville: A.ville, telephone: A.telephone, email: '',
     creneau: A.creneau || 'Peu importe', pistes: ps.map(k => SOL[k]).join(' | '),
     estimation_mois: euro(L.total), appels_manques_semaine: String(q.calls ?? ''), panier_moyen: A.panier + NB + '€', commandes_plateformes_mois: String(q.platforms ?? ''), clients_mois: String(clients ?? ''),
-    detail: L.items.map(i => `${i.label} : ${euro(i.v)}`).join(' | '),
+    detail: [L.items.map(i => `${i.label} : ${euro(i.v)}`).join(' | '), ...S.msgs.filter(m => !m.k && typeof m.t === 'string').slice(-12).map(m => (m.r === 'me' ? 'Commerçant : ' : 'Caia : ') + m.t.slice(0, 600))].filter(Boolean).join('\n'),
   };
   const row = {
     soucis: payload.soucis, probleme: A.probleme, type_commerce: A.type, deja_en_place: deja, delai: '',
@@ -1819,7 +1868,7 @@ function openTeam() {
     if (tab === 'notes') {
       return `<div class="notes"><textarea id="nt" placeholder="Ce qu’il a dit au téléphone, prochaine étape, date de rappel…">${esc(d.notes || '')}</textarea><p class="saved" id="sv">Enregistrement automatique</p></div>`;
     }
-    const fields = [['Reçue le', new Date(d.created_at).toLocaleString('fr-FR')], ['Prénom', d.prenom], ['Nom', d.nom], ['Commerce', d.commerce], ['Ville', d.ville], ['Type', d.type_commerce], ['Téléphone', d.telephone], ['E-mail', d.email], ['Créneau', d.creneau], ['Délai', d.delai], ['Problèmes', d.soucis], ['En ses mots', d.probleme], ['Déjà en place', d.deja_en_place], ['Pistes suggérées', keysOf(d).map(k => PRODUITS[k]).join(', ')], ['Estimation envoyée', euro(d.estimation_mois)], ['Appels manqués / semaine', d.appels], ['Panier moyen', d.panier != null ? d.panier + ' €' : ''], ['Commandes plateformes / mois', d.plateformes], ['Clients / mois', d.clients]];
+    const fields = [['Reçue le', new Date(d.created_at).toLocaleString('fr-FR')], ['Prénom', d.prenom], ['Nom', d.nom], ['Commerce', d.commerce], ['Ville', d.ville], ['Type', d.type_commerce], ['Téléphone', d.telephone], ['E-mail', d.email], ['Créneau', d.creneau], ['Délai', d.delai], ['Problèmes', d.soucis], ['En ses mots', d.probleme], ['Déjà en place', d.deja_en_place], ['Pistes suggérées', keysOf(d).map(k => PRODUITS[k]).join(', ')], ['Estimation envoyée', euro(d.estimation_mois)], ['Appels manqués / semaine', d.appels], ['Panier moyen', d.panier != null ? d.panier + ' €' : ''], ['Commandes plateformes / mois', d.plateformes], ['Clients / mois', d.clients], ['Conversation avec Caia', (() => { let det = d.detail; if (typeof det === 'string') { try { det = JSON.parse(det); } catch { det = null; } } return det && Array.isArray(det.conversation) ? det.conversation.join('\n\n') : ''; })()]];
     return `<dl class="facts">${fields.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v === '' || v == null ? '—' : v)}</dd>`).join('')}</dl>`;
   }
   async function save(d, patch, msg) {
