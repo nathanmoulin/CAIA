@@ -245,6 +245,12 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
 .reco li { position: relative; padding-left: 28px; font-size: 15.5px; line-height: 1.4; }
 .reco li::before { content: ""; position: absolute; left: 0; top: 2px; width: 19px; height: 19px; border-radius: 50%; background: var(--brand-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-7' fill='none' stroke='%23D9420B' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 100% no-repeat; }
 .reco p { font-size: 14.5px; color: var(--muted); margin: 0; }
+.cta-card { align-self: stretch; margin: 2px 0 6px 38px; border-radius: 22px; background: var(--ink); color: #FFFFFF; padding: 18px 20px; display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.cta-card div { display: grid; gap: 4px; flex: 1 1 260px; }
+.cta-card b { font-size: 17px; }
+.cta-card span { font-size: 14.5px; color: #B4B4BC; line-height: 1.4; }
+.cta-card .btn { background: var(--brand); color: #FFFFFF; }
+.cta-card.new { animation: rise .6s var(--ease) both; }
 .reco-price { font-size: 15px; color: var(--brand-deep); }
 .reco-next { font-size: 13.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
 .reco.new { animation: rise .6s var(--ease) both; }
@@ -309,6 +315,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
   .composer textarea { font-size: 17px; padding: 18px 68px 18px 20px; }
   .msg { max-width: 92%; }
   .diag, .done, .reco { margin-left: 0; padding: 22px; }
+  .cta-card { margin-left: 0; } .cta-card .btn { width: 100%; justify-content: center; }
   .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .answers .chip { font-size: 16px; padding: 13px 12px; min-height: 58px; border-radius: 18px; }
   .answers .chip[data-back] { grid-column: 1 / -1; min-height: 46px; }
@@ -778,14 +785,14 @@ const SETUP_FEE = 149, FOUNDERS = 10; // one-off setup fee, offered to the first
 const PITCH = {
   google: () => ({ title: 'Une fiche Google complète, et plus d’avis chaque mois', pts: ['Horaires, photos et services toujours justes', 'Un QR code au comptoir et un SMS après passage pour récolter des avis', 'Un rapport chaque mois : appels, itinéraires, avis gagnés'], foot: 'Tout reste à votre nom.' }),
   appels: A => ({ title: 'Plus aucun appel manqué perdu', pts: [`Appel manqué ? Le client reçoit aussitôt un SMS : « ${A.commerce || 'Votre commerce'} : je suis occupé, je vous rappelle très vite »`, isResto(A) ? 'Avec un lien pour commander ou réserver sans attendre' : A.profil === 'rdv' ? 'Avec un lien pour prendre rendez-vous tout seul' : 'Avec vos horaires et un lien pour vous écrire', 'Vous retrouvez la liste des appels à rappeler, dans l’ordre'], foot: 'Fonctionne avec votre numéro actuel.' }),
-  commande: () => ({ title: 'La commande en ligne sans commission, et vos habitués qui y passent', pts: ['Click and collect sur votre propre page : 0 % de commission', 'Un plan pour faire basculer vos habitués : QR code en boutique, flyer dans chaque sac Uber, avantage en direct', 'L’argent arrive directement sur votre compte'], foot: 'Gardez Uber pour les nouveaux clients, récupérez la marge sur les habitués.' }),
+  commande: () => ({ title: 'La commande en ligne sans commission, et vos habitués qui y passent', pts: ['Click and collect sur votre propre page : 0 % de commission', 'Un plan pour faire basculer vos habitués : QR code en boutique, flyer avec vos commandes à emporter, avantage en direct', 'L’argent arrive directement sur votre compte'], foot: 'Gardez Uber pour les nouveaux clients, récupérez la marge sur les habitués.' }),
   rdv: A => ({ title: isResto(A) ? 'La réservation en ligne avec acompte' : 'La prise de rendez-vous en ligne avec acompte', pts: [isResto(A) ? 'Vos clients réservent seuls, 24 h sur 24' : 'Vos clients prennent rendez-vous seuls, 24 h sur 24', 'Un petit acompte à la réservation : les lapins s’arrêtent', 'Un SMS de rappel la veille, sans rien faire'], foot: 'Sans commission sur vos clients.' }),
   fidelite: A => ({ title: A.track === 'rdv' ? 'Une carte de fidélité qui remplit vos créneaux libres' : 'Une carte de fidélité qui fait revenir vos clients', pts: ['Dans le téléphone du client : plus de carte papier perdue', A.track === 'rdv' ? 'Un créneau se libère ? Un SMS part à vos clients fidèles pour le remplir' : 'Un SMS automatique quand un client tarde à revenir, et pour remplir vos jours creux', 'Vous voyez enfin qui sont vos meilleurs clients'], foot: 'Installée en une heure, rien à configurer de votre côté.' }),
   stock: () => ({ title: 'Vos commandes fournisseurs qui se font (presque) toutes seules', pts: ['Un stock minimum par produit : chaque fournisseur reçoit sa commande toute prête', 'Vous validez en un clic sur le téléphone, elle part par e-mail ou SMS avant l’heure limite', 'Les invendus sont notés : les quantités s’ajustent, vous jetez moins'], foot: 'Mis en place avec vous, à partir de vos factures fournisseurs.' }),
   site: A => ({ title: 'Un site internet pensé pour Google et pour l’IA', pts: [`Vous sortez quand on tape « ${term(A)} » et votre ville`, 'Les IA comme ChatGPT peuvent vous recommander : c’est le GEO', A.profil === 'rdv' ? 'Vos clients réservent en un clic depuis leur téléphone' : isResto(A) ? 'Menu, horaires, réservation et commande au même endroit' : 'Horaires, prix et itinéraire en un clic depuis le téléphone'], foot: 'Clé en main : on écrit, on photographie, on met en ligne. Le nom de domaine est à vous.' }),
   pub: () => ({ title: 'Une pub locale qui remplit vos heures creuses', pts: ['Des annonces Instagram et Facebook montrées seulement autour de chez vous', 'Lancées les jours où c’est calme, avec une offre simple', 'Mesurée en appels, réservations ou commandes, pas en « likes »'], foot: 'Budget pub à part, vous fixez le plafond.' }),
 };
-const BLANK = { probleme: '', reco: '', cat: '', type: '', profil: '', track: '', owned: [], panier: 25, q: {}, prenom: '', commerce: '', ville: '', telephone: '', creneau: '' };
+const BLANK = { probleme: '', reco: '', cat: '', type: '', profil: '', track: '', telChat: '', owned: [], panier: 25, q: {}, prenom: '', commerce: '', ville: '', telephone: '', creneau: '' };
 const blankKeepContact = A => ({ ...BLANK, q: {}, qs: [], owned: [], prenom: A.prenom, commerce: A.commerce, ville: A.ville, telephone: A.telephone });
 
 /* ——— State (restored safely from the browser) ——— */
@@ -895,6 +902,13 @@ async function ai(kind, payload) {
   } catch (e) { return null; } finally { clearTimeout(t); }
 }
 /* ——— Free conversation with Caia (streamed while it is written) ——— */
+// From the second answer on, a card offers the call back once, right under the answer.
+function offerCall() {
+  if (S.A.telChat || S.msgs.some(m => m.k === 'cta') || S.msgs.filter(m => m.ai).length < 2) return;
+  const m = { r: 'bot', k: 'cta' }; S.msgs.push(m); save();
+  const th = $('#thread'); if (th) { th.appendChild(msgEl(m, true)); scrollEnd(); }
+}
+const PHONE_IN_TEXT = /(?:\+33\s?|0)[1-9](?:[\s.-]?\d{2}){4}/;
 const CH_DIAG = 'Chiffrer ce que je pourrais récupérer', CH_CALL = 'Être rappelé par Nathan';
 const DAILY_LIMIT = 15; // questions per visitor and per day, to keep the AI bill under control
 const quota = {
@@ -914,7 +928,7 @@ async function chatReply() {
     const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 30000);
     let text = '', el = null;
     try {
-      const r = await fetch('/api/caia', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind: 'chat', messages: hist, context: ctx }), signal: ctl.signal });
+      const r = await fetch('/api/caia', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind: 'chat', messages: hist, context: ctx, turn: S.msgs.filter(m => m.ai).length + 1, lead: !!S.A.telChat || S.step === 'done' }), signal: ctl.signal });
       if (r.ok && r.body && /^text\/plain/.test(r.headers.get('content-type') || '')) {
         const rd = r.body.getReader(), dec = new TextDecoder();
         for (;;) {
@@ -926,8 +940,9 @@ async function chatReply() {
       }
     } catch (e) {} finally { clearTimeout(t); ty.remove(); }
     if (text.trim()) {
-      const m = { r: 'bot', t: text.trim().slice(0, 2500) }; S.msgs.push(m); save();
+      const m = { r: 'bot', t: text.trim().slice(0, 2500), ai: 1 }; S.msgs.push(m); save();
       if (el) el.querySelector('.bub').classList.remove('live');
+      offerCall();
       return;
     }
     if (el) el.remove();
@@ -1094,6 +1109,7 @@ function scrollEnd(smooth = true) { requestAnimationFrame(() => window.scrollTo(
 function msgEl(m, isNew) {
   const el = document.createElement('div');
   if (m.k === 'diag') { el.className = 'diag' + (isNew ? ' new' : ''); el.innerHTML = diagHtml(m.d); if (!isNew) el.querySelectorAll('.ln i').forEach(i => i.style.width = i.dataset.w); return el; }
+  if (m.k === 'cta') { el.className = 'cta-card' + (isNew ? ' new' : ''); el.innerHTML = `<div><b>Nathan peut s’en occuper pour vous.</b><span>Rappel gratuit, 10 minutes, sans engagement. Vous repartez avec un plan, même si vous ne prenez rien.</span></div><button type="button" class="btn rp" data-cta>Être rappelé ${ARR}</button>`; el.querySelector('[data-cta]').addEventListener('click', () => { if (!busy && S.step === 'free') answer(CH_CALL); }); return el; }
   if (m.k === 'reco') { const d = m.d || {}; el.className = 'reco' + (isNew ? ' new' : ''); el.innerHTML = `<small>Notre recommandation</small><b class="reco-t">${esc(d.title)}</b><ul>${(d.pts || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>${d.foot ? `<p>${esc(d.foot)}</p>` : ''}${d.price ? `<b class="reco-price">${esc(d.price)}</b>` : ''}${d.next && d.next.length ? `<span class="reco-next">Ensuite, si besoin : ${esc(d.next.join(' · '))}</span>` : ''}`; return el; }
   if (m.k === 'done') { el.className = 'done'; el.innerHTML = `<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="26"/><path d="M15 27l7 7 15-16"/></svg><b>${esc(m.t)}</b><span>${esc(m.sub || '')}</span>`; return el; }
   const prev = S.msgs[S.msgs.indexOf(m) - 1];
@@ -1147,7 +1163,7 @@ function dock(err) {
   const multi = st === 'owned';
   if (multi) { chips = [...OWNED.map(o => o[1]), NONE_OWNED]; }
   if (st === 'consent') { chips = ['Pas maintenant', 'Oui, rappelez-moi']; hot = ['Oui, rappelez-moi']; }
-  if (st === 'free') { const over = quota.left() <= 0; chips = S.A.reco || over ? [CH_CALL] : [CH_DIAG, CH_CALL]; hot = [CH_CALL]; }
+  if (st === 'free') { const over = quota.left() <= 0, cardShown = (S.msgs[S.msgs.length - 1] || {}).k === 'cta'; chips = [...(S.A.reco || over ? [] : [CH_DIAG]), ...(cardShown ? [] : [CH_CALL])]; hot = [CH_CALL]; }
   if (st === 'later') { chips = ['Finalement, oui']; hot = chips; }
   if (st === 'slot') chips = SLOTS;
   if (st === 'retry') { chips = ['Réessayer l’envoi']; hot = chips; }
@@ -1195,6 +1211,12 @@ async function answer(v) {
   try {
     if (st === 'problem' || ((st === 'free' || st === 'later') && v !== CH_DIAG && v !== CH_CALL && v !== 'Finalement, oui')) {
       if (st === 'problem') A.probleme = v.slice(0, 1000);
+      const ph = st !== 'problem' && v.match(PHONE_IN_TEXT), tel = ph && normPhone(ph[0]);
+      if (tel) {
+        A.telephone = tel; A.telChat = '1'; me(v.slice(0, 300)); dockOff();
+        await say(`Merci ! Nathan vous rappelle au ${tel}, sans engagement. Pour qu’il se prépare, c’est à quel prénom ?`, { wait: 300 });
+        S.step = 'prenom'; return;
+      }
       if (quota.left() <= 0) { me(v); dockOff(); await say('Vous avez posé beaucoup de questions aujourd’hui, merci ! Pour aller plus loin, le mieux est d’en parler directement avec Nathan : il vous rappelle, sans engagement.'); S.step = 'free'; return; }
       quota.add(); me(v.slice(0, 1000)); dockOff();
       await chatReply();
@@ -1249,7 +1271,8 @@ async function answer(v) {
       await say('Dans quelle ville ?', { wait: 300 }); S.step = 'ville';
     } else if (st === 'ville') {
       A.ville = v.slice(0, 60); me(v); dockOff();
-      await say('Et le meilleur numéro pour vous joindre ?', { wait: 300 }); S.step = 'tel';
+      if (A.telChat) { await say('On vous appelle plutôt quand ?', { wait: 300 }); S.step = 'slot'; }
+      else { await say('Et le meilleur numéro pour vous joindre ?', { wait: 300 }); S.step = 'tel'; }
     } else if (st === 'tel') {
       const tel = normPhone(v);
       if (!tel) { err = 'Ce numéro semble incomplet. Exemple : 06 12 34 56 78'; return; }
@@ -1534,7 +1557,7 @@ function openTeam() {
     if (d.delai === 'Pas pressé, je me renseigne') objections.push(['« Je n’ai pas le temps en ce moment. »', `Chaque mois d’attente coûte environ ${euro(gain)}. L’installation prend moins d’une heure de son temps.`]);
     if (has(d, 'Une carte de fidélité')) objections.push(['« J’ai déjà une carte de fidélité. »', 'La carte papier se perd et ne relance personne. La version téléphone fait revenir les clients qui tardent.']);
     if (keysOf(d).includes('site')) objections.push(['« J’ai déjà une page Facebook, ou Planity. »', 'Ces pages ne lui appartiennent pas, et Google comme les IA citent d’abord les commerces qui ont leur propre site, clair et complet. Son site devient la base de tout le reste.']);
-    if (keysOf(d).includes('commande')) objections.push(['« Mes clients sont sur Uber, pas chez moi. »', 'C’est le plan de bascule : QR code en boutique, flyer dans chaque sac Uber, petit avantage en direct. On mesure ensemble chaque semaine combien passent en direct.']);
+    if (keysOf(d).includes('commande')) objections.push(['« Mes clients sont sur Uber, pas chez moi. »', 'C’est le plan de bascule : QR code en boutique, flyer avec les commandes à emporter, petit avantage en direct. On mesure ensemble chaque semaine combien passent en direct.']);
     if (keysOf(d).includes('stock')) objections.push(['« Mes fournisseurs, je les connais, je fais ça de tête. »', 'Justement : on part de ses habitudes. La commande est prête, il la valide ou la corrige en un clic. Il garde la main, il gagne juste le temps.']);
     objections.push(['« Je vais réfléchir. »', 'Demander ce qui le fait hésiter, puis proposer un essai sur un mois avec un point chiffré à la fin.']);
     return { m, score, temp, why, offer, cost, gain, objections };
