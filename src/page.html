@@ -560,8 +560,8 @@ const SLOTS = ['Le matin', 'Le midi', 'L’après-midi', 'Peu importe'];
 const IDEAS = ['Je rate des appels quand je suis occupé', 'Uber Eats me prend trop de commission', 'Mes clients ne reviennent pas assez', 'On ne me trouve pas sur Google'];
 const PLACEHOLDERS = ['Je rate des appels quand on est débordés…', 'Trop de rendez-vous non honorés…', 'Mes clients viennent une fois et ne reviennent pas…', 'On ne me trouve pas sur Google…'];
 const STEPS = ['problem', 'cat', 'type', 'q', 'consent', 'later', 'prenom', 'commerce', 'ville', 'tel', 'slot', 'retry', 'done'];
-const SOL = { accueil: 'Accueil téléphonique', rdv: 'Rappels de rendez-vous', commande: 'Commande sans commission', fidelite: 'Fidélité sur téléphone', google: 'Avis et fiche Google', site: 'Site internet', temps: 'Automatisations' };
-const SOL_ART = { accueil: 'l’accueil téléphonique', rdv: 'les rappels de rendez-vous par SMS', commande: 'la commande sans commission', fidelite: 'la fidélité sur téléphone', google: 'votre fiche et vos avis Google', site: 'votre site internet', temps: 'les automatisations' };
+const SOL = { accueil: 'Accueil téléphonique', rdv: 'Rappels de rendez-vous', commande: 'Commande sans commission', fidelite: 'Fidélité sur téléphone', google: 'Avis et fiche Google', site: 'Site internet', reseaux: 'Réseaux sociaux clés en main', temps: 'Automatisations' };
+const SOL_ART = { accueil: 'l’accueil téléphonique', rdv: 'les rappels de rendez-vous par SMS', commande: 'la commande sans commission', fidelite: 'la fidélité sur téléphone', google: 'votre fiche et vos avis Google', site: 'votre site internet', reseaux: 'vos réseaux sociaux, pris en main par nous', temps: 'les automatisations' };
 const BLANK = { probleme: '', reco: '', cat: '', type: '', profil: '', panier: 25, q: {}, prenom: '', commerce: '', ville: '', telephone: '', creneau: '' };
 const blankKeepContact = A => ({ ...BLANK, q: {}, prenom: A.prenom, commerce: A.commerce, ville: A.ville, telephone: A.telephone });
 
@@ -608,13 +608,17 @@ function focusItem(A = S.A, L = losses(A)) {
   for (const [re, k] of rules) if (re.test(t) && by(k)) return by(k);
   return null;
 }
+const SOCIAL = /insta|tiktok|r[eé]seaux|facebook|poster|publi|vid[eé]o/;
 function pistes(A = S.A) {
   const L = losses(A), out = [], add = k => { if (k && !out.includes(k)) out.push(k); }, p = A.probleme.toLowerCase(), f = focusItem(A, L);
-  if (f) add(f.sol);
+  if (f) add(f.sol); else if (SOCIAL.test(p)) add('reseaux');
   L.items.forEach(i => add(i.sol));
   if (/google|avis|trouv|visib/.test(p)) add('google');
   if (/\bsite\b|internet|web/.test(p)) add('site');
+  if (SOCIAL.test(p) || /nouveaux clients|faire conna/.test(p)) add('reseaux');
   if (!out.length) add(A.profil === 'service' || A.profil === 'shop' ? 'google' : 'fidelite');
+  // Growth offer for businesses people choose with their eyes (not garages or pressings).
+  if (out.length < 3 && A.profil !== 'service') add('reseaux');
   return out.slice(0, 3);
 }
 function callWhen() {
@@ -648,6 +652,7 @@ function ackFor(p) {
   if (/appel|t[eé]l[eé]phon|d[eé]croch|rush|d[eé]bord|occup/.test(p)) return 'Chaque appel manqué, c’est un client qui peut partir chez le voisin. On peut régler ça.';
   if (/uber|deliveroo|commission|plateforme/.test(p)) return 'Les commissions des plateformes mangent une grosse part de vos marges, surtout sur vos habitués.';
   if (/revien|fid[eè]l|habitu/.test(p)) return 'Faire revenir vos clients, c’est souvent le levier le plus rentable d’un commerce.';
+  if (/insta|tiktok|r[eé]seaux|facebook|poster|publi|vid[eé]o/.test(p)) return 'Poster régulièrement prend un temps fou quand on tient un commerce. On peut s’en charger pour vous.';
   if (/google|avis|trouv|visib/.test(p)) return 'Avant de pousser la porte, vos futurs clients regardent Google. Ça se travaille.';
   if (/\bsite\b|internet|web/.test(p)) return 'Un site clair, c’est une vitrine ouverte 24 h sur 24. On s’en occupe.';
   return 'Merci, c’est noté. On va regarder ça de près.';
@@ -932,7 +937,9 @@ async function diagnose() {
   let text = await ai('diag', { message: A.probleme, type: A.type, panier: A.panier, total: L.total, postes: L.items.map(i => ({ poste: i.label, euros: i.v })), pistes: ps.map(k => SOL[k]) });
   if (!text) {
     const f = focusItem(A, L), two = ps[1] ? `, puis par ${SOL_ART[ps[1]]}` : '';
-    if (!top) text = `Bonne nouvelle : avec vos réponses, peu d’argent se perd. On peut surtout vous aider à attirer de nouveaux clients, en commençant par ${SOL_ART[ps[0]]}.`;
+    const soc = ps[0] === 'reseaux' ? 'Pour vos réseaux, on peut tout prendre en main : on vient filmer une fois par mois et on publie pour vous. ' : '';
+    if (soc) text = soc + (top ? `Côté chiffres, votre plus grosse fuite : ${top.label.toLowerCase()}, environ ${euro(top.v)} par mois, à régler avec ${SOL_ART[top.sol]}.` : '');
+    else if (!top) text = `Bonne nouvelle : avec vos réponses, peu d’argent se perd. On peut surtout vous aider à attirer de nouveaux clients, en commençant par ${SOL_ART[ps[0]]}.`;
     else if (f && f !== top) text = `Ce que vous décriviez, ${f.label.toLowerCase()}, c’est environ ${euro(f.v)} par mois. Le plus gros poste reste ${top.label.toLowerCase()}, à ${euro(top.v)}. On commencerait par ${SOL_ART[ps[0]]}${two}.`;
     else text = `${f ? 'Vous aviez vu juste' : 'Votre plus grosse fuite'} : ${top.label.toLowerCase()}, environ ${euro(top.v)} par mois. On commencerait par ${SOL_ART[ps[0]]}${two}.`;
   }
@@ -1040,7 +1047,7 @@ function openTeam() {
   setTimeout(() => { const f = root.querySelector('input, button'); if (f) f.focus({ preventScroll: true }); }, 60);
   /* ——— Settings you may change ——— */
   // Monthly prices used to build the offer and the ROI in the analysis. Adjust to your real prices.
-  const PRIX = { fidelite: 39, commande: 59, accueil: 79, rdv: 19, google: 29, site: 49, temps: 29 };
+  const PRIX = { fidelite: 39, commande: 59, accueil: 79, rdv: 19, google: 29, site: 49, reseaux: 249, temps: 29 };
   const PRODUITS = {
     fidelite: 'Carte de fidélité sur téléphone',
     commande: 'Commande à emporter sans commission',
@@ -1048,6 +1055,7 @@ function openTeam() {
     rdv: 'Rappels de rendez-vous par SMS',
     google: 'Fiche Google et avis',
     site: 'Site vitrine',
+    reseaux: 'Réseaux sociaux clés en main (tournage mensuel, 8 publications dont 4 vidéos)',
     temps: 'Automatisations du quotidien',
   };
   const STATUTS = [['nouveau', 'Nouveau'], ['a_rappeler', 'À rappeler'], ['appele', 'Appelé'], ['proposition', 'Proposition envoyée'], ['signe', 'Signé'], ['perdu', 'Perdu']];
@@ -1160,6 +1168,7 @@ function openTeam() {
     if (has(d, 'Rien de tout ça') || d.type_commerce === 'Boulangerie ou pâtisserie') objections.push(['« Je ne suis pas à l’aise avec l’informatique. »', 'On installe tout et on lui montre en dix minutes. Il n’a rien à configurer.']);
     if (d.delai === 'Pas pressé, je me renseigne') objections.push(['« Je n’ai pas le temps en ce moment. »', `Chaque mois d’attente coûte environ ${euro(gain)}. L’installation prend moins d’une heure de son temps.`]);
     if (has(d, 'Une carte de fidélité')) objections.push(['« J’ai déjà une carte de fidélité. »', 'La carte papier se perd et ne relance personne. La version téléphone fait revenir les clients qui tardent.']);
+    if (keysOf(d).includes('reseaux')) objections.push(['« Les réseaux, je peux le faire moi-même. »', 'Oui, mais combien d’heures par mois ? Nous venons filmer une demi-journée, et tout le reste est fait sans lui. Il valide avant publication.']);
     objections.push(['« Je vais réfléchir. »', 'Demander ce qui le fait hésiter, puis proposer un essai sur un mois avec un point chiffré à la fin.']);
     return { m, score, temp, why, offer, cost, gain, objections };
   }
