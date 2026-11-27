@@ -345,7 +345,8 @@ h1, h2, h3 { font-family: var(--f-head); font-stretch: 112%; font-weight: 800; l
 .item .t { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .item .e { font-family: var(--f-head); font-stretch: 112%; font-weight: 800; color: var(--num); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .item .s { font-size: 13px; color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.item .pills { display: flex; gap: 5px; justify-content: flex-end; }
+.item .s { grid-column: 1 / -1; }
+.item .pills { grid-column: 1 / -1; display: flex; gap: 5px; justify-content: flex-start; flex-wrap: wrap; margin-top: 2px; }
 .pill { font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; letter-spacing: .01em; }
 .p-hot { background: #FDE7E2; color: #B4321A; }
 .p-warm { background: #FFF1D6; color: #8A5800; }
@@ -415,6 +416,26 @@ table.offer tr:last-child td { border-bottom: 0; }
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; background: var(--ink); color: #FFFFFF; padding: 11px 18px; border-radius: 999px; font-weight: 600; font-size: 14px; transition: .3s; pointer-events: none; z-index: 30; max-width: calc(100vw - 32px); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .nodetail { padding: 60px 24px; text-align: center; color: var(--muted); }
+.rappel { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; font-size: 14px; }
+.rappel b { font-weight: 650; }
+.rappel > svg { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.rappel input { width: auto; padding: 7px 10px; font-size: 14px; }
+.rappel .btn, .d-acts .icon-btn { padding: 7px 11px; font-size: 13.5px; }
+.icon-btn svg { width: 17px; height: 17px; }
+.btn-danger { color: var(--hot); border-color: color-mix(in srgb, var(--hot) 35%, transparent); }
+.btn-danger.armed { background: var(--hot); color: #FFFFFF; border-color: var(--hot); }
+.trash-note { background: #FFF1EE; color: #8A2A17; border-radius: 12px; padding: 12px 14px; font-size: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 10px; }
+.p-due { background: var(--hot); color: #FFFFFF; }
+.p-soon { background: var(--tint); color: var(--ui); }
+.p-src { background: #EEF0F4; color: #3D4555; }
+.form { display: grid; gap: 14px; max-width: 640px; }
+.form h3 { margin: 0; font-size: 19px; letter-spacing: -.02em; }
+.form .row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.form label { display: grid; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--muted); }
+.form label span.req { color: var(--hot); }
+.form .acts { display: flex; gap: 10px; flex-wrap: wrap; }
+.form .err { color: var(--hot); font-size: 14px; margin: 0; }
+.bar .btn-add { background: var(--ui); color: #FFFFFF; border-color: var(--ui); }
 
 @media (max-width: 980px) {
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -433,6 +454,7 @@ table.offer tr:last-child td { border-bottom: 0; }
   .kpi b { font-size: 23px; }
   .panel, .d-head { padding: 16px; }
   .d-acts select { min-width: 0; flex: 1 1 100%; }
+  .form .row2 { grid-template-columns: minmax(0, 1fr); }
 }
 
 .closer { color: var(--muted); font-weight: 600; font-size: 14px; text-align: center; padding: 6px; }
@@ -1192,6 +1214,11 @@ function openTeam() {
     down: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
     back: '<path d="M15 6l-6 6 6 6"/>',
     out: '<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+    trash: '<path d="M4 7h16M10 7V4h4v3M6 7l1 13h10l1-13"/>',
+    undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   };
   const store = {
     get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
@@ -1269,18 +1296,19 @@ function openTeam() {
     let s = Math.min((m.has ? m.total : Number(d.estimation_mois) || 0) / 800, 1) * 45;
     why.push(`Pertes estimées : ${euro(m.has ? m.total : d.estimation_mois)} par mois`);
     if (d.delai) { s += { 'Le plus vite possible': 30, 'Dans le mois': 18, 'Pas pressé, je me renseigne': 6 }[d.delai] ?? 10; why.push(`Délai : ${d.delai}`); }
+    else if (d.source && d.source !== 'Diagnostic du site') { s += 15; why.push(`Ajouté à la main (${d.source}), pas encore de diagnostic`); }
     else { s += 25; why.push('A fait le diagnostic jusqu’au bout et demandé à être rappelé'); }
     const nbSoucis = String(d.soucis || '').split('|').filter(x => x.trim()).length + (String(d.probleme || '').trim() ? 1 : 0);
-    s += Math.min(nbSoucis, 3) * 6; why.push(`${nbSoucis} problème${nbSoucis > 1 ? 's' : ''} exprimé${nbSoucis > 1 ? 's' : ''}`);
+    s += Math.min(nbSoucis, 3) * 6; if (nbSoucis) why.push(`${nbSoucis} problème${nbSoucis > 1 ? 's' : ''} exprimé${nbSoucis > 1 ? 's' : ''}`);
     if (Number(d.plateformes) > 0) { s += 6; why.push('Utilise déjà une plateforme de livraison'); }
     if (String(d.probleme || '').trim().length > 30) { s += 4; why.push('A pris le temps de décrire son problème'); }
     const score = Math.max(0, Math.min(100, Math.round(s)));
     const temp = score >= 65 ? ['Chaud', 'p-hot', 'var(--hot)'] : score >= 40 ? ['Tiède', 'p-warm', 'var(--warm)'] : ['Froid', 'p-cold', 'var(--cold)'];
-    const offer = keysOf(d).length ? keysOf(d) : ['google', 'fidelite'];
+    const offer = keysOf(d).length ? keysOf(d) : ['site', 'fidelite'];
     const cost = offer.reduce((a, k) => a + (PRIX[k] || 0), 0);
     const gain = m.has ? m.total : Number(d.estimation_mois) || 0;
     const objections = [
-      ['« C’est trop cher. »', `On parle de ${euro(cost)} par mois pour environ ${euro(gain)} récupérés selon ses propres chiffres. Proposer de mesurer ensemble après un mois.`],
+      ['« C’est trop cher. »', gain ? `On parle de ${euro(cost)} par mois pour environ ${euro(gain)} récupérés selon ses propres chiffres. Proposer de mesurer ensemble après un mois.` : `Lui faire faire le diagnostic sur le site pendant l’appel (2 minutes) : il verra lui-même ce qu’il perd. Puis proposer de mesurer ensemble après un mois.`],
     ];
     if (Number(d.plateformes) > 0) objections.push(['« Uber Eats m’amène des clients. »', 'On ne lui demande pas de quitter Uber. Uber pour les nouveaux clients, sa propre page pour les habitués, qui ne coûtent plus de commission.']);
     if (has(d, 'Rien de tout ça') || d.type_commerce === 'Boulangerie ou pâtisserie') objections.push(['« Je ne suis pas à l’aise avec l’informatique. »', 'On installe tout et on lui montre en dix minutes. Il n’a rien à configurer.']);
@@ -1367,7 +1395,7 @@ function openTeam() {
   }
 
   /* ——— State ——— */
-  let rows = [], sel = null, tab = 'analyse', filter = 'tous', q = '', demo = false;
+  let rows = [], sel = null, tab = 'analyse', filter = 'tous', q = '', demo = false, mode = null;
 
   /* ——— Login ——— */
   function loginView(err) {
@@ -1394,17 +1422,18 @@ function openTeam() {
     setTimeout(() => $('#em') && $('#em').focus(), 50);
   }
   function demoRows() {
-    const notes = store.get('caia-demo-notes') || {}, st = store.get('caia-demo-statut') || {};
+    const notes = store.get('caia-demo-notes') || {}, st = store.get('caia-demo-statut') || {}, pt = store.get('caia-demo-patch') || {}, gone = store.get('caia-demo-purged') || [];
     let mine = store.get('caia-local-demandes'); if (!Array.isArray(mine)) mine = [];
-    return [...mine.filter(r => r && r.id), ...SAMPLE].map(r => ({ ...r, notes: notes[r.id] ?? r.notes ?? '', statut: st[r.id] ?? r.statut ?? 'nouveau' }));
+    return [...mine.filter(r => r && r.id), ...SAMPLE].filter(r => !gone.includes(r.id)).map(r => ({ ...r, notes: notes[r.id] ?? r.notes ?? '', statut: st[r.id] ?? r.statut ?? 'nouveau', ...(pt[r.id] || {}) }));
   }
   // Pulls new requests. Silent mode (every 30 s, or when you come back to the tab) only repaints if something changed.
   async function refresh(silent) {
-    const before = rows.map(r => r.id + r.statut).join();
+    const sig = () => rows.map(r => r.id + r.statut + (r.rappel_le || '') + (r.supprime_le || '')).join();
+    const before = sig();
     try { if (demo) rows = demoRows(); else await load(); }
     catch (e) { if (!silent) toast('Impossible de charger les demandes'); return; }
     if (!app.querySelector('#shell')) return;
-    const changed = rows.map(r => r.id + r.statut).join() !== before;
+    const changed = sig() !== before;
     if (!silent) { paint(); toast(changed ? 'Nouvelles demandes chargées' : 'À jour'); }
     else if (changed) { paintKpis(); paintList(); if (sel && !rows.some(r => r.id === sel)) { sel = null; paintDetail(); } }
   }
@@ -1413,8 +1442,9 @@ function openTeam() {
   document.addEventListener('visibilitychange', onBack);
   function logout() { store.del(SKEY); session = null; rows = []; sel = null; demo = false; loginView(); }
   async function load() {
-    try { rows = await api('demandes?select=*&order=created_at.desc&limit=1000'); }
+    try { rows = await api('demandes?select=*&order=created_at.desc&limit=2000'); }
     catch (e) { throw new Error('load'); }
+    sweepTrash();
   }
 
   /* ——— Shell ——— */
@@ -1422,6 +1452,7 @@ function openTeam() {
     app.innerHTML = `<div class="shell" id="shell">
       <header class="bar"><span class="logo">${wm()} <small>Équipe</small></span>
         <div class="acts">${demo ? '<span class="pill p-demo">Aperçu, sans base de données</span>' : `<span class="who">${esc(session && session.email || '')}</span>`}
+          <button class="btn btn-line btn-add" id="add" title="Ajouter un commerçant">${icon(I.plus)}<span>Ajouter</span></button>
           <button class="btn btn-line" id="rf" title="Actualiser">${icon(I.refresh)}<span>Actualiser</span></button>
           <button class="btn btn-line" id="csv" title="Exporter en CSV">${icon(I.down)}<span>Exporter</span></button>
           <button class="btn btn-line" data-close title="Revenir au site">${icon(I.back)}<span>Site</span></button>
@@ -1429,11 +1460,12 @@ function openTeam() {
       <section class="kpis" id="kpis" aria-label="Chiffres clés"></section>
       <div class="main"><aside class="list" aria-label="Demandes">
         <div class="list-tools"><input class="input" id="qq" type="search" placeholder="Rechercher un commerce, une ville, un nom" value="${esc(q)}">
-          <div class="filters" role="group" aria-label="Filtrer par statut">${[['tous', 'Toutes'], ...STATUTS].map(([k, l]) => `<button data-f="${k}" aria-pressed="${filter === k}">${l}</button>`).join('')}</div></div>
+          <div class="filters" role="group" aria-label="Filtrer par statut">${[['tous', 'Toutes'], ['rappel', 'À rappeler aujourd’hui'], ...STATUTS, ['corbeille', 'Corbeille']].map(([k, l]) => `<button data-f="${k}" aria-pressed="${filter === k}">${l}</button>`).join('')}</div></div>
         <div class="rows" id="rows"></div></aside>
         <section class="detail" id="detail" aria-live="polite"></section></div></div>`;
     $('#lo').addEventListener('click', logout);
     $('#rf').addEventListener('click', () => refresh(false));
+    $('#add').addEventListener('click', () => { sel = null; mode = 'add'; paintList(); paintDetail(); });
     $('#csv').addEventListener('click', exportCsv);
     $('#qq').addEventListener('input', e => { q = e.target.value; paintList(); });
     app.querySelectorAll('.filters button').forEach(b => b.addEventListener('click', () => { filter = b.dataset.f; app.querySelectorAll('.filters button').forEach(x => x.setAttribute('aria-pressed', x === b)); paintList(); }));
@@ -1443,53 +1475,147 @@ function openTeam() {
   }
   function paint() { paintKpis(); paintList(); paintDetail(); }
   function paintKpis() {
-    const open = rows.filter(r => !['signe', 'perdu'].includes(r.statut));
-    const hot = open.filter(r => analyse(r).score >= 65).length;
+    const live = rows.filter(r => !r.supprime_le), open = live.filter(r => !['signe', 'perdu'].includes(r.statut));
+    const todo = live.filter(due).length;
     const value = open.reduce((s, r) => s + analyse(r).gain, 0);
-    const signed = rows.filter(r => r.statut === 'signe').length;
+    const signed = live.filter(r => r.statut === 'signe').length;
     $('#kpis').innerHTML = `
-      <div class="kpi"><span>Nouvelles demandes</span><b>${rows.filter(r => r.statut === 'nouveau').length}</b></div>
-      <div class="kpi"><span>Demandes chaudes</span><b>${hot}</b></div>
+      <div class="kpi"><span>Nouvelles demandes</span><b>${live.filter(r => r.statut === 'nouveau').length}</b></div>
+      <div class="kpi"><span>À rappeler aujourd’hui</span><b${todo ? ' class="money"' : ''}>${todo}</b></div>
       <div class="kpi"><span>Pertes des prospects ouverts</span><b class="money">${euro(value)}</b></div>
       <div class="kpi"><span>Clients signés</span><b>${signed}</b></div>`;
   }
   const statLabel = k => (STATUTS.find(s => s[0] === k) || [k, k])[1];
+  const TRASH_DAYS = 30;
+  const endOfToday = () => { const d = new Date(); d.setHours(23, 59, 59, 999); return d.getTime(); };
+  const due = r => r.rappel_le && !r.supprime_le && new Date(r.rappel_le).getTime() <= endOfToday();
+  const toLocalInput = iso => { if (!iso) return ''; const d = new Date(iso); if (isNaN(d)) return ''; const z = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`; };
+  const fmtRappel = iso => { const d = new Date(iso), t = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', ' h '), today = new Date(); const same = (a, b) => a.toDateString() === b.toDateString(); const tom = new Date(); tom.setDate(tom.getDate() + 1);
+    if (d.getTime() < Date.now() && !same(d, today)) return `en retard (${d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })})`;
+    return (same(d, today) ? 'aujourd’hui' : same(d, tom) ? 'demain' : d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })) + ' à ' + t.replace(/ h 00$/, ' h'); };
+  const SOURCES = ['Diagnostic du site', 'Porte-à-porte', 'Instagram ou réseaux', 'Téléphone', 'Recommandation', 'Autre'];
+  const TYPES = ['Restaurant', 'Pizzeria', 'Fast-food, kebab, burger', 'Sushi, cuisine asiatique', 'Food truck', 'Traiteur', 'Café, bar', 'Coffee shop', 'Salon de thé', 'Bar à cocktails', 'Boulangerie, pâtisserie', 'Boucherie, charcuterie', 'Fromagerie', 'Primeur', 'Épicerie fine', 'Caviste', 'Chocolatier', 'Coiffeur', 'Barbier', 'Institut de beauté', 'Onglerie', 'Spa, massage', 'Tatoueur, pierceur', 'Vêtements, chaussures', 'Fleuriste', 'Librairie, papeterie', 'Déco, cadeaux', 'Opticien', 'Bijouterie', 'Pressing, retouches', 'Cordonnerie, clés', 'Garage, réparation', 'Salle de sport, coach', 'Autre commerce'];
   function visible() {
     const t = q.trim().toLowerCase();
-    return rows.filter(r => (filter === 'tous' || r.statut === filter) && (!t || [r.commerce, r.ville, r.prenom, r.nom, r.telephone, r.type_commerce].join(' ').toLowerCase().includes(t)));
+    const ok = r => filter === 'corbeille' ? !!r.supprime_le : !r.supprime_le && (filter === 'tous' || (filter === 'rappel' ? due(r) : r.statut === filter));
+    const v = rows.filter(r => ok(r) && (!t || [r.commerce, r.ville, r.prenom, r.nom, r.telephone, r.type_commerce, r.email].join(' ').toLowerCase().includes(t)));
+    // Calls due today come first, oldest due first; then the newest requests.
+    return v.sort((x, y) => (due(y) - due(x)) || (due(x) && due(y) ? new Date(x.rappel_le) - new Date(y.rappel_le) : new Date(y.created_at) - new Date(x.created_at)));
   }
   function paintList() {
     const v = visible(), host = $('#rows');
-    if (!v.length) { host.innerHTML = `<p class="empty">${rows.length ? 'Aucune demande ne correspond.' : 'Aucune demande pour l’instant. Elles apparaîtront ici dès qu’un commerçant remplira le diagnostic.'}</p>`; return; }
+    if (!v.length) { host.innerHTML = `<p class="empty">${filter === 'corbeille' ? `La corbeille est vide. Les fiches supprimées y restent ${TRASH_DAYS} jours.` : filter === 'rappel' ? 'Personne à rappeler aujourd’hui.' : rows.length ? 'Aucune demande ne correspond.' : 'Aucune demande pour l’instant. Elles apparaîtront ici dès qu’un commerçant remplira le diagnostic.'}</p>`; return; }
     host.innerHTML = v.map(r => { const a = analyse(r); return `<button class="item" data-id="${esc(r.id)}" aria-current="${r.id === sel}">
-      <span class="t">${esc(r.commerce || 'Sans nom')}</span><span class="e">${euro(a.gain)}</span>
+      <span class="t">${esc(r.commerce || 'Sans nom')}</span><span class="e">${a.gain ? euro(a.gain) : ''}</span>
       <span class="s">${esc(r.ville || '')} · ${esc(ago(r.created_at))}</span>
-      <span class="pills">${r.demo ? '<span class="pill p-demo">Exemple</span>' : ''}<span class="pill ${a.temp[1]}">${a.temp[0]}</span><span class="pill ${r.statut === 'signe' ? 'p-signe' : r.statut === 'perdu' ? 'p-perdu' : 'p-stat'}">${esc(statLabel(r.statut))}</span></span></button>`; }).join('');
-    host.querySelectorAll('.item').forEach(b => b.addEventListener('click', () => { sel = b.dataset.id; tab = tab || 'analyse'; paintList(); paintDetail(); if (innerWidth <= 980) host.scrollTo(0, 0); }));
+      <span class="pills">${r.demo ? '<span class="pill p-demo">Exemple</span>' : ''}${r.rappel_le && !r.supprime_le ? `<span class="pill ${due(r) ? 'p-due' : 'p-soon'}">Rappel ${esc(fmtRappel(r.rappel_le))}</span>` : ''}${r.source && r.source !== 'Diagnostic du site' ? `<span class="pill p-src">${esc(r.source)}</span>` : ''}<span class="pill ${a.temp[1]}">${a.temp[0]}</span><span class="pill ${r.statut === 'signe' ? 'p-signe' : r.statut === 'perdu' ? 'p-perdu' : 'p-stat'}">${esc(statLabel(r.statut))}</span></span></button>`; }).join('');
+    host.querySelectorAll('.item').forEach(b => b.addEventListener('click', () => { sel = b.dataset.id; mode = null; tab = tab || 'analyse'; paintList(); paintDetail(); if (innerWidth <= 980) host.scrollTo(0, 0); }));
   }
   function paintDetail() {
     const d = rows.find(r => r.id === sel), host = $('#detail');
-    $('#shell').classList.toggle('has-sel', !!d);
+    $('#shell').classList.toggle('has-sel', !!d || mode === 'add');
+    if (mode === 'add' || (mode === 'edit' && d)) return paintForm(mode === 'edit' ? d : null);
     if (!d) { host.innerHTML = '<p class="nodetail">Choisissez une demande dans la liste.</p>'; return; }
     const a = analyse(d), tel = String(d.telephone || '').replace(/[^\d+]/g, '');
     const tabs = [['analyse', 'Analyse'], ['script', 'Script d’appel'], ['prompts', 'Prompts IA'], ['notes', 'Notes'], ['brut', 'Demande complète']];
     host.innerHTML = `<div class="d-head">
         <button class="btn btn-line back" id="bk">${icon(I.back)}Liste</button>
         <div class="d-top"><div><h2>${esc(d.commerce || 'Sans nom')} ${d.demo ? '<span class="pill p-demo">Exemple</span>' : ''}</h2>
-          <p>${esc([d.prenom, d.nom].filter(Boolean).join(' '))} · ${esc(d.type_commerce || '')} · ${esc(d.ville || '')} · ${esc(ago(d.created_at))}</p></div>
+          <p>${esc([[d.prenom, d.nom].filter(Boolean).join(' '), d.type_commerce, d.ville, ago(d.created_at)].filter(Boolean).join(' · '))}</p></div>
           <div class="d-acts">${tel ? `<a class="btn btn-ui" href="tel:${esc(tel)}">${icon(I.phone)}${esc(d.telephone)}</a><button class="btn btn-line" id="cp" title="Copier le numéro">${icon(I.copy)}</button>` : ''}
-            <select id="st" aria-label="Statut">${STATUTS.map(([k, l]) => `<option value="${k}"${d.statut === k ? ' selected' : ''}>${l}</option>`).join('')}</select></div></div>
-        <p class="hint">À appeler : ${esc(d.creneau || 'peu importe')} ${d.delai ? ` · Délai souhaité : ${esc(d.delai)}` : ''}</p>
+            <select id="st" aria-label="Statut">${STATUTS.map(([k, l]) => `<option value="${k}"${d.statut === k ? ' selected' : ''}>${l}</option>`).join('')}</select>
+            <button class="btn btn-line icon-btn" id="ed" title="Modifier les infos">${icon(I.edit)}<span>Modifier</span></button>
+            ${d.supprime_le ? '' : `<button class="btn btn-line icon-btn btn-danger" id="del" title="Supprimer">${icon(I.trash)}<span>Supprimer</span></button>`}</div></div>
+        <p class="hint">À appeler : ${esc(d.creneau || 'peu importe')}${d.delai ? ` · Délai souhaité : ${esc(d.delai)}` : ''}${d.source ? ` · Source : ${esc(d.source)}` : ''}</p>
+        ${d.supprime_le ? `<div class="trash-note"><span>Dans la corbeille depuis ${esc(ago(d.supprime_le))}. Suppression définitive au bout de ${TRASH_DAYS} jours.</span><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-line" id="rs">${icon(I.undo)}Restaurer</button><button class="btn btn-line btn-danger" id="purge">${icon(I.trash)}Supprimer définitivement</button></span></div>` : `<div class="rappel">${icon(I.clock)}<b>Rappel :</b><input class="input" type="datetime-local" id="rp" value="${esc(toLocalInput(d.rappel_le))}" aria-label="Date et heure de rappel">
+          <button class="btn btn-line" data-rp="1">Demain 10 h</button><button class="btn btn-line" data-rp="7">Dans 1 semaine</button>${d.rappel_le ? '<button class="btn btn-line" data-rp="0">Effacer</button>' : ''}</div>`}
       </div>
       <div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" data-t="${k}" aria-selected="${tab === k}">${l}</button>`).join('')}</div>
       <div class="panel" role="tabpanel">${panel(d, a)}</div>`;
     $('#bk').addEventListener('click', () => { sel = null; paintList(); paintDetail(); });
+    $('#ed').addEventListener('click', () => { mode = 'edit'; paintDetail(); });
+    const armed = (b, then) => b.addEventListener('click', () => { if (b.classList.contains('armed')) return then(); b.classList.add('armed'); const sp = b.querySelector('span') || b; const old = sp.textContent; sp.textContent = 'Confirmer ?'; setTimeout(() => { if (b.isConnected) { b.classList.remove('armed'); sp.textContent = old; } }, 4000); });
+    if ($('#del')) armed($('#del'), async () => { if (await save(d, { supprime_le: new Date().toISOString() }, 'Mis à la corbeille')) { sel = null; paintDetail(); } });
+    if ($('#rs')) $('#rs').addEventListener('click', async () => { if (await save(d, { supprime_le: null }, 'Fiche restaurée')) paintDetail(); });
+    if ($('#purge')) armed($('#purge'), () => purge(d));
+    const rp = $('#rp');
+    if (rp) {
+      rp.addEventListener('change', () => { const v = rp.value ? new Date(rp.value) : null; save(d, { rappel_le: v && !isNaN(v) ? v.toISOString() : null }, v ? 'Rappel programmé' : 'Rappel effacé').then(() => paintDetail()); });
+      host.querySelectorAll('[data-rp]').forEach(b => b.addEventListener('click', () => { const n = +b.dataset.rp; let v = null; if (n) { v = new Date(); v.setDate(v.getDate() + n); v.setHours(10, 0, 0, 0); } save(d, { rappel_le: v ? v.toISOString() : null }, v ? 'Rappel programmé' : 'Rappel effacé').then(() => paintDetail()); }));
+    }
     if ($('#cp')) $('#cp').addEventListener('click', () => copy(d.telephone));
     $('#st').addEventListener('change', e => save(d, { statut: e.target.value }, 'Statut enregistré'));
     host.querySelectorAll('[data-t]').forEach(b => b.addEventListener('click', () => { tab = b.dataset.t; paintDetail(); }));
     host.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => copy(b.closest('[data-src]').querySelector('pre, .src').innerText)));
     const nt = host.querySelector('#nt');
     if (nt) { let t; nt.addEventListener('input', () => { const sv0 = $('#sv'); if (sv0) sv0.textContent = 'Modifications en cours…'; clearTimeout(t); t = setTimeout(() => save(d, { notes: nt.value }, null).then(ok => { const sv = $('#sv'); if (sv) sv.textContent = ok ? 'Enregistré' : 'Non enregistré, vérifiez la connexion'; }), 700); }); }
+  }
+  function paintForm(d) {
+    const host = $('#detail'), v = d || { source: 'Porte-à-porte' };
+    const f = (k, label, type = 'text', req = false, extra = '') => `<label><span>${label}${req ? ' <span class="req">*</span>' : ''}</span><input class="input" name="${k}" type="${type}" value="${esc(v[k] || '')}" ${extra}></label>`;
+    host.innerHTML = `<div class="d-head"><button class="btn btn-line back" id="bk">${icon(I.back)}Liste</button></div>
+      <form class="form panel" id="fm" novalidate>
+        <h3>${d ? 'Modifier les infos' : 'Ajouter un commerçant'}</h3>
+        <div class="row2">${f('commerce', 'Nom du commerce', 'text', true, 'maxlength="80"')}<label><span>Type de commerce</span><input class="input" name="type_commerce" list="types" value="${esc(v.type_commerce || '')}" maxlength="60"><datalist id="types">${TYPES.map(t => `<option value="${esc(t)}">`).join('')}</datalist></label></div>
+        <div class="row2">${f('prenom', 'Prénom', 'text', false, 'maxlength="60"')}${f('nom', 'Nom', 'text', false, 'maxlength="60"')}</div>
+        <div class="row2">${f('telephone', 'Téléphone', 'tel', true, 'inputmode="tel" maxlength="30"')}${f('email', 'E-mail', 'email', false, 'maxlength="120"')}</div>
+        <div class="row2">${f('ville', 'Ville', 'text', false, 'maxlength="60"')}<label><span>D’où vient-il ?</span><select class="input" name="source">${SOURCES.map(x => `<option${(v.source || 'Diagnostic du site') === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></label></div>
+        <div class="row2"><label><span>Créneau préféré</span><select class="input" name="creneau">${['Peu importe', 'Le matin', 'Le midi', 'L’après-midi'].map(x => `<option${(v.creneau || 'Peu importe') === x ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></label>${d ? '' : `<label><span>Rappel</span><input class="input" name="rappel_le" type="datetime-local"></label>`}</div>
+        ${d ? '' : `<label><span>Notes</span><textarea class="input" name="notes" rows="3" maxlength="2000" placeholder="Ce qu’il vous a dit, ce qui l’intéresse…"></textarea></label>`}
+        <p class="err" id="fe" hidden></p>
+        <div class="acts"><button class="btn btn-ui" type="submit">${d ? 'Enregistrer' : 'Ajouter le commerçant'}</button><button class="btn btn-line" type="button" id="cx">Annuler</button></div>
+      </form>`;
+    const back = () => { mode = null; paintList(); paintDetail(); };
+    $('#bk').addEventListener('click', back); $('#cx').addEventListener('click', back);
+    const fm = $('#fm');
+    setTimeout(() => fm.querySelector('input').focus({ preventScroll: true }), 30);
+    fm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const val = Object.fromEntries(new FormData(fm)), fe = $('#fe'), fail = m => { fe.textContent = m; fe.hidden = false; };
+      for (const k in val) val[k] = String(val[k]).trim();
+      if (!val.commerce) return fail('Indiquez le nom du commerce.');
+      if (!val.telephone || val.telephone.replace(/\D/g, '').length < 9) return fail('Indiquez un numéro de téléphone complet.');
+      if (val.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val.email)) return fail('Cette adresse e-mail semble incorrecte.');
+      const btn = fm.querySelector('[type=submit]'); btn.disabled = true;
+      if (d) {
+        const patch = { commerce: val.commerce, type_commerce: val.type_commerce, prenom: val.prenom, nom: val.nom, telephone: val.telephone, email: val.email, ville: val.ville, source: val.source, creneau: val.creneau };
+        if (await save(d, patch, 'Infos enregistrées')) back(); else btn.disabled = false;
+      } else {
+        const when = val.rappel_le ? new Date(val.rappel_le) : null;
+        const row = { commerce: val.commerce, type_commerce: val.type_commerce, prenom: val.prenom, nom: val.nom, telephone: val.telephone, email: val.email, ville: val.ville, source: val.source, creneau: val.creneau, notes: val.notes || '', statut: 'nouveau', rappel_le: when && !isNaN(when) ? when.toISOString() : null };
+        const made = await create(row);
+        if (!made) { btn.disabled = false; return fail('Pas enregistré. Vérifiez la connexion, puis réessayez.'); }
+        rows.unshift(made); sel = made.id; mode = null; filter = 'tous'; tab = 'notes';
+        app.querySelectorAll('.filters button').forEach(x => x.setAttribute('aria-pressed', x.dataset.f === 'tous'));
+        toast('Commerçant ajouté'); paint();
+      }
+    });
+  }
+  async function create(row) {
+    if (demo) {
+      const made = { ...row, id: 'loc-' + Date.now(), local: true, created_at: new Date().toISOString() };
+      const all = store.get('caia-local-demandes'); store.set('caia-local-demandes', [made, ...(Array.isArray(all) ? all : [])].slice(0, 200));
+      return made;
+    }
+    try { const r = await api('demandes', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(row) }); return Array.isArray(r) ? r[0] : r; }
+    catch (e) { return null; }
+  }
+  async function purge(d, quiet) {
+    if (demo) {
+      const all = store.get('caia-local-demandes'); if (Array.isArray(all)) store.set('caia-local-demandes', all.filter(r => r.id !== d.id));
+      const gone = store.get('caia-demo-purged') || []; if (!gone.includes(d.id)) { gone.push(d.id); store.set('caia-demo-purged', gone); }
+    } else {
+      try { await api('demandes?id=eq.' + encodeURIComponent(d.id), { method: 'DELETE', headers: { Prefer: 'return=minimal' } }); }
+      catch (e) { if (!quiet) toast('Suppression impossible, vérifiez la connexion'); return false; }
+    }
+    rows = rows.filter(r => r.id !== d.id);
+    if (!quiet) { if (sel === d.id) sel = null; toast('Supprimée définitivement'); paint(); }
+    return true;
+  }
+  // Fiches left in the bin for more than 30 days are removed for good.
+  function sweepTrash() {
+    const limit = Date.now() - TRASH_DAYS * 86400000;
+    rows.filter(r => r.supprime_le && new Date(r.supprime_le).getTime() < limit).forEach(r => purge(r, true));
   }
   function panel(d, a) {
     if (tab === 'analyse') {
@@ -1528,8 +1654,7 @@ function openTeam() {
     const before = { ...d };
     Object.assign(d, patch);
     if (demo) {
-      const key = patch.statut != null ? 'caia-demo-statut' : 'caia-demo-notes', m = store.get(key) || {};
-      m[d.id] = patch.statut != null ? patch.statut : patch.notes; store.set(key, m);
+      const m = store.get('caia-demo-patch') || {}; m[d.id] = { ...(m[d.id] || {}), ...patch }; store.set('caia-demo-patch', m);
     } else {
       try { await api('demandes?id=eq.' + encodeURIComponent(d.id), { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(patch) }); }
       catch (e) { Object.assign(d, before); toast('Non enregistré, vérifiez la connexion'); paintKpis(); paintList(); return false; }
@@ -1539,7 +1664,7 @@ function openTeam() {
     return true;
   }
   function exportCsv() {
-    const cols = ['created_at', 'statut', 'commerce', 'prenom', 'nom', 'ville', 'telephone', 'email', 'type_commerce', 'creneau', 'delai', 'soucis', 'probleme', 'deja_en_place', 'estimation_mois', 'appels', 'panier', 'plateformes', 'clients', 'notes'];
+    const cols = ['created_at', 'statut', 'rappel_le', 'source', 'commerce', 'prenom', 'nom', 'ville', 'telephone', 'email', 'type_commerce', 'creneau', 'delai', 'soucis', 'probleme', 'deja_en_place', 'estimation_mois', 'appels', 'panier', 'plateformes', 'clients', 'notes'];
     const cell = v => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[";\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
     const csv = '﻿' + [cols.join(';'), ...visible().map(r => cols.map(c => cell(r[c])).join(';'))].join('\n');
     try {
