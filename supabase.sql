@@ -9,11 +9,15 @@ create table if not exists public.demandes (
   notes text not null default '',
   soucis text, probleme text, type_commerce text, deja_en_place text, delai text,
   prenom text, nom text, commerce text, ville text, telephone text, email text, creneau text,
-  pistes text, estimation_mois integer, appels integer, panier integer, plateformes integer, clients integer
+  pistes text, estimation_mois integer, appels integer, panier integer, plateformes integer, clients integer,
+  detail jsonb
 );
 
 -- Liste des personnes autorisées à voir les demandes
 create table if not exists public.equipe (email text primary key);
+
+-- Already created the table before? This adds the new column without touching your data.
+alter table public.demandes add column if not exists detail jsonb;
 
 alter table public.demandes enable row level security;
 alter table public.equipe enable row level security;
