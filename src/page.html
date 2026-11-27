@@ -17,6 +17,11 @@
   --brand: #FF5A1F;
   --brand-deep: #D9420B;
   --brand-soft: #FFF1EA;
+  --sun: #FFC83D; --sun-soft: #FFF6DA;
+  --sky: #2F7BFF; --sky-soft: #E8F1FF;
+  --lilac: #8B6CFF; --lilac-soft: #F1EDFF;
+  --rose: #FF5C8A; --rose-soft: #FFEAF0;
+  --mint-soft: #E6F7EF;
   --up: #12A150;
   --dark: #0A0A0B;
   --dark-2: #17171B;
@@ -68,19 +73,32 @@ body:not(.in-flow)::before { content: ""; position: fixed; inset: 0 0 auto; heig
 .nav-links button:hover { color: var(--ink); }
 .nav .btn { min-height: 40px; padding: 0 18px; font-size: 14.5px; }
 
+/* Shock line on top */
+.ann { display: block; width: 100%; background: var(--ink); color: #FFFFFF; text-align: center; font-size: 14.5px; font-weight: 500; padding: 11px max(16px, env(safe-area-inset-right, 0px)) 11px max(16px, env(safe-area-inset-left, 0px)); padding-top: calc(11px + env(safe-area-inset-top, 0px)); line-height: 1.4; }
+.ann b { color: var(--brand); font-weight: 700; }
+.ann u { text-decoration: none; font-weight: 600; white-space: nowrap; margin-left: 6px; border-bottom: 1px solid rgba(255,255,255,.5); }
+.ann:hover u { border-bottom-color: #FFFFFF; }
+
+/* Big money number */
+.bignum { display: grid; justify-items: center; gap: 6px; margin: 0 auto 30px; }
+.bn { font-size: clamp(68px, 11vw, 150px); font-weight: 800; letter-spacing: -.06em; line-height: .9; color: var(--brand); font-variant-numeric: tabular-nums; }
+.bn-l { font-size: clamp(17px, 1.7vw, 21px); font-weight: 600; color: var(--ink); max-width: 30em; letter-spacing: -.01em; }
+.bn-l sup, .fn sup { font-size: .65em; color: var(--muted); }
+.fn { font-size: 12.5px; color: var(--dim); max-width: 46em; margin: 10px auto 0; line-height: 1.5; }
+
 /* Hero */
 .hero { padding-block: 64px 40px; text-align: center; }
-.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--ink-2); padding: 6px 14px 6px 8px; border-radius: 999px; background: var(--soft); margin-bottom: 26px; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--brand-deep); padding: 6px 14px 6px 8px; border-radius: 999px; background: var(--brand-soft); margin-bottom: 26px; }
 .eyebrow b { font-size: 12px; font-weight: 700; color: #FFFFFF; background: var(--brand); padding: 3px 9px; border-radius: 999px; letter-spacing: .02em; }
-.hero h1 { font-size: clamp(44px, 7.2vw, 96px); line-height: .96; letter-spacing: -.055em; font-weight: 750; max-width: 13ch; margin: 0 auto; }
+.hero h1 { font-size: clamp(38px, 5.6vw, 72px); line-height: .96; letter-spacing: -.055em; font-weight: 750; max-width: 13ch; margin: 0 auto; }
 .hero .lead { font-size: clamp(18px, 1.6vw, 21px); color: var(--muted); max-width: 40em; margin: 26px auto 0; line-height: 1.5; }
 .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
 .hero-note { margin-top: 14px; font-size: 14px; color: var(--muted); }
 
 /* Product stage: a phone with live screens, and the monthly report beside it */
 .stage { position: relative; margin: 56px auto 0; max-width: 1040px; height: 600px; }
-.stage-bg { position: absolute; inset: 70px 0 0; border-radius: 36px; background: var(--soft); overflow: hidden; }
-.stage-bg::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle at 1px 1px, rgba(10,10,11,.09) 1px, transparent 0); background-size: 22px 22px; -webkit-mask-image: linear-gradient(to bottom, #000, transparent 85%); mask-image: linear-gradient(to bottom, #000, transparent 85%); }
+.stage-bg { position: absolute; inset: 70px 0 0; border-radius: 36px; background: linear-gradient(160deg, var(--brand-soft) 0%, var(--sun-soft) 55%, var(--rose-soft) 100%); overflow: hidden; }
+.stage-bg::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle at 1px 1px, rgba(217,66,11,.14) 1px, transparent 0); background-size: 22px 22px; -webkit-mask-image: linear-gradient(to bottom, #000, transparent 85%); mask-image: linear-gradient(to bottom, #000, transparent 85%); }
 .phone { text-align: left; position: absolute; left: 50%; top: 0; width: 290px; height: 590px; transform: translateX(-50%); border-radius: 48px; background: #0A0A0B; padding: 11px; box-shadow: 0 50px 100px -40px rgba(10,10,11,.45), 0 0 0 1.5px #2B2B31 inset; z-index: 2; }
 .phone::before { content: ""; position: absolute; top: 20px; left: 50%; width: 92px; height: 26px; border-radius: 20px; background: #0A0A0B; transform: translateX(-50%); z-index: 3; }
 .screen { position: relative; height: 100%; border-radius: 38px; background: #FFFFFF; overflow: hidden; }
@@ -113,7 +131,7 @@ body:not(.in-flow)::before { content: ""; position: fixed; inset: 0 0 auto; heig
 .report-big { font-size: 40px; font-weight: 750; letter-spacing: -.045em; line-height: 1; }
 .report-big span { color: var(--up); }
 .spark { display: flex; align-items: flex-end; gap: 6px; height: 54px; }
-.spark i { flex: 1; border-radius: 5px 5px 2px 2px; background: #E4E4E8; }
+.spark i { flex: 1; border-radius: 5px 5px 2px 2px; background: #FFD2BF; }
 .spark i:last-child { background: var(--brand); }
 .report ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; font-size: 14px; }
 .report li { display: flex; justify-content: space-between; gap: 10px; }
@@ -131,7 +149,12 @@ body:not(.in-flow)::before { content: ""; position: fixed; inset: 0 0 auto; heig
 .forwhom p { text-align: center; font-size: 14px; color: var(--muted); font-weight: 600; margin: 0 0 18px; }
 .trades { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 34px; color: var(--ink-2); font-weight: 600; font-size: 16px; }
 .trades span { display: inline-flex; align-items: center; gap: 9px; }
-.trades svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.trades svg { width: 34px; height: 34px; padding: 7px; border-radius: 50%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.trades span:nth-child(1) svg { background: var(--brand-soft); color: var(--brand-deep); }
+.trades span:nth-child(2) svg { background: var(--sun-soft); color: #B07A00; }
+.trades span:nth-child(3) svg { background: var(--rose-soft); color: #D12F62; }
+.trades span:nth-child(4) svg { background: var(--lilac-soft); color: #5B3FD9; }
+.trades span:nth-child(5) svg { background: var(--sky-soft); color: #1F5FD1; }
 
 /* Section shell */
 .sec { padding-block: 120px; }
@@ -188,7 +211,21 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px 
 .tile .gain { font-size: 14px; font-weight: 600; color: var(--ink); display: inline-flex; gap: 8px; align-items: center; }
 .tile .gain::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--brand); }
 .vis { margin-top: auto; padding-top: 22px; display: grid; gap: 8px; }
-.tile.dark { background: var(--ink); color: #FFFFFF; }
+.tile.dark { background: var(--brand); color: #FFFFFF; }
+.tile.dark p { color: rgba(255,255,255,.85) !important; }
+.tile.dark .gain::before { background: #FFFFFF; }
+.tile.c-sun { background: var(--sun); }
+.tile.c-sun p { color: #5C4300; }
+.tile.c-lilac { background: var(--lilac-soft); }
+.tile.c-sky { background: var(--sky-soft); }
+.tile.c-rose { background: var(--rose-soft); }
+.tile.c-sun .stars { color: var(--ink); }
+.tile.c-lilac .lcard { background: var(--lilac); }
+.tile.c-lilac .stamps span.f { background: #FFFFFF; }
+.tile.c-lilac .stamps span { border-color: rgba(255,255,255,.5); }
+.tile.c-lilac .lcard small { color: rgba(255,255,255,.8); }
+.tile.c-sky .gain::before { background: var(--sky); }
+.tile.c-sky .paid { color: var(--sky); background: #FFFFFF; }
 .tile.dark p { color: var(--dark-muted); }
 .tile.dark .gain { color: #FFFFFF; }
 .stars { display: flex; gap: 4px; color: var(--brand); font-size: 22px; letter-spacing: 2px; }
@@ -209,7 +246,8 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px 
 /* Steps */
 .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; list-style: none; padding: 0; margin: 0; counter-reset: s; }
 .steps li { counter-increment: s; background: var(--soft); border-radius: 28px; padding: 30px; display: grid; gap: 10px; align-content: start; }
-.steps li::before { content: "0" counter(s); font-size: 15px; font-weight: 700; color: var(--brand-deep); font-variant-numeric: tabular-nums; }
+.steps li::before { content: "0" counter(s); width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 15px; font-weight: 800; color: #FFFFFF; background: var(--brand); font-variant-numeric: tabular-nums; margin-bottom: 6px; }
+.steps li:nth-child(1) { background: var(--brand-soft); } .steps li:nth-child(2) { background: var(--sun-soft); } .steps li:nth-child(2)::before { background: #E0A100; } .steps li:nth-child(3) { background: var(--mint-soft); } .steps li:nth-child(3)::before { background: var(--up); }
 .steps b { font-size: 22px; letter-spacing: -.03em; line-height: 1.15; }
 .steps span { color: var(--muted); }
 
@@ -222,13 +260,13 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px 
 .dash-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .dash-h b { font-size: 18px; letter-spacing: -.02em; }
 .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.kpi { background: var(--soft); border-radius: 16px; padding: 14px; display: grid; gap: 2px; min-width: 0; }
+.kpi { background: var(--brand-soft); border-radius: 16px; padding: 14px; display: grid; gap: 2px; min-width: 0; }
 .kpi span { font-size: 12.5px; color: var(--muted); font-weight: 600; }
 .kpi b { font-size: 24px; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
 .kpi em { font-style: normal; font-size: 12.5px; font-weight: 600; color: var(--up); }
 .chart { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; align-items: end; height: 170px; padding-top: 10px; border-bottom: 1px solid var(--line); }
 .chart div { display: grid; gap: 6px; justify-items: center; height: 100%; align-content: end; }
-.chart i { width: 100%; max-width: 46px; border-radius: 10px 10px 3px 3px; background: #E4E4E8; height: var(--h); transform-origin: bottom; }
+.chart i { width: 100%; max-width: 46px; border-radius: 10px 10px 3px 3px; background: #FFD2BF; height: var(--h); transform-origin: bottom; }
 .chart div:last-child i { background: var(--brand); }
 .chart span { font-size: 12px; color: var(--muted); }
 .in .chart i { animation: grow .9s cubic-bezier(.2,.8,.2,1) both; }
@@ -245,7 +283,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px 
 .faq p { margin: 0 0 24px; color: var(--muted); max-width: 62ch; }
 
 /* Final call */
-.final { text-align: center; padding-block: 130px; }
+.final { text-align: center; padding-block: 130px; background: linear-gradient(180deg, #FFFFFF, var(--brand-soft)); }
 .final h2 { font-size: clamp(40px, 6.2vw, 84px); line-height: .98; letter-spacing: -.055em; max-width: 14ch; margin: 0 auto; }
 .final p { color: var(--muted); font-size: 19px; margin: 22px auto 34px; max-width: 32em; }
 
@@ -361,6 +399,8 @@ textarea { min-height: 110px; resize: vertical; }
   .final { padding-block: 90px; }
   .choices.two, .grid2 { grid-template-columns: minmax(0, 1fr); }
   .hero-ctas .btn { width: 100%; }
+  .hero .eyebrow { display: none; }
+  .ann { font-size: 13.5px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
@@ -711,6 +751,14 @@ function bindLanding(root) {
   const nav = root.querySelector('.nav'), onScroll = () => nav && nav.classList.toggle('scrolled', scrollY > 8);
   removeEventListener('scroll', navObs || (() => {})); navObs = onScroll; addEventListener('scroll', onScroll, { passive: true }); onScroll();
   root.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { const t = root.querySelector('#' + b.dataset.go); if (t) t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }));
+  // Big example number counts up once
+  const bn = root.querySelector('[data-bn]');
+  if (bn) {
+    const D = {}; CALC_DEF.forEach(d => { D[d.k] = d.def; });
+    const year = Math.round((D.appels * 4.33 / 3 * D.panier + D.plateformes * D.panier * .09 + D.clients * .05 * D.panier) * 12);
+    if (reduce) bn.textContent = euro(year);
+    else { const t0 = performance.now() + 250, dur = 1800; const step = t => { const k = Math.max(0, Math.min(1, (t - t0) / dur)), e = 1 - Math.pow(1 - k, 4); bn.textContent = euro(Math.round(year * e / 10) * 10 * (k < 1 ? 1 : 0) + (k < 1 ? 0 : year)); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+  }
   // Phone screens take turns
   const slides = [...root.querySelectorAll('.slide')], dots = [...root.querySelectorAll('.dots i')];
   let cur = 0;
@@ -733,6 +781,7 @@ const wm = () => `<span class="wmk">ca<span class="idot">ı</span>a</span>`;
 function landing() {
   document.body.classList.remove('in-flow');
   app.innerHTML = `
+  <button type="button" class="ann" data-go="calcul">Sur une commande de 27 €, Uber Eats garde <b>8,45 €</b>.<u>Calculez ce que vous perdez →</u></button>
   <header class="nav"><div class="wrap">
     <a class="logo" href="#" aria-label="Caia, accueil">${wm()}</a>
     <nav class="nav-links" aria-label="Sections"><button data-go="calcul">Calculateur</button><button data-go="solutions">Les outils</button><button data-go="comment">Comment ça marche</button><button data-go="faq">Questions</button></nav>
@@ -741,10 +790,12 @@ function landing() {
   <main>
     <section class="hero"><div class="wrap">
       <p class="eyebrow"><b>Gratuit</b>Le diagnostic des commerces de quartier</p>
+      <div class="bignum"><span class="bn" data-bn>0 €</span><span class="bn-l">par an. C’est ce que laisse filer un restaurant type, sans même le voir.<sup>1</sup></span></div>
       <h1>Récupérez le chiffre d’affaires <span class="dim">qui vous échappe.</span></h1>
       <p class="lead">Appels manqués, commissions des plateformes, clients qui ne reviennent pas. Caia installe les bons outils dans votre commerce et vous montre chaque mois ce qu’ils vous rapportent.</p>
       <div class="hero-ctas"><button class="btn btn-dark" data-start>Faire mon diagnostic ${icon('arr')}</button><button class="btn btn-ghost" data-go="calcul">Calculer mes pertes</button></div>
       <p class="hero-note">Gratuit · Sans engagement · Rappel sous 24 h ouvrées</p>
+      <p class="fn"><sup>1</sup> Exemple calculé avec nos hypothèses prudentes : 8 appels manqués par semaine, panier moyen de 22 €, 120 commandes par mois sur Uber Eats ou Deliveroo, 400 clients par mois. Faites le calcul pour votre commerce plus bas.</p>
       <div class="stage" aria-label="Aperçu de l’application Caia, avec des données d’exemple">
         <div class="stage-bg" aria-hidden="true"></div>
         <div class="notif" aria-hidden="true"><span class="ic">${ico(IC.phone)}</span><div><b>Appel décroché à 12 h 47</b><span>Pendant que vous étiez au four.</span></div></div>
@@ -810,14 +861,14 @@ function landing() {
       <div class="sec-h" data-reveal><p class="kicker">Les outils</p><h2>Tout ce qu’il faut. <span class="dim">Installé pour vous.</span></h2><p>Vous gardez votre métier. On s’occupe du reste, et on mesure ce que ça rapporte.</p></div>
       <div class="bento">
         <article class="tile w4 dark" data-reveal><h3>Un accueil téléphonique qui ne rate rien.</h3><p>Pendant le rush, il décroche à votre place : horaires, réservations, commandes. Vous recevez un résumé de chaque appel.</p><span class="gain">Plus aucun appel perdu</span>
-          <div class="vis" aria-hidden="true"><span class="bubble them" style="color:var(--ink)">Il vous reste une table pour 4 à 20 h ?</span><span class="bubble us" style="background:#FFFFFF;color:var(--ink)">Oui, je la réserve au nom de Martin. À ce soir !</span></div></article>
-        <article class="tile w2" data-reveal style="--d:1"><h3>Vos avis Google.</h3><p>Chaque client reçoit une demande d’avis après son passage.</p>
+          <div class="vis" aria-hidden="true"><span class="bubble them" style="background:rgba(255,255,255,.25);color:#FFFFFF">Il vous reste une table pour 4 à 20 h ?</span><span class="bubble us" style="background:#FFFFFF;color:var(--ink)">Oui, je la réserve au nom de Martin. À ce soir !</span></div></article>
+        <article class="tile w2 c-sun" data-reveal style="--d:1"><h3>Vos avis Google.</h3><p>Chaque client reçoit une demande d’avis après son passage.</p>
           <div class="vis" aria-hidden="true"><div style="display:flex;align-items:baseline;gap:12px"><span class="rating">4,8</span><span class="stars">★★★★★</span></div><div class="review"><b>« Accueil adorable, pizzas parfaites. »</b><br>Réponse envoyée le jour même</div></div></article>
-        <article class="tile w2" data-reveal><h3>La fidélité, sur téléphone.</h3><p>Plus de carte papier perdue. Un petit mot quand un client tarde à revenir.</p>
+        <article class="tile w2 c-lilac" data-reveal><h3>La fidélité, sur téléphone.</h3><p>Plus de carte papier perdue. Un petit mot quand un client tarde à revenir.</p>
           <div class="vis" aria-hidden="true"><div class="lcard"><small>Boulangerie du Marché</small><div class="stamps">${'<span class="f"></span>'.repeat(4)}${'<span></span>'.repeat(6)}</div><small>4 sur 10 · une viennoiserie offerte à 10</small></div></div></article>
-        <article class="tile w4" data-reveal style="--d:1"><h3>La commande à emporter, sans commission.</h3><p>Vos habitués commandent et paient sur votre propre page. Vous gardez tout le prix.</p><span class="gain">0 % de commission sur vos commandes directes</span>
+        <article class="tile w4 c-sky" data-reveal style="--d:1"><h3>La commande à emporter, sans commission.</h3><p>Vos habitués commandent et paient sur votre propre page. Vous gardez tout le prix.</p><span class="gain">0 % de commission sur vos commandes directes</span>
           <div class="vis" aria-hidden="true" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:12px"><div class="ticket" style="background:#FFFFFF"><div class="row"><span>n°129 · 20 h 00</span><b>32,00 €</b></div><span class="paid">Payé en ligne</span></div><div class="ticket" style="background:#FFFFFF"><div class="row"><span>n°130 · 20 h 15</span><b>18,50 €</b></div><span class="paid">Payé en ligne</span></div></div></article>
-        <article class="tile w6" data-reveal><h3>Un site qui donne envie de venir.</h3><p>Simple, rapide, à votre image. Vous le modifiez depuis votre téléphone.</p>
+        <article class="tile w6 c-rose" data-reveal><h3>Un site qui donne envie de venir.</h3><p>Simple, rapide, à votre image. Vous le modifiez depuis votre téléphone.</p>
           <div class="vis" aria-hidden="true"><div class="browser"><div class="browser-bar"><i></i><i></i><i></i><span>pizzeria-exemple.fr</span></div><div class="site-mock"><div><h4>Pizzeria Bella, au feu de bois depuis 1998.</h4><p>Ouvert du mardi au dimanche, 11 h 30 à 22 h.</p><span class="fake-btn">Commander</span></div><div class="site-img"></div></div></div></div></article>
       </div>
     </div></section>
@@ -861,6 +912,7 @@ function landing() {
   <footer class="wrap site-foot">
     <div class="foot-top"><span class="logo">ca<button type="button" class="egg idot" aria-label="Espace équipe">ı</button>a</span><span>Le chiffre d’affaires des commerces de quartier.</span></div>
     <span>Vos informations servent uniquement à vous rappeler et à préparer votre proposition. Elles ne sont jamais vendues.</span>
+    <span style="font-size:13px">Source du chiffre Uber Eats : test d’une commande de 27 € publié par <a href="https://www.lyoncapitale.fr/?p=232345" rel="noopener" target="_blank" style="color:inherit">Lyon Capitale</a>, commission de 8,45 € HT.</span>
     <details class="legal"><summary>Mentions légales et confidentialité</summary><div class="legal-body">
       <p><b>Éditeur du site</b> : [Nom de la société], [forme juridique] au capital de [montant] €, [adresse du siège], SIRET [numéro]. Directeur de la publication : [prénom nom]. Contact : [adresse e-mail].</p>
       <p><b>Hébergement</b> : site hébergé par Netlify, Inc. ([adresse de l’hébergeur]). Données des demandes hébergées par Supabase ([région choisie, par exemple Union européenne]).</p>
