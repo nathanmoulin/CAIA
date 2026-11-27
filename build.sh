@@ -5,7 +5,7 @@
 #   On Netlify, the site address is picked up automatically from $URL.
 set -e
 cd "$(dirname "$0")"
-SITE_URL="${SITE_URL:-${URL:-https://caia.netlify.app}}"
+SITE_URL="${SITE_URL:-${URL:-https://caia-ai.netlify.app}}"
 SITE_URL="${SITE_URL%/}"
 rm -rf site && mkdir -p site
 TITLE="Caia · Le diagnostic gratuit des commerces de quartier"
