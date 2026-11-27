@@ -9,7 +9,7 @@ SITE_URL="${SITE_URL:-${URL:-https://caia-ai.netlify.app}}"
 SITE_URL="${SITE_URL%/}"
 rm -rf site && mkdir -p site
 TITLE="Caia · Le diagnostic gratuit des commerces de quartier"
-DESC="Dites à Caia ce qui coince dans votre commerce : en 2 minutes, l’assistant chiffre l’argent que vous perdez et un conseiller vous rappelle avec la solution. Gratuit, sans engagement."
+DESC="Dites à Caia ce qui coince dans votre commerce : en 2 minutes, l’assistant chiffre ce que vous laissez filer, et je vous rappelle avec la solution. Prix affichés, sans engagement."
 {
   printf '<!doctype html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n'
   printf '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
