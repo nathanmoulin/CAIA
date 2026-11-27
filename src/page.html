@@ -135,7 +135,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
 .final .btn:hover { background: var(--brand); color: #FFFFFF; }
 
 /* Footer */
-.site-foot { padding-block: 30px calc(36px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 14px; color: var(--muted); font-size: 13.5px; }
+.site-foot { padding-block: 30px calc(96px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 14px; color: var(--muted); font-size: 13.5px; }
 .foot-top { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; }
 .site-foot .logo { font-size: 22px; color: var(--ink); }
 .site-foot a { color: inherit; }
@@ -166,7 +166,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
 .ghost:hover { color: var(--ink); background: var(--soft); }
 .prog { height: 2px; background: var(--line); }
 .prog i { display: block; height: 100%; width: var(--p, 0%); background: var(--brand); transition: width .6s var(--ease); }
-.thread { width: min(720px, 100%); margin: 0 auto; padding: 28px max(20px, env(safe-area-inset-right, 0px)) 220px max(20px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 12px; }
+.thread { width: min(720px, 100%); margin: 0 auto; padding: 28px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 12px; }
 .msg { max-width: 86%; display: flex; gap: 10px; align-items: flex-end; }
 .msg.bot { align-self: flex-start; }
 .msg.me { align-self: flex-end; }
@@ -227,11 +227,16 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
 .done span { color: var(--ink-2); }
 
 /* Bottom dock: suggested answers + message box */
-.dock { position: fixed; inset: auto 0 0; z-index: 6; padding: 14px max(16px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: linear-gradient(to top, #FFFFFF 70%, rgba(255,255,255,0)); }
+/* Answers sit right under the last message, with room at the bottom for the host's badge. */
+.dock { padding: 6px max(20px, env(safe-area-inset-right, 0px)) calc(120px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px)); }
+.dock:empty { padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
 .dock .composer { margin: 0 auto; width: min(720px, 100%); }
 .dock .composer textarea, .dock .composer input { padding-block: 18px; min-height: 62px; font-size: 17px; }
 .dock .send { bottom: 8px; right: 8px; width: 46px; height: 46px; }
-.answers { width: min(720px, 100%); margin: 0 auto 10px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.answers { width: min(720px, 100%); margin: 0 auto 12px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+.answers .chip { font-size: 17px; font-weight: 600; padding: 15px 22px; min-height: 54px; justify-content: center; text-align: center; line-height: 1.25; color: var(--ink); box-shadow: inset 0 0 0 1.5px #D9D9DE; }
+.answers .chip:hover { box-shadow: inset 0 0 0 2px var(--ink); transform: translateY(-1px); }
+.answers .chip[data-back] { color: var(--muted); font-weight: 500; }
 .answers .chip { animation: chipIn .45s var(--spring) both; animation-delay: calc(var(--i) * 55ms); }
 .answers .chip.hot { background: var(--ink); color: #FFFFFF; box-shadow: none; }
 .answers .chip.hot:hover { background: var(--brand); }
@@ -265,9 +270,22 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
   .composer textarea { font-size: 17px; padding: 18px 68px 18px 20px; }
   .msg { max-width: 92%; }
   .diag, .done, .reco { margin-left: 0; padding: 22px; }
-  .answers { justify-content: flex-start; }
+  .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .answers .chip { font-size: 16px; padding: 13px 12px; min-height: 58px; border-radius: 18px; }
+  .answers .chip[data-back] { grid-column: 1 / -1; min-height: 46px; }
+  .answers:has(> .chip:only-child) { grid-template-columns: minmax(0, 1fr); }
   .who div span { display: none; }
   .ghost { padding: 8px 9px; font-size: 13.5px; }
+}
+@media (min-width: 900px) {
+  .chat-head .wrap { max-width: 860px; }
+  .thread { width: min(860px, 100%); }
+  .answers, .dock .composer, .legal-line, .fielderr { width: min(820px, 100%); }
+  .thread { padding-top: 40px; gap: 14px; }
+  .bub { font-size: 18.5px; padding: 15px 20px; border-radius: 24px; }
+  .msg .mini { width: 34px; height: 34px; font-size: 16px; }
+  .answers .chip { font-size: 18.5px; padding: 17px 26px; min-height: 60px; }
+  .dock .composer textarea, .dock .composer input { font-size: 19px; min-height: 68px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
@@ -985,6 +1003,7 @@ function dock(err) {
     f.addEventListener('submit', e => { e.preventDefault(); if (busy) return; const v = i.value.trim(); if (!v) { i.focus(); return; } f.querySelector('.send').classList.add('fly'); answer(v); });
     if (fine) setTimeout(() => i.focus({ preventScroll: true }), 80);
   }
+  if (d.innerHTML.trim()) scrollEnd();
   const h2 = d.querySelector('#home2'); if (h2) h2.addEventListener('click', () => { S = { view: 'home', step: 'problem', qi: 0, msgs: [], A: blankKeepContact(S.A) }; save(); go('home'); });
 }
 
