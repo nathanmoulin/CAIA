@@ -62,7 +62,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
 .top-note { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: var(--muted); }
 .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 rgba(18,161,80,.5); animation: pulse 2s infinite; flex: none; }
 @keyframes pulse { 70%, 100% { box-shadow: 0 0 0 8px rgba(18,161,80,0); } }
-.hero { position: relative; isolation: isolate; padding-block: clamp(40px, 9vh, 110px) 70px; text-align: center; }
+.hero { position: relative; isolation: isolate; padding-block: clamp(40px, 9vh, 110px) 70px; text-align: center; overflow-x: clip; }
 .hero::before { content: ""; position: absolute; z-index: -1; left: 50%; top: 52%; width: min(1100px, 140vw); height: 520px; transform: translate(-50%, -50%); background: radial-gradient(50% 50% at 50% 50%, var(--brand-glow), transparent 70%); filter: blur(30px); animation: breathe 7s ease-in-out infinite; pointer-events: none; }
 @keyframes breathe { 50% { opacity: .65; transform: translate(-50%, -50%) scale(1.08); } }
 .shock { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; font-size: 15px; font-weight: 600; color: var(--ink-2); padding: 7px 16px 7px 7px; border-radius: 999px; background: #FFFFFF; box-shadow: 0 0 0 1px var(--line), 0 8px 24px -16px rgba(10,10,11,.3); margin-bottom: 30px; }
@@ -116,7 +116,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
 
 /* Tools */
 .tools { padding-block: 0 110px; }
-.tool-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.tool-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .tool { border-radius: 22px; box-shadow: inset 0 0 0 1.5px var(--line); padding: 22px; display: grid; gap: 14px; align-content: start; transition: transform .4s var(--spring), box-shadow .25s; }
 .tool:hover { transform: translateY(-4px); box-shadow: inset 0 0 0 1.5px var(--ink); }
 .tool i { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand-deep); }
@@ -127,7 +127,9 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
 /* Final call */
 .final { text-align: center; padding-block: 100px; background: var(--ink); color: #FFFFFF; border-radius: 36px; margin: 0 max(12px, env(safe-area-inset-left, 0px)) 20px; position: relative; overflow: hidden; isolation: isolate; }
 .final::before { content: ""; position: absolute; z-index: -1; left: 50%; bottom: -260px; width: 700px; height: 500px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(255,90,31,.45), transparent); filter: blur(20px); }
-.final h2 { font-size: clamp(38px, 6vw, 76px); line-height: .98; letter-spacing: -.055em; max-width: 13ch; margin: 0 auto 30px; }
+.final h2 { font-size: clamp(38px, 6vw, 76px); line-height: .98; letter-spacing: -.055em; max-width: 15ch; margin: 0 auto 18px; }
+.final h2 em { font-style: normal; color: var(--brand); }
+.final-sub { color: #A9A9B2; font-size: 17px; margin: 0 0 30px; }
 .final .btn { background: #FFFFFF; color: var(--ink); }
 .final .btn:hover { background: var(--brand); color: #FFFFFF; }
 
@@ -247,7 +249,8 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
   .nums-grid { grid-template-columns: minmax(0, 1fr); }
   .num + .num { border-left: 0; border-top: 1px solid var(--line); }
   .num { padding: 26px 4px; }
-  .tool-row { grid-template-columns: minmax(0, 1fr); }
+  .tool-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .tool { padding: 16px; gap: 12px; } .tool b { font-size: 15px; }
   .final { border-radius: 28px; margin-inline: 8px; padding-block: 70px; }
   .composer textarea { font-size: 17px; padding: 18px 68px 18px 20px; }
   .msg { max-width: 92%; }
@@ -695,7 +698,7 @@ function homeView() {
       <h2 data-reveal>Simple comme un message.</h2>
       <ol class="steps" data-reveal style="--d:1">
         <li><b>Vous écrivez.</b><span>Ce qui coince, avec vos mots.</span></li>
-        <li><b>Caia chiffre.</b><span>Quatre questions, et l’argent perdu s’affiche.</span></li>
+        <li><b>Caia chiffre.</b><span>Trois questions sur votre métier, et l’argent perdu s’affiche.</span></li>
         <li><b>On installe.</b><span>Un conseiller vous rappelle et s’occupe de tout.</span></li>
       </ol>
     </div></section>
@@ -706,13 +709,16 @@ function homeView() {
         <div class="tool"><i>${ICO.phone}</i><b>Accueil téléphonique par IA</b></div>
         <div class="tool"><i>${ICO.bag}</i><b>Commande sans commission</b></div>
         <div class="tool"><i>${ICO.card}</i><b>Fidélité sur téléphone</b></div>
-        <div class="tool"><i>${ICO.star}</i><b>Avis Google</b></div>
+        <div class="tool"><i>${ICO.bell}</i><b>Rappels de rendez-vous</b></div>
+        <div class="tool"><i>${ICO.star}</i><b>Avis et fiche Google</b></div>
+        <div class="tool"><i>${ICO.cam}</i><b>Réseaux sociaux clés en main</b></div>
         <div class="tool"><i>${ICO.web}</i><b>Site internet</b></div>
+        <div class="tool"><i>${ICO.bolt}</i><b>Automatisations</b></div>
       </div>
     </div></section>
 
     <section class="final" data-reveal><div class="wrap">
-      <h2>Combien perdez-vous, vous ?</h2>
+      <h2>Votre commerce perd de l’argent <em>en ce moment.</em> Combien&#8239;?</h2><p class="final-sub">Deux minutes pour le savoir. Gratuit.</p>
       <button class="btn rp" data-focus type="button">Faire mon diagnostic ${ARR}</button>
     </div></section>
   </main>
@@ -754,6 +760,9 @@ const ICO = {
   bag: '<svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
   card: '<svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M10 7h4M9.5 12h5M10.5 16h3"/></svg>',
   star: '<svg viewBox="0 0 24 24"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/></svg>',
+  bell: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg>',
+  cam: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17 6.5h.01"/></svg>',
+  bolt: '<svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
   web: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M6.5 6.5h.01M9 6.5h.01"/></svg>',
 };
 
