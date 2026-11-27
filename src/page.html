@@ -132,7 +132,10 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
 .pack.hot { background: var(--ink); color: #FFFFFF; box-shadow: none; }
 .pack.hot small, .pack.hot .pp span { color: #A9A9B2; }
 .pack.hot .pp { color: var(--brand); }
-.founders { margin: 22px 0 0; font-size: 15.5px; color: var(--muted); }
+.founders { margin: 22px 0 0; font-size: 16px; line-height: 1.5; color: var(--ink-2); background: var(--brand-soft); border-radius: 18px; padding: 16px 20px; }
+.sectors { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0 auto 18px; max-width: 760px; }
+.sec { padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--muted); box-shadow: inset 0 0 0 1.5px var(--line); background: #FFFFFF; transition: background .2s, color .2s; }
+.sec[aria-pressed="true"] { background: var(--ink); color: #FFFFFF; box-shadow: none; }
 .founders b { color: var(--ink); }
 .promise { padding-block: 0 100px; }
 .promise ul { list-style: none; margin: 0; padding: 26px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 28px; border-radius: 26px; background: var(--brand-soft); }
@@ -237,7 +240,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -.04em; text-wrap: balance; margi
 .reco-price { font-size: 15px; color: var(--brand-deep); }
 .reco-next { font-size: 13.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
 .reco.new { animation: rise .6s var(--ease) both; }
-.diag .hyp { font-size: 12.5px; color: #8A8A93; }
+.diag .hyp { font-size: 14px; line-height: 1.45; color: #B4B4BC; }
 
 /* Done card */
 .done { align-self: stretch; margin: 6px 0 6px 38px; border-radius: 26px; background: var(--ok-soft); padding: 26px; display: grid; gap: 10px; animation: pop .7s var(--spring) both; }
@@ -743,13 +746,21 @@ const QS = {
 };
 const optsOf = (Q, A) => typeof Q.opts === 'function' ? Q.opts(A) : Q.opts;
 const SLOTS = ['Le matin', 'Le midi', 'L’après-midi', 'Peu importe'];
+// The hero adapts to the visitor's trade: a hook that speaks to them and examples from their daily life.
+const SECTORS = [
+  ['Restaurant', '8,45 €', 'ce qu’Uber Eats garde sur une commande de 27 €.<sup>1</sup>', ['Uber Eats me prend trop de commission', 'Je rate des appels pendant le rush', 'Mes clients ne reviennent pas assez', 'Trop de réservations non honorées']],
+  ['Café, boulangerie, boucherie', '1 clic', 'pour valider la commande de chaque fournisseur, au lieu de la soirée au téléphone.', ['Les commandes fournisseurs me prennent un temps fou', 'Je jette trop d’invendus', 'Je rate des appels quand je sers', 'Les précommandes de fêtes, c’est l’enfer']],
+  ['Garage, artisan', '1', 'appel manqué, c’est souvent un client qui appelle le suivant sur Google.', ['Je rate des appels quand je travaille', 'On ne me trouve pas sur Google', 'J’ai peu d’avis Google', 'Les devis se perdent']],
+  ['Salon, beauté', '0', 'lapin de plus : un acompte à la réservation suffit souvent.', ['Trop de rendez-vous non honorés', 'J’ai des heures creuses à remplir', 'Mes clientes ne reviennent pas assez', 'Je rate des appels quand je travaille']],
+  ['Boutique', '3', 'premiers résultats Google prennent la majorité des clics.', ['On ne me trouve pas sur Google', 'Mes clients ne reviennent pas assez', 'J’ai peu d’avis Google', 'Le magasin est vide en semaine']],
+];
 const IDEAS = ['Uber Eats me prend trop de commission', 'Je rate des appels quand je travaille', 'Les commandes fournisseurs me prennent un temps fou', 'On ne me trouve pas sur Google'];
 const PLACEHOLDERS = ['Uber Eats me prend 30 % sur chaque commande…', 'Je rate des appels quand je suis en plein rush…', 'Je passe mes dimanches sur les commandes fournisseurs…', 'Mes clients viennent une fois et ne reviennent pas…', 'Trop de rendez-vous non honorés…'];
 const STEPS = ['problem', 'cat', 'type', 'owned', 'q', 'consent', 'later', 'prenom', 'commerce', 'ville', 'tel', 'slot', 'retry', 'done'];
 // The offer. Prices per month, no commitment. Keys are shared with the team space.
 const SOL = { google: 'Fiche Google et avis', appels: 'Appels manqués → SMS', commande: 'Commande en ligne sans commission', rdv: 'Réservation en ligne avec acompte', fidelite: 'Carte de fidélité', stock: 'Commandes fournisseurs automatiques', site: 'Site internet', pub: 'Pub locale', reseaux: 'Réseaux sociaux', accueil: 'Accueil téléphonique', temps: 'Automatisations' };
 const SOL_ART = { google: 'votre fiche et vos avis Google', appels: 'le SMS automatique sur appel manqué', commande: 'la commande en ligne sans commission', rdv: 'la réservation en ligne avec acompte', fidelite: 'une carte de fidélité sur téléphone', stock: 'les commandes fournisseurs automatiques', site: 'un site pensé pour Google et pour l’IA', pub: 'une pub locale ciblée', reseaux: 'vos réseaux sociaux', accueil: 'l’accueil téléphonique', temps: 'les automatisations' };
-const PRICE = { google: 29, appels: 29, commande: 59, rdv: 29, fidelite: 39, stock: 49, site: 49, pub: 59 };
+const PRICE = { google: 29, appels: 29, commande: 59, rdv: 29, fidelite: 39, stock: 39, site: 49, pub: 59, fetes: 49 };
 const SETUP_FEE = 149, FOUNDERS = 10; // one-off setup fee, offered to the first 10 shops
 // What we tell the shop owner to convince them, per solution.
 const PITCH = {
@@ -815,8 +826,8 @@ function losses(A = S.A) {
   if (q.pertes) add('pertes', 'Invendus jetés et ruptures', q.pertes * 4.33 * 0.3, 'stock', 'un tiers des invendus et ruptures évités en commandant au plus juste');
   if (q.calls) {
     const sol = q.motif === 1 && !owns(A, 'rdv') ? 'rdv' : q.motif === 2 && !owns(A, 'commande') ? 'commande' : 'appels';
-    const conv = q.motif === 1 ? 0.5 : p >= 60 ? 0.15 : 1 / 3;
-    add('appels', 'Appels sans réponse', q.calls * 4.33 * conv * p, sol, q.motif === 1 ? 'un appel manqué sur deux était une réservation' : conv < 0.3 ? 'environ un appel manqué sur sept était un client' : 'un appel manqué sur trois était un client');
+    const conv = q.motif === 1 ? 0.5 : p >= 60 ? 0.1 : 1 / 3;
+    add('appels', 'Appels sans réponse', Math.min(q.calls * 4.33 * conv * p, 500), sol, q.motif === 1 ? 'un appel manqué sur deux était une réservation' : conv < 0.3 ? 'environ un appel manqué sur dix était un client, et un plafond de 500 € par mois' : 'un appel manqué sur trois était un client');
   }
   items.sort((x, y) => y.v - x.v);
   return { items, hyp: items.map(i => i.h), total: items.reduce((t, i) => t + i.v, 0) };
@@ -881,7 +892,7 @@ function ackFor(p) {
     reseaux: 'Poster régulièrement prend un temps fou quand on tient un commerce. On peut s’en charger pour vous.',
     visibilite: 'Avant de pousser la porte, vos futurs clients regardent Google, et de plus en plus une IA comme ChatGPT. Ça se travaille.',
     fidelite: 'Faire revenir vos clients, c’est souvent le levier le plus rentable d’un commerce.',
-    appels: 'Un téléphone qui sonne sans arrêt, c’est du temps perdu et des clients qui raccrochent. On peut alléger ça.',
+    appels: 'Chaque appel sans réponse, c’est un client qui peut appeler le suivant. Un simple SMS automatique règle ça.',
   }[t] || 'Merci, c’est noté. On va regarder ça de près.';
 }
 
@@ -900,15 +911,16 @@ function homeView() {
   <header class="top"><div class="wrap"><a class="logo" href="#" aria-label="Caia">${wm()}</a><span class="top-note"><span class="pulse"></span>Je vous rappelle moi-même sous 24 h ouvrées</span></div></header>
   <main>
     <section class="hero"><div class="wrap">
-      <p class="shock"><b>8,45${NB}€</b><span>ce qu’Uber Eats garde sur une commande de 27${NB}€.<sup>1</sup></span></p>
-      <h1>Ce que votre commerce laisse filer, <span class="dim">chiffré en 2 minutes.</span></h1>
+      <div class="sectors" role="group" aria-label="Votre métier">${SECTORS.map((x, i) => `<button type="button" class="sec rp" data-sec="${i}" aria-pressed="${i === 0}">${esc(x[0])}</button>`).join('')}</div>
+      <p class="shock" id="shock"><b>${SECTORS[0][1]}</b><span>${SECTORS[0][2]}</span></p>
+      <h1>Ce que vous pourriez récupérer chaque mois, <span class="dim">chiffré en 2 minutes.</span></h1>
       <p class="sub">Commissions, appels ratés, commandes fournisseurs, clients qui ne reviennent pas : écrivez ce qui coince, Caia fait le calcul, et je vous propose la solution.</p>
       <form class="composer" id="start" autocomplete="off">
         <label for="msg" class="sr" hidden>Votre message</label>
         <textarea id="msg" rows="1" maxlength="1000" placeholder="${esc(PLACEHOLDERS[0])}" aria-label="Décrivez ce qui coince dans votre commerce"></textarea>
         <button class="send rp" type="submit" aria-label="Envoyer" disabled>${SEND}</button>
       </form>
-      <div class="ideas" aria-label="Exemples">${IDEAS.map((t, i) => `<button type="button" class="chip rp" style="--i:${i}" data-idea="${esc(t)}">${esc(t)}</button>`).join('')}</div>
+      <div class="ideas" id="ideas" aria-label="Exemples">${SECTORS[0][3].map((t, i) => `<button type="button" class="chip rp" style="--i:${i}" data-idea="${esc(t)}">${esc(t)}</button>`).join('')}</div>
       <p class="micro">Gratuit · 2 minutes · Sans engagement · Tout reste à votre nom</p>
     </div></section>
 
@@ -927,18 +939,8 @@ function homeView() {
       </ol>
     </div></section>
 
-    <section class="packs"><div class="wrap">
-      <h2 data-reveal>Trois formules. Sans engagement.</h2>
-      <div class="pack-row" data-reveal style="--d:1">
-        <div class="pack"><small>Garages, artisans, boutiques, salons</small><b>Visible</b><p class="pp">49${NB}€<span> / mois</span></p><ul><li>Fiche Google à jour et plus d’avis</li><li>SMS automatique sur chaque appel manqué</li><li>Un rapport simple chaque mois</li></ul></div>
-        <div class="pack hot"><small>Pizzerias, kebabs, burgers, sushis</small><b>Commande directe</b><p class="pp">89${NB}€<span> / mois</span></p><ul><li>Commande en ligne, 0 % de commission</li><li>Carte de fidélité sur téléphone</li><li>Plan pour faire passer vos habitués d’Uber à chez vous</li></ul></div>
-        <div class="pack"><small>Cafés, boulangeries, boucheries, épiceries</small><b>Gain de temps</b><p class="pp">69${NB}€<span> / mois</span></p><ul><li>Commandes fournisseurs automatiques</li><li>Suivi des invendus pour jeter moins</li><li>SMS automatique sur chaque appel manqué</li></ul></div>
-      </div>
-      <p class="founders" data-reveal>Mise en place : ${SETUP_FEE}${NB}€ une fois. <b>Offerte aux ${FOUNDERS} premiers commerces</b>, avec le premier mois, en échange d’un avis si vous êtes satisfait.</p>
-    </div></section>
-
     <section class="tools"><div class="wrap">
-      <h2 data-reveal>Ou seulement ce dont vous avez besoin.</h2>
+      <h2 data-reveal>Commencez par un seul service.</h2>
       <div class="tool-row" data-reveal style="--d:1">
         <div class="tool"><i>${ICO.star}</i><b>Fiche Google et avis</b><span>Complète, à jour, et plus d’avis chaque mois.</span><em>${PRICE.google}${NB}€ / mois</em></div>
         <div class="tool"><i>${ICO.phone}</i><b>Appels manqués → SMS</b><span>Chaque appel sans réponse reçoit un SMS avec un lien.</span><em>${PRICE.appels}${NB}€ / mois</em></div>
@@ -947,7 +949,17 @@ function homeView() {
         <div class="tool"><i>${ICO.bell}</i><b>Réservation avec acompte</b><span>Et un rappel par SMS la veille : fini les lapins.</span><em>${PRICE.rdv}${NB}€ / mois</em></div>
         <div class="tool"><i>${ICO.card}</i><b>Carte de fidélité</b><span>Sur le téléphone de vos clients, avec relances SMS.</span><em>${PRICE.fidelite}${NB}€ / mois</em></div>
         <div class="tool"><i>${ICO.web}</i><b>Site internet</b><span>Pensé pour Google et pour les IA comme ChatGPT.</span><em>${PRICE.site}${NB}€ / mois</em></div>
-        <div class="tool"><i>${ICO.cam}</i><b>Pub locale</b><span>Ciblée sur votre quartier, pour remplir les heures creuses.</span><em>${PRICE.pub}${NB}€ / mois + budget pub</em></div>
+        <div class="tool"><i>${ICO.box}</i><b>Précommandes de fêtes</b><span>Bûches, plateaux, Aïd : en ligne, avec acompte et rappel SMS.</span><em>${PRICE.fetes}${NB}€ la saison</em></div>
+      </div>
+      <p class="founders" data-reveal><b>Pour les ${FOUNDERS} premiers commerces :</b> premier mois gratuit, sans carte bancaire. Mise en place offerte (${SETUP_FEE}${NB}€ ensuite). Prix bloqué à vie, en échange d’un avis honnête.</p>
+    </div></section>
+
+    <section class="packs"><div class="wrap">
+      <h2 data-reveal>Et quand ça marche, les formules.</h2>
+      <div class="pack-row" data-reveal style="--d:1">
+        <div class="pack"><small>Garages, artisans, boutiques, salons</small><b>Visible</b><p class="pp">49${NB}€<span> / mois</span></p><ul><li>Fiche Google à jour et plus d’avis</li><li>SMS automatique sur chaque appel manqué</li><li>Un rapport simple chaque mois</li></ul></div>
+        <div class="pack hot"><small>Pizzerias, kebabs, burgers, sushis</small><b>Commande directe</b><p class="pp">89${NB}€<span> / mois</span></p><ul><li>Commande en ligne, 0 % de commission</li><li>Carte de fidélité sur téléphone</li><li>Plan pour faire passer vos habitués d’Uber à chez vous</li></ul></div>
+        <div class="pack"><small>Cafés, boulangeries, boucheries, épiceries</small><b>Gain de temps</b><p class="pp">69${NB}€<span> / mois</span></p><ul><li>Commandes fournisseurs automatiques</li><li>Suivi des invendus pour jeter moins</li><li>SMS automatique sur chaque appel manqué</li></ul></div>
       </div>
     </div></section>
 
@@ -961,7 +973,7 @@ function homeView() {
     </div></section>
 
     <section class="final" data-reveal><div class="wrap">
-      <h2>Combien votre commerce laisse filer <em>chaque mois</em>&#8239;?</h2><p class="final-sub">Deux minutes pour le savoir. Gratuit, sans engagement.</p>
+      <h2>Combien pourriez-vous récupérer <em>chaque mois</em>&#8239;?</h2><p class="final-sub">Deux minutes pour le savoir. Gratuit, sans engagement.</p>
       <button class="btn rp" data-focus type="button">Faire mon diagnostic ${ARR}</button>
     </div></section>
   </main>
@@ -981,7 +993,15 @@ function homeView() {
   ta.addEventListener('input', grow);
   ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && fine) { e.preventDefault(); form.requestSubmit(); } });
   form.addEventListener('submit', e => { e.preventDefault(); const v = ta.value.trim(); if (v.length < 3) return; send.classList.add('fly'); startChat(v); });
-  app.querySelectorAll('[data-idea]').forEach(b => b.addEventListener('click', () => { ta.value = b.dataset.idea; grow(); b.classList.add('picked'); setTimeout(() => startChat(b.dataset.idea), reduce ? 0 : 260); }));
+  const bindIdeas = () => app.querySelectorAll('[data-idea]').forEach(b => b.addEventListener('click', () => { ta.value = b.dataset.idea; grow(); b.classList.add('picked'); setTimeout(() => startChat(b.dataset.idea), reduce ? 0 : 260); }));
+  app.querySelectorAll('[data-sec]').forEach(b => b.addEventListener('click', () => {
+    const x = SECTORS[+b.dataset.sec];
+    app.querySelectorAll('[data-sec]').forEach(o => o.setAttribute('aria-pressed', String(o === b)));
+    $('#shock').innerHTML = `<b>${x[1]}</b><span>${x[2]}</span>`;
+    $('#ideas').innerHTML = x[3].map((t, i) => `<button type="button" class="chip rp" style="--i:${i}" data-idea="${esc(t)}">${esc(t)}</button>`).join('');
+    bindIdeas();
+  }));
+  bindIdeas();
   app.querySelector('[data-focus]').addEventListener('click', () => { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); setTimeout(() => ta.focus({ preventScroll: true }), reduce ? 0 : 500); });
   app.querySelector('.egg').addEventListener('click', openTeam);
   app.querySelector('.top .logo').addEventListener('click', e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
@@ -1044,7 +1064,7 @@ function msgEl(m, isNew) {
 }
 function diagHtml(d) {
   const items = Array.isArray(d.items) ? d.items : [], mx = Math.max(1, ...items.map(i => i.v)), w = v => (v / mx * 100).toFixed(1) + '%';
-  return `<small>Votre estimation${d.type ? ' · ' + esc(d.type) : ''}</small>
+  return `<small>Ce que vous pourriez récupérer${d.type ? ' · ' + esc(d.type) : ''}</small>
     <div class="big" data-total="${Math.round(d.total)}">${euro(d.total)}<em>par mois</em></div>
     <span class="yr">soit <b>${euro(d.total * 12)}</b> par an</span>
     <div class="leaks">${items.map(i => `<div class="leak"><span>${esc(i.label)}</span><b>${euro(i.v)}</b><span class="ln"><i data-w="${w(i.v)}"></i></span></div>`).join('')}</div>
@@ -1220,7 +1240,7 @@ async function diagnose() {
     await sleep(1500);
   } else await say('Bonne nouvelle : avec vos réponses, vous ne perdez pas grand-chose de ce côté. On peut surtout vous aider à attirer plus de clients.');
   const pt = PITCH[ps[0]](A);
-  const reco = { r: 'bot', k: 'reco', d: { title: pt.title, pts: pt.pts, foot: pt.foot, price: PRICE[ps[0]] ? `${PRICE[ps[0]]}${NB}€ par mois, sans engagement. Mise en place offerte aux ${FOUNDERS} premiers commerces.` : '', next: ps.slice(1).map(k => `${SOL[k]}${PRICE[k] ? ` (${PRICE[k]}${NB}€)` : ''}`) } };
+  const reco = { r: 'bot', k: 'reco', d: { title: pt.title, pts: pt.pts, foot: pt.foot, price: PRICE[ps[0]] ? `${PRICE[ps[0]]}${NB}€ par mois, sans engagement. Pour les ${FOUNDERS} premiers commerces : premier mois gratuit sans carte bancaire, mise en place offerte, prix bloqué.` : '', next: ps.slice(1).map(k => `${SOL[k]}${PRICE[k] ? ` (${PRICE[k]}${NB}€)` : ''}`) } };
   S.msgs.push(reco); save(); $('#thread').appendChild(msgEl(reco, true)); scrollEnd();
   await sleep(1100);
   await say('Je m’appelle Nathan, c’est moi qui installe tout. Je vous rappelle pour vous montrer à quoi ça ressemble dans votre métier, sans engagement. On y va ?', { wait: 400 });
@@ -1326,14 +1346,15 @@ function openTeam() {
   /* ——— Settings you may change ——— */
   // Monthly prices used to build the offer and the ROI in the analysis. Adjust to your real prices.
   // Same prices as the public site (PRICE): change both together.
-  const PRIX = { google: 29, appels: 29, commande: 59, rdv: 29, fidelite: 39, stock: 49, site: 49, pub: 59, reseaux: 249, accueil: 79, temps: 29 };
+  const PRIX = { google: 29, appels: 29, commande: 59, rdv: 29, fidelite: 39, stock: 39, fetes: 49, site: 49, pub: 59, reseaux: 249, accueil: 79, temps: 29 };
   const PRODUITS = {
     google: 'Fiche Google et avis (QR code, SMS après passage, rapport mensuel)',
     appels: 'SMS automatique sur appel manqué',
     commande: 'Commande en ligne sans commission, avec plan de bascule Uber',
     rdv: 'Réservation en ligne avec acompte et rappel SMS',
     fidelite: 'Carte de fidélité sur téléphone, avec relances SMS',
-    stock: 'Commandes fournisseurs automatiques et suivi des invendus',
+    stock: 'Commandes fournisseurs automatiques et suivi des invendus (39 € prix de lancement)',
+    fetes: 'Précommandes de fêtes avec acompte et rappel SMS (forfait saison)',
     site: 'Site internet optimisé Google et IA (SEO + GEO)',
     pub: 'Pub locale ciblée (budget pub en plus)',
     reseaux: 'Réseaux sociaux (ancienne offre)',
@@ -1451,7 +1472,9 @@ function openTeam() {
     const gain = m.has ? m.total : Number(d.estimation_mois) || 0;
     // The objections heard most often in the market test come first.
     const objections = [
-      ['« Vous êtes qui ? Une vraie société ? »', 'Se présenter par son prénom, donner le SIRET, proposer de passer en boutique. Tout est envoyé par écrit, facture à son nom.'],
+      ['« Vous êtes qui ? Une vraie société ? »', 'Se présenter par son prénom, donner le SIRET, proposer de passer en boutique. « Vous ne payez rien tant que vous n’avez pas une vraie facture : premier mois gratuit, sans carte bancaire. »'],
+      ['« Ça touche à ma ligne ou à ma caisse ? »', 'Non. Le montrer devant lui : appeler son numéro, il ne décroche pas, le SMS arrive sur ton téléphone.'],
+      ['« Ton chiffre est gonflé. »', '« Divisez-le par deux si vous voulez : un seul client récupéré par mois paie déjà l’abonnement. »'],
       ['« Je suis engagé combien de temps ? »', 'Aucun engagement : il paie le mois, il juge, il arrête en un message. Jamais de location financière. Le domaine, la fiche et les contenus restent à son nom.'],
       ['« Vous avez déjà des clients ? »', `Être honnête : on démarre. C’est pour ça que la mise en place et le premier mois sont offerts aux ${FOUNDERS} premiers, en échange d’un avis si ça marche.`],
       ['« J’ai déjà ce qu’il faut. »', 'Ne jamais revendre ce qu’il a. Demander ce qui lui prend le plus de temps aujourd’hui, et ne proposer que ce qui manque.'],
